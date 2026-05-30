@@ -18,6 +18,7 @@ class HermesVoiceBridgeService {
   final VoiceConversationService _voiceConversationService;
   final Duration _pollInterval;
   final String? _habitMonitorPath;
+  static const String _healthUrl = 'http://127.0.0.1:8642/health';
 
   Timer? _pollTimer;
   bool _started = false;
@@ -48,25 +49,34 @@ class HermesVoiceBridgeService {
       return;
     }
     try {
+      // First, check Hermes gateway health directly
+      final hermesAlive = await _checkHermesHealth();
+
+      // Then try file-based state from habit-monitor
       final baseDir = _habitMonitorDir();
       final voiceStatusFile = File('${baseDir.path}/voice_reactor_status.json');
       final convoStateFile = File('${baseDir.path}/conversation_state.json');
       final sensorStatusFile = File('${baseDir.path}/status.json');
 
       if (!await voiceStatusFile.exists()) {
+        // No files yet — report based on direct health check
         if (_disposed) {
           return;
         }
         _voiceConversationService.applyExternalSnapshot(
           mode: VoiceConversationMode.idle,
-          liveBridgeConnected: false,
-          liveBridgeStatus: 'waiting for Hermes voice reactor status',
+          liveBridgeConnected: hermesAlive,
+          liveBridgeStatus: hermesAlive
+              ? 'live Hermes bridge'
+              : 'waiting for Hermes',
           lastUserTranscript: '',
           lastAssistantReply: '',
         );
         return;
       }
 
+      // Files exist — read them for conversation state, but override
+      // the running flag with the direct health check so it's always accurate
       final voiceStatus = await _readJson(voiceStatusFile);
       final convoState = await _readJson(convoStateFile);
       final sensorStatus = await _readJson(sensorStatusFile);
@@ -88,7 +98,7 @@ class HermesVoiceBridgeService {
         engagedUntil: engagedUntil,
       );
 
-      final reactorRunning = voiceStatus['running'] == true;
+      final reactorRunning = hermesAlive || voiceStatus['running'] == true;
       final statusLabel = reactorRunning
           ? 'live Hermes bridge'
           : 'Hermes reactor seen but not running';
@@ -113,6 +123,26 @@ class HermesVoiceBridgeService {
         liveBridgeConnected: false,
         liveBridgeStatus: 'bridge error: $e',
       );
+    }
+  }
+
+  /// Check if the Hermes gateway health endpoint is alive.
+  Future<bool> _checkHermesHealth() async {
+    try {
+      final client = HttpClient();
+      client.connectionTimeout = const Duration(seconds: 2);
+      final request = await client.getUrl(Uri.parse(_healthUrl));
+      final response = await request.close();
+      if (response.statusCode != 200) {
+        client.close(force: true);
+        return false;
+      }
+      final body = await response.transform(utf8.decoder).join();
+      client.close(force: true);
+      final decoded = jsonDecode(body);
+      return decoded is Map && decoded['status'] == 'ok';
+    } catch (_) {
+      return false;
     }
   }
 

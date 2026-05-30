@@ -1,0 +1,79 @@
+site_name: CloudToLocalLLM Docs
+site_description: Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes
+repo_url: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Getting Started: user-guide/SETUP_GUIDE.md
+      - Features: user-guide/FEATURES_GUIDE.md
+      - User Guide: user-guide/USER_GUIDE.md
+      - Troubleshooting: user-guide/TROUBLESHOOTING.md
+  - Architecture:
+      - System Architecture: architecture/SYSTEM_ARCHITECTURE.md
+      - Agent Runtime Contract: architecture/AGENT_RUNTIME_CONTRACT.md
+      - Secure Device Mesh: architecture/SECURE_DEVICE_MESH.md
+      - Avatar System: architecture/AVATAR_SYSTEM.md
+      - Desktop Control: architecture/DESKTOP_CONTROL.md
+      - Vision System: architecture/VISION_SYSTEM.md
+  - Deployment:
+      - Docker: operations/backend/DEPLOYMENT.md
+  - Operations:
+      - CI/CD: operations/cicd/README.md
+      - Security: operations/security/BACKEND_SECURITY.md
+  - Development:
+      - Building: development/BUILD_SCRIPTS.md
+      - Versioning: development/versioning/VERSIONING.md

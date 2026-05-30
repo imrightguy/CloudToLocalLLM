@@ -1,0 +1,2689 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Build Troubleshooting Guide - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#build-troubleshooting-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Build Troubleshooting Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Diagnostics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Diagnostics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-build-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check Build Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-status-indicators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Status Indicators
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-build-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Build Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Build Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-flutter-sdk-installation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 1: Flutter SDK Installation Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-dependency-download-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 2: Dependency Download Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-flutter-build-compilation-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 3: Flutter Build Compilation Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-4-inno-setup-installation-or-compilation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 4: Inno Setup Installation or Compilation Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-5-version-extraction-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 5: Version Extraction Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-6-release-creation-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 6: Release Creation Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-actions-specific-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Actions Specific Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitHub Actions Specific Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-not-triggering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Not Triggering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runner-out-of-disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runner Out of Disk Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-build-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Build Triggers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manual Build Triggers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#triggering-a-build-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Triggering a Build Manually
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canceling-a-running-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canceling a Running Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expected-build-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected Build Times
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expected Build Times">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-build-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Build Times
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-workflow-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Workflow Time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-time-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Time Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimization-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Optimization Tips
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-worry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Worry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cost Information
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cost Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-hosted-runners-current-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub-Hosted Runners (Current Setup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#android-build-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android Build Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Android Build Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-android-build-not-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Android Build Not Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-android-signing-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Android Signing Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-apk-build-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: APK Build Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-apk-signature-verification-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: APK Signature Verification Failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-apk-wont-install-on-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: APK Won't Install on Device
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-apk-installs-but-crashes-on-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: APK Installs but Crashes on Launch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-gradle-build-timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Gradle Build Timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-multiple-apks-not-created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Multiple APKs Not Created
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#android-build-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android Build Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#viewing-detailed-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Viewing Detailed Logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-log-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Log Locations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reporting-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reporting Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-reference-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="build-troubleshooting-guide">Build Troubleshooting Guide<a class="headerlink" href="#build-troubleshooting-guide" title="Permanent link">&para;</a></h1>
+<p>This guide helps you diagnose and fix common issues with CloudToLocalLLM builds using GitHub Actions.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#quick-diagnostics">Quick Diagnostics</a></li>
+<li><a href="#common-build-issues">Common Build Issues</a></li>
+<li><a href="#github-actions-specific-issues">GitHub Actions Specific Issues</a></li>
+<li><a href="#manual-build-triggers">Manual Build Triggers</a></li>
+<li><a href="#cost-information">Cost Information</a></li>
+<li><a href="#getting-help">Getting Help</a></li>
+</ul>
+<h2 id="quick-diagnostics">Quick Diagnostics<a class="headerlink" href="#quick-diagnostics" title="Permanent link">&para;</a></h2>
+<h3 id="check-build-status">Check Build Status<a class="headerlink" href="#check-build-status" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to your repository on GitHub</li>
+<li>Click the "Actions" tab</li>
+<li>Look for "Build Desktop Apps &amp; Create Release" workflow</li>
+<li>Click on the latest run to see detailed logs</li>
+</ol>
+<h3 id="common-status-indicators">Common Status Indicators<a class="headerlink" href="#common-status-indicators" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Green checkmark</strong> - Build succeeded</li>
+<li>❌ <strong>Red X</strong> - Build failed (see logs for details)</li>
+<li>🟡 <strong>Yellow circle</strong> - Build in progress</li>
+<li>⚪ <strong>Gray circle</strong> - Build queued or waiting</li>
+</ul>
+<h2 id="common-build-issues">Common Build Issues<a class="headerlink" href="#common-build-issues" title="Permanent link">&para;</a></h2>
+<h3 id="issue-1-flutter-sdk-installation-failed">Issue 1: Flutter SDK Installation Failed<a class="headerlink" href="#issue-1-flutter-sdk-installation-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Setup Flutter SDK" step</li>
+<li>Error message: "Failed to download Flutter SDK"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Re-run the workflow</strong> (often fixes transient network issues):</li>
+<li>
+<p>Go to Actions → Failed workflow → "Re-run all jobs"</p>
+</li>
+<li>
+<p><strong>Check Flutter version compatibility</strong>:</p>
+</li>
+<li>Verify <code>FLUTTER_VERSION</code> in <code>.github/workflows/build-release.yml</code></li>
+<li>Current version: <code>3.32.8</code></li>
+<li>
+<p>Update if needed to latest stable version</p>
+</li>
+<li>
+<p><strong>Clear GitHub Actions cache</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Use GitHub CLI to clear caches</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>gh<span class="w"> </span>cache<span class="w"> </span>list
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>gh<span class="w"> </span>cache<span class="w"> </span>delete<span class="w"> </span>&lt;cache-key&gt;
+</span></code></pre></div>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Pin to stable Flutter versions</li>
+<li>Monitor Flutter release notes for breaking changes</li>
+</ul>
+<h3 id="issue-2-dependency-download-failed">Issue 2: Dependency Download Failed<a class="headerlink" href="#issue-2-dependency-download-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Get Flutter dependencies" step</li>
+<li>Error: "pub get failed" or "Could not resolve dependencies"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check pubspec.yaml syntax</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Validate locally</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>flutter<span class="w"> </span>pub<span class="w"> </span>get
+</span></code></pre></div>
+<ol>
+<li><strong>Update dependency versions</strong>:</li>
+<li>Check for deprecated packages</li>
+<li>
+<p>Update version constraints in <code>pubspec.yaml</code></p>
+</li>
+<li>
+<p><strong>Clear pub cache</strong> (in workflow):</p>
+</li>
+<li>Delete cache from Actions → Caches</li>
+<li>Re-run workflow to rebuild cache</li>
+</ol>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Test <code>flutter pub get</code> locally before pushing</li>
+<li>Use version ranges instead of exact versions</li>
+<li>Keep dependencies up to date</li>
+</ul>
+<h3 id="issue-3-flutter-build-compilation-errors">Issue 3: Flutter Build Compilation Errors<a class="headerlink" href="#issue-3-flutter-build-compilation-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Build Windows desktop application" step</li>
+<li>Compilation errors in Dart/Flutter code</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Test build locally first</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>flutter<span class="w"> </span>build<span class="w"> </span>windows<span class="w"> </span>--release
+</span></code></pre></div>
+<ol>
+<li><strong>Check for platform-specific issues</strong>:</li>
+<li>Verify Windows-specific code compiles</li>
+<li>
+<p>Check conditional imports are correct</p>
+</li>
+<li>
+<p><strong>Review error logs</strong>:</p>
+</li>
+<li>Click on failed step in GitHub Actions</li>
+<li>Look for specific file/line causing error</li>
+<li>Fix code and push changes</li>
+</ol>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Always test builds locally before pushing</li>
+<li>Run <code>flutter analyze</code> to catch issues early</li>
+<li>Use <code>flutter doctor</code> to verify environment</li>
+</ul>
+<h3 id="issue-4-inno-setup-installation-or-compilation-failed">Issue 4: Inno Setup Installation or Compilation Failed<a class="headerlink" href="#issue-4-inno-setup-installation-or-compilation-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Install Inno Setup" or "Create Windows installer" step</li>
+<li>Error: "Inno Setup not found" or "ISCC.exe failed"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Verify Inno Setup script exists</strong>:</li>
+<li>Check <code>build-tools/installers/windows/CloudToLocalLLM_Simple.iss</code> exists</li>
+<li>
+<p>Validate script syntax locally with Inno Setup</p>
+</li>
+<li>
+<p><strong>Check installation paths</strong>:</p>
+</li>
+<li>Workflow tries multiple installation methods (Chocolatey, Winget)</li>
+<li>
+<p>Review logs to see which method was attempted</p>
+</li>
+<li>
+<p><strong>Validate script parameters</strong>:</p>
+</li>
+<li>Ensure version format is correct</li>
+<li>Check file paths in .iss script are valid</li>
+</ol>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Test Inno Setup script locally before pushing</li>
+<li>Keep .iss script in version control</li>
+<li>Document any custom Inno Setup requirements</li>
+</ul>
+<h3 id="issue-5-version-extraction-failed">Issue 5: Version Extraction Failed<a class="headerlink" href="#issue-5-version-extraction-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Extract version and generate build number" step</li>
+<li>Error: "Version not found" or "Invalid version format"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check pubspec.yaml format</strong>:</li>
+</ol>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.5.0+20241115</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Verify tag format</strong> (for tag-triggered builds):</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Correct format</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git<span class="w"> </span>tag<span class="w"> </span>v4.5.0
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Incorrect formats</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>git<span class="w"> </span>tag<span class="w"> </span><span class="m">4</span>.5.0<span class="w">      </span><span class="c1"># Missing &#39;v&#39; prefix</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>git<span class="w"> </span>tag<span class="w"> </span>version4.5.0<span class="w">  </span><span class="c1"># Wrong prefix</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Check git history</strong>:</li>
+<li>Ensure repository has commits</li>
+<li>Verify tags are pushed to remote</li>
+</ol>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Use semantic versioning (MAJOR.MINOR.PATCH)</li>
+<li>Always prefix tags with 'v'</li>
+<li>Test version extraction locally</li>
+</ul>
+<h3 id="issue-6-release-creation-failed">Issue 6: Release Creation Failed<a class="headerlink" href="#issue-6-release-creation-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build succeeds but release creation fails</li>
+<li>Error: "Tag already exists" or "Permission denied"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check if tag already exists</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># List existing tags</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>git<span class="w"> </span>tag<span class="w"> </span>-l
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Delete tag if needed</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>git<span class="w"> </span>tag<span class="w"> </span>-d<span class="w"> </span>v4.5.0
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>git<span class="w"> </span>push<span class="w"> </span>--delete<span class="w"> </span>origin<span class="w"> </span>v4.5.0
+</span></code></pre></div>
+<ol>
+<li><strong>Verify GitHub token permissions</strong>:</li>
+<li>Workflow uses <code>GITHUB_TOKEN</code> automatically</li>
+<li>Check repository settings → Actions → General</li>
+<li>
+<p>Ensure "Read and write permissions" is enabled</p>
+</li>
+<li>
+<p><strong>Check artifact availability</strong>:</p>
+</li>
+<li>Verify build artifacts were uploaded successfully</li>
+<li>Check artifact retention hasn't expired (30 days default)</li>
+</ol>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Don't reuse version tags</li>
+<li>Increment version for each release</li>
+<li>Verify permissions before running workflow</li>
+</ul>
+<h2 id="github-actions-specific-issues">GitHub Actions Specific Issues<a class="headerlink" href="#github-actions-specific-issues" title="Permanent link">&para;</a></h2>
+<h3 id="workflow-not-triggering">Workflow Not Triggering<a class="headerlink" href="#workflow-not-triggering" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Push tag but workflow doesn't start</li>
+<li>Manual trigger button not visible</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Verify workflow file location</strong>:</li>
+<li>Must be in <code>.github/workflows/</code> directory</li>
+<li>
+<p>File must have <code>.yml</code> or <code>.yaml</code> extension</p>
+</li>
+<li>
+<p><strong>Check workflow syntax</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Validate workflow locally (requires act or similar)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># Or push and check Actions tab for syntax errors</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Verify trigger conditions</strong>:</li>
+</ol>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">on</span><span class="p">:</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">tags</span><span class="p">:</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;v*&#39;</span><span class="w">  </span><span class="c1"># Only triggers on tags starting with &#39;v&#39;</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Check repository settings</strong>:</li>
+<li>Settings → Actions → General</li>
+<li>Ensure "Allow all actions" is selected</li>
+</ol>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Test workflow syntax before committing</li>
+<li>Review GitHub Actions documentation</li>
+<li>Check workflow permissions</li>
+</ul>
+<h3 id="cache-issues">Cache Issues<a class="headerlink" href="#cache-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Builds are slow despite caching</li>
+<li>Cache restore fails</li>
+<li>Stale dependencies causing issues</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Clear specific cache</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># List all caches</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>gh<span class="w"> </span>cache<span class="w"> </span>list
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Delete specific cache</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>gh<span class="w"> </span>cache<span class="w"> </span>delete<span class="w"> </span>&lt;cache-key&gt;
+</span></code></pre></div>
+<ol>
+<li><strong>Clear all caches</strong>:</li>
+<li>Go to Actions → Caches</li>
+<li>Delete all caches manually</li>
+<li>
+<p>Next build will recreate fresh caches</p>
+</li>
+<li>
+<p><strong>Update cache keys</strong>:</p>
+</li>
+<li>Modify cache key in workflow if needed</li>
+<li>Change <code>hashFiles()</code> pattern to force new cache</li>
+</ol>
+<p><strong>Cache Locations:</strong></p>
+<ul>
+<li>Flutter pub cache: <code>~/.pub-cache</code>, <code>.dart_tool</code></li>
+<li>Chocolatey packages: <code>C:\ProgramData\chocolatey</code></li>
+<li>Flutter SDK: <code>${{ runner.tool_cache }}/flutter</code></li>
+</ul>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Monitor cache hit rates in logs</li>
+<li>Periodically clear old caches</li>
+<li>Use appropriate cache keys</li>
+</ul>
+<h3 id="runner-out-of-disk-space">Runner Out of Disk Space<a class="headerlink" href="#runner-out-of-disk-space" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails with "No space left on device"</li>
+<li>Artifact upload fails</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Clean up build artifacts</strong>:</li>
+<li>Add cleanup steps in workflow</li>
+<li>
+<p>Remove unnecessary files before artifact upload</p>
+</li>
+<li>
+<p><strong>Optimize build output</strong>:</p>
+</li>
+<li>Only include necessary files in artifacts</li>
+<li>
+<p>Compress large files before upload</p>
+</li>
+<li>
+<p><strong>Use larger runner</strong> (if needed):</p>
+</li>
+</ol>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">windows-latest</span><span class="w">  </span><span class="c1"># Standard runner (14GB disk)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="c1"># For larger builds, consider self-hosted runners</span>
+</span></code></pre></div>
+<p><strong>Prevention:</strong></p>
+<ul>
+<li>Monitor disk usage in workflow logs</li>
+<li>Clean up intermediate build files</li>
+<li>Optimize artifact sizes</li>
+</ul>
+<h2 id="manual-build-triggers">Manual Build Triggers<a class="headerlink" href="#manual-build-triggers" title="Permanent link">&para;</a></h2>
+<h3 id="triggering-a-build-manually">Triggering a Build Manually<a class="headerlink" href="#triggering-a-build-manually" title="Permanent link">&para;</a></h3>
+<p><strong>Via GitHub Web Interface:</strong></p>
+<ol>
+<li>Go to your repository on GitHub</li>
+<li>Click "Actions" tab</li>
+<li>Select "Build Desktop Apps &amp; Create Release" workflow</li>
+<li>Click "Run workflow" button (top right)</li>
+<li>Select branch (usually <code>main</code>)</li>
+<li>Choose build type: <code>release</code></li>
+<li>Click "Run workflow"</li>
+</ol>
+<p><strong>Via GitHub CLI:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Trigger workflow manually</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>build-release.yml
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Trigger with specific inputs</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>build-release.yml<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span>--ref<span class="w"> </span>main<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span>-f<span class="w"> </span><span class="nv">build_type</span><span class="o">=</span>release
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1"># Check workflow status</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="o">=</span>build-release.yml
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># View workflow logs</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>&lt;run-id&gt;<span class="w"> </span>--log
+</span></code></pre></div>
+<p><strong>Via Git Tag (Recommended):</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Create and push tag to trigger automatic build</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>git<span class="w"> </span>tag<span class="w"> </span>v4.5.0
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v4.5.0
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># Or create annotated tag with message</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v4.5.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Release version 4.5.0&quot;</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v4.5.0
+</span></code></pre></div>
+<h3 id="canceling-a-running-build">Canceling a Running Build<a class="headerlink" href="#canceling-a-running-build" title="Permanent link">&para;</a></h3>
+<p><strong>Via GitHub Web Interface:</strong></p>
+<ol>
+<li>Go to Actions tab</li>
+<li>Click on the running workflow</li>
+<li>Click "Cancel workflow" button (top right)</li>
+</ol>
+<p><strong>Via GitHub CLI:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># List running workflows</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="o">=</span>build-release.yml<span class="w"> </span>--status<span class="w"> </span>in_progress
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Cancel specific run</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>gh<span class="w"> </span>run<span class="w"> </span>cancel<span class="w"> </span>&lt;run-id&gt;
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Cancel all running workflows</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="o">=</span>build-release.yml<span class="w"> </span>--status<span class="w"> </span>in_progress<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span>--json<span class="w"> </span>databaseId<span class="w"> </span>--jq<span class="w"> </span><span class="s1">&#39;.[].databaseId&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>gh<span class="w"> </span>run<span class="w"> </span>cancel<span class="w"> </span><span class="o">{}</span>
+</span></code></pre></div>
+<h2 id="expected-build-times">Expected Build Times<a class="headerlink" href="#expected-build-times" title="Permanent link">&para;</a></h2>
+<p>Understanding typical build times helps identify performance issues:</p>
+<h3 id="platform-build-times">Platform Build Times<a class="headerlink" href="#platform-build-times" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>First Build</th>
+<th>Cached Build</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Windows</strong></td>
+<td>15-20 min</td>
+<td>8-12 min</td>
+<td>Includes Inno Setup installation</td>
+</tr>
+<tr>
+<td><strong>Linux</strong></td>
+<td>12-18 min</td>
+<td>6-10 min</td>
+<td>Flatpak + .deb packaging</td>
+</tr>
+<tr>
+<td><strong>Android</strong></td>
+<td>10-15 min</td>
+<td>5-8 min</td>
+<td>3 APKs with --split-per-abi</td>
+</tr>
+</tbody>
+</table>
+<h3 id="total-workflow-time">Total Workflow Time<a class="headerlink" href="#total-workflow-time" title="Permanent link">&para;</a></h3>
+<p>Since all platforms build in parallel:</p>
+<ul>
+<li><strong>First build</strong>: ~20-25 minutes (slowest platform + overhead)</li>
+<li><strong>Cached build</strong>: ~12-15 minutes (with &gt;80% cache hit rate)</li>
+<li><strong>Release creation</strong>: +2-3 minutes (artifact collection and upload)</li>
+</ul>
+<h3 id="build-time-breakdown">Build Time Breakdown<a class="headerlink" href="#build-time-breakdown" title="Permanent link">&para;</a></h3>
+<p><strong>Windows Build</strong>:</p>
+<ul>
+<li>Flutter SDK setup: 2-3 min (cached: &lt;30 sec)</li>
+<li>Inno Setup installation: 1-2 min (cached: &lt;10 sec)</li>
+<li>Flutter pub get: 1-2 min (cached: &lt;30 sec)</li>
+<li>Windows build: 5-8 min</li>
+<li>Installer creation: 2-3 min</li>
+<li>Artifact upload: 1-2 min</li>
+</ul>
+<p><strong>Linux Build</strong>:</p>
+<ul>
+<li>Flutter SDK setup: 2-3 min (cached: &lt;30 sec)</li>
+<li>Linux dependencies: 2-3 min (cached: &lt;30 sec)</li>
+<li>Flutter pub get: 1-2 min (cached: &lt;30 sec)</li>
+<li>Linux build: 3-5 min</li>
+<li>Flatpak packaging: 2-4 min</li>
+<li>.deb packaging: 1-2 min</li>
+<li>Artifact upload: 1-2 min</li>
+</ul>
+<p><strong>Android Build</strong>:</p>
+<ul>
+<li>Flutter SDK setup: 2-3 min (cached: &lt;30 sec)</li>
+<li>Java/Android SDK: 2-3 min (cached: &lt;30 sec)</li>
+<li>Gradle dependencies: 2-3 min (cached: &lt;30 sec)</li>
+<li>APK builds (3x): 3-5 min</li>
+<li>Signing and verification: 1-2 min</li>
+<li>Artifact upload: 1-2 min</li>
+</ul>
+<h3 id="performance-optimization-tips">Performance Optimization Tips<a class="headerlink" href="#performance-optimization-tips" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Use caching effectively</strong>:</li>
+<li>Cache hit rate should be &gt;80%</li>
+<li>
+<p>Clear old caches if builds are slow</p>
+</li>
+<li>
+<p><strong>Monitor cache sizes</strong>:</p>
+</li>
+<li>Flutter SDK: ~500MB</li>
+<li>Pub dependencies: ~200-300MB</li>
+<li>Gradle cache: ~300-500MB</li>
+<li>
+<p>Total: ~1-1.5GB per platform</p>
+</li>
+<li>
+<p><strong>Parallel execution</strong>:</p>
+</li>
+<li>All platforms build simultaneously</li>
+<li>Total time ≈ slowest platform</li>
+<li>
+<p>No sequential bottlenecks</p>
+</li>
+<li>
+<p><strong>Identify slow steps</strong>:</p>
+</li>
+<li>Check workflow logs for step durations</li>
+<li>Look for steps taking &gt;5 minutes</li>
+<li>Consider optimizing or caching</li>
+</ol>
+<h3 id="when-to-worry">When to Worry<a class="headerlink" href="#when-to-worry" title="Permanent link">&para;</a></h3>
+<p>Build times significantly longer than expected may indicate:</p>
+<ul>
+<li><strong>Cache miss</strong>: Check cache keys and restore logs</li>
+<li><strong>Network issues</strong>: Slow dependency downloads</li>
+<li><strong>Resource contention</strong>: GitHub Actions capacity issues</li>
+<li><strong>Code changes</strong>: Large refactors may increase build time</li>
+</ul>
+<h2 id="cost-information">Cost Information<a class="headerlink" href="#cost-information" title="Permanent link">&para;</a></h2>
+<h3 id="github-hosted-runners-current-setup">GitHub-Hosted Runners (Current Setup)<a class="headerlink" href="#github-hosted-runners-current-setup" title="Permanent link">&para;</a></h3>
+<p><strong>Public Repositories:</strong></p>
+<ul>
+<li>✅ <strong>Completely FREE</strong> - Unlimited minutes</li>
+<li>✅ No credit card required</li>
+<li>✅ No usage limits for public repos</li>
+</ul>
+<p><strong>Private Repositories:</strong></p>
+<ul>
+<li>Free tier: 2,000 minutes/month</li>
+<li>Windows runners: 2x multiplier (1 minute = 2 minutes)</li>
+<li>Estimated cost per build: ~30-40 minutes = 60-80 billable minutes</li>
+</ul>
+<p><strong>Cost Comparison:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Solution</th>
+<th>Monthly Cost</th>
+<th>Setup Time</th>
+<th>Maintenance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub-hosted (public)</td>
+<td><strong>$0</strong></td>
+<td>0 minutes</td>
+<td>None</td>
+</tr>
+<tr>
+<td>GitHub-hosted (private)</td>
+<td>~$0-8/month</td>
+<td>0 minutes</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Self-hosted runner</td>
+<td>$0-50+/month</td>
+<td>2-4 hours</td>
+<td>Ongoing</td>
+</tr>
+<tr>
+<td>Cloud VM (Azure/AWS)</td>
+<td>$50-200/month</td>
+<td>4-8 hours</td>
+<td>Ongoing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Savings with GitHub-Hosted Runners:</strong></p>
+<ul>
+<li>No infrastructure costs</li>
+<li>No maintenance overhead</li>
+<li>No setup time required</li>
+<li>Automatic updates and security patches</li>
+<li>Scalable (parallel builds)</li>
+</ul>
+<p><strong>For Private Repositories:</strong></p>
+<p>If you exceed free tier, consider:</p>
+<ol>
+<li>Optimize build time (caching, parallel jobs)</li>
+<li>Use self-hosted runner for frequent builds</li>
+<li>Upgrade to GitHub Team/Enterprise plan</li>
+</ol>
+<h2 id="android-build-issues">Android Build Issues<a class="headerlink" href="#android-build-issues" title="Permanent link">&para;</a></h2>
+<h3 id="issue-android-build-not-running">Issue: Android Build Not Running<a class="headerlink" href="#issue-android-build-not-running" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Android build job doesn't appear in workflow</li>
+<li>Only Windows/Linux builds are running</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Verify Android build is enabled</strong>:</li>
+<li>Check <code>.github/workflows/build-release.yml</code></li>
+<li>Ensure Android matrix entry is uncommented</li>
+<li>
+<p>See  for setup</p>
+</li>
+<li>
+<p><strong>Check GitHub Secrets</strong>:</p>
+</li>
+<li>Verify all Android signing secrets are configured</li>
+<li>Required: <code>ANDROID_KEYSTORE_BASE64</code>, <code>ANDROID_KEYSTORE_PASSWORD</code>, <code>ANDROID_KEY_PASSWORD</code>, <code>ANDROID_KEY_ALIAS</code></li>
+</ol>
+<h3 id="issue-android-signing-failed">Issue: Android Signing Failed<a class="headerlink" href="#issue-android-signing-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Setup Android signing configuration" step</li>
+<li>Error: "Keystore not found" or "Invalid keystore format"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Verify keystore secret</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Re-encode keystore to base64</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>base64<span class="w"> </span>release-keystore.jks<span class="w"> </span>&gt;<span class="w"> </span>release-keystore.base64.txt
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Update ANDROID_KEYSTORE_BASE64 secret with content</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Check secret names</strong>:</li>
+<li>Ensure secret names match exactly (case-sensitive)</li>
+<li>
+<p>Verify no extra spaces in secret values</p>
+</li>
+<li>
+<p><strong>Test keystore locally</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Verify keystore is valid</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>keytool<span class="w"> </span>-list<span class="w"> </span>-v<span class="w"> </span>-keystore<span class="w"> </span>release-keystore.jks
+</span></code></pre></div>
+<h3 id="issue-apk-build-failed">Issue: APK Build Failed<a class="headerlink" href="#issue-apk-build-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Build fails during "Build Android APK" step</li>
+<li>Gradle compilation errors</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check Android SDK version</strong>:</li>
+<li>Verify <code>compileSdkVersion</code> in <code>android/app/build.gradle</code></li>
+<li>
+<p>Ensure it matches workflow SDK version (33)</p>
+</li>
+<li>
+<p><strong>Clear Gradle cache</strong>:</p>
+</li>
+<li>Re-run workflow (cache will be cleared automatically)</li>
+<li>
+<p>Or manually clear cache in Actions settings</p>
+</li>
+<li>
+<p><strong>Test build locally</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>flutter<span class="w"> </span>clean
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>flutter<span class="w"> </span>pub<span class="w"> </span>get
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>flutter<span class="w"> </span>build<span class="w"> </span>apk<span class="w"> </span>--release
+</span></code></pre></div>
+<h3 id="issue-apk-signature-verification-failed">Issue: APK Signature Verification Failed<a class="headerlink" href="#issue-apk-signature-verification-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>APK builds but signature verification fails</li>
+<li>Error: "APK signature verification failed"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Verify signing configuration</strong>:</li>
+<li>Check <code>android/app/build.gradle</code> has correct signing config</li>
+<li>
+<p>Ensure keystore passwords are correct</p>
+</li>
+<li>
+<p><strong>Check key alias</strong>:</p>
+</li>
+<li>Verify <code>ANDROID_KEY_ALIAS</code> matches keystore alias</li>
+<li>
+<p>List aliases: <code>keytool -list -keystore release-keystore.jks</code></p>
+</li>
+<li>
+<p><strong>Regenerate keystore</strong> if corrupted:</p>
+</li>
+<li>Create new keystore (see )</li>
+<li>Update GitHub Secrets with new values</li>
+</ol>
+<h3 id="issue-apk-wont-install-on-device">Issue: APK Won't Install on Device<a class="headerlink" href="#issue-apk-wont-install-on-device" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>APK downloads but won't install</li>
+<li>Error: "App not installed" or "Parse error"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check minimum SDK version</strong>:</li>
+<li>Device must be Android 5.0+ (API 21+)</li>
+<li>
+<p>Verify <code>minSdkVersion</code> in <code>android/app/build.gradle</code></p>
+</li>
+<li>
+<p><strong>Enable unknown sources</strong>:</p>
+</li>
+<li>Settings → Security → Enable "Install from Unknown Sources"</li>
+<li>
+<p>Or Settings → Apps → Special access → Install unknown apps</p>
+</li>
+<li>
+<p><strong>Check device architecture</strong>:</p>
+</li>
+<li>Download the correct APK for your device:<ul>
+<li><strong>arm64-v8a</strong>: Most modern devices (2015+)</li>
+<li><strong>armeabi-v7a</strong>: Older devices</li>
+<li><strong>x86_64</strong>: Emulators and some tablets</li>
+</ul>
+</li>
+<li>
+<p>Check device architecture: <code>adb shell getprop ro.product.cpu.abi</code></p>
+</li>
+<li>
+<p><strong>Verify APK integrity</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Check SHA256 checksum</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>sha256sum<span class="w"> </span>-c<span class="w"> </span>CloudToLocalLLM-*-arm64-v8a.apk.sha256
+</span></code></pre></div>
+<ol>
+<li><strong>Check available storage</strong>:</li>
+<li>Ensure device has sufficient free space (&gt;100MB)</li>
+<li>
+<p>Clear cache if needed</p>
+</li>
+<li>
+<p><strong>Uninstall previous version</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># If upgrading, uninstall old version first</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>adb<span class="w"> </span>uninstall<span class="w"> </span>com.CloudToLocalLLM.CloudToLocalLLM
+</span></code></pre></div>
+<h3 id="issue-apk-installs-but-crashes-on-launch">Issue: APK Installs but Crashes on Launch<a class="headerlink" href="#issue-apk-installs-but-crashes-on-launch" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>APK installs successfully</li>
+<li>App crashes immediately when opened</li>
+<li>Error in logcat</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check logcat for errors</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># View crash logs</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>adb<span class="w"> </span>logcat<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;AndroidRuntime|CloudToLocalLLM&quot;</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Verify permissions</strong>:</li>
+<li>Check <code>AndroidManifest.xml</code> has required permissions</li>
+<li>
+<p>Grant permissions manually in Settings → Apps</p>
+</li>
+<li>
+<p><strong>Check Android version compatibility</strong>:</p>
+</li>
+<li>Minimum: Android 5.0 (API 21)</li>
+<li>Target: Android 13 (API 33)</li>
+<li>
+<p>Some features may not work on older versions</p>
+</li>
+<li>
+<p><strong>Clear app data</strong>:</p>
+</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Clear app data and cache</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>adb<span class="w"> </span>shell<span class="w"> </span>pm<span class="w"> </span>clear<span class="w"> </span>com.CloudToLocalLLM.CloudToLocalLLM
+</span></code></pre></div>
+<h3 id="issue-gradle-build-timeout">Issue: Gradle Build Timeout<a class="headerlink" href="#issue-gradle-build-timeout" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Android build times out during Gradle build</li>
+<li>Error: "Gradle build exceeded timeout"</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Check Gradle cache</strong>:</li>
+<li>Cache may be corrupted</li>
+<li>Clear cache in Actions → Caches</li>
+<li>
+<p>Re-run workflow</p>
+</li>
+<li>
+<p><strong>Increase timeout</strong> (if needed):</p>
+</li>
+</ol>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># In workflow file</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build Android APK</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="nt">timeout-minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">  </span><span class="c1"># Increase if needed</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Check network connectivity</strong>:</li>
+<li>Gradle may be downloading dependencies</li>
+<li>Verify GitHub Actions has internet access</li>
+</ol>
+<h3 id="issue-multiple-apks-not-created">Issue: Multiple APKs Not Created<a class="headerlink" href="#issue-multiple-apks-not-created" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Only one APK created instead of three</li>
+<li>Missing architecture-specific APKs</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Verify build command</strong>:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Correct command with --split-per-abi</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>flutter<span class="w"> </span>build<span class="w"> </span>apk<span class="w"> </span>--release<span class="w"> </span>--split-per-abi
+</span></code></pre></div>
+<ol>
+<li><strong>Check build output</strong>:</li>
+<li>Look in <code>build/app/outputs/flutter-apk/</code></li>
+<li>
+<p>Should see: <code>app-arm64-v8a-release.apk</code>, <code>app-armeabi-v7a-release.apk</code>, <code>app-x86_64-release.apk</code></p>
+</li>
+<li>
+<p><strong>Check Flutter version</strong>:</p>
+</li>
+<li>Ensure Flutter 3.24.0+ (supports --split-per-abi)</li>
+<li>Update Flutter if needed</li>
+</ol>
+<h3 id="android-build-resources">Android Build Resources<a class="headerlink" href="#android-build-resources" title="Permanent link">&para;</a></h3>
+<p>For detailed Android build setup and configuration:</p>
+<ul>
+<li>Complete setup guide with secret configuration</li>
+<li><a href="../android/README.md">android/README.md</a> - Local build instructions</li>
+<li><a href="https://docs.flutter.dev/deployment/android">Flutter Android Deployment</a></li>
+<li><a href="https://developer.android.com/studio/publish/app-signing">Android App Signing</a></li>
+</ul>
+<h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<h3 id="viewing-detailed-logs">Viewing Detailed Logs<a class="headerlink" href="#viewing-detailed-logs" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Navigate to workflow run</strong>:</li>
+<li>
+<p>Actions → Build Desktop Apps &amp; Create Release → Click on run</p>
+</li>
+<li>
+<p><strong>Expand job steps</strong>:</p>
+</li>
+<li>Click on job name (e.g., "Build Windows Desktop App")</li>
+<li>
+<p>Click on individual steps to see detailed logs</p>
+</li>
+<li>
+<p><strong>Download logs</strong>:</p>
+</li>
+<li>Click "..." menu (top right of job)</li>
+<li>Select "Download log archive"</li>
+<li>Extract and review locally</li>
+</ol>
+<h3 id="debug-mode">Debug Mode<a class="headerlink" href="#debug-mode" title="Permanent link">&para;</a></h3>
+<p>Enable debug logging for more detailed output:</p>
+<ol>
+<li>Go to repository Settings → Secrets and variables → Actions</li>
+<li>Add repository secret:</li>
+<li>Name: <code>ACTIONS_STEP_DEBUG</code></li>
+<li>Value: <code>true</code></li>
+<li>Re-run workflow to see debug logs</li>
+</ol>
+<h3 id="common-log-locations">Common Log Locations<a class="headerlink" href="#common-log-locations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Flutter version</strong>: Look for "Setup Flutter SDK" step</li>
+<li><strong>Dependency issues</strong>: Check "Get Flutter dependencies" step</li>
+<li><strong>Build errors</strong>: Review "Build Windows desktop application" step</li>
+<li><strong>Installer issues</strong>: Check "Create Windows installer" step</li>
+<li><strong>Release errors</strong>: Review "Create GitHub Release" step</li>
+</ul>
+<h3 id="reporting-issues">Reporting Issues<a class="headerlink" href="#reporting-issues" title="Permanent link">&para;</a></h3>
+<p>When reporting build issues, include:</p>
+<ol>
+<li><strong>Workflow run URL</strong>: Link to failed GitHub Actions run</li>
+<li><strong>Error message</strong>: Copy exact error from logs</li>
+<li><strong>Environment</strong>: OS, Flutter version, workflow file version</li>
+<li><strong>Steps to reproduce</strong>: What triggered the build</li>
+<li><strong>Expected vs actual</strong>: What should happen vs what happened</li>
+</ol>
+<p><strong>Where to report:</strong></p>
+<ul>
+<li>GitHub Issues: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues</li>
+<li>Include label: <code>ci/cd</code> or <code>build</code></li>
+</ul>
+<h3 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GitHub Actions Documentation</strong>: https://docs.github.com/en/actions</li>
+<li><strong>Flutter Build Documentation</strong>: https://docs.flutter.dev/deployment/windows</li>
+<li><strong>Inno Setup Documentation</strong>: https://jrsoftware.org/ishelp/</li>
+<li><strong>Workflow File</strong>: <code>.github/workflows/build-release.yml</code></li>
+<li><strong>CI/CD Setup Guide</strong>: <code>docs/CICD_SETUP_GUIDE.md</code></li>
+</ul>
+<h3 id="quick-reference-commands">Quick Reference Commands<a class="headerlink" href="#quick-reference-commands" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Check workflow status</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>gh<span class="w"> </span>workflow<span class="w"> </span>view<span class="w"> </span>build-release.yml
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># List recent runs</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="o">=</span>build-release.yml<span class="w"> </span>--limit<span class="w"> </span><span class="m">5</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="c1"># View specific run</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>&lt;run-id&gt;
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="c1"># Download artifacts</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span>&lt;run-id&gt;
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="c1"># Re-run failed jobs</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>gh<span class="w"> </span>run<span class="w"> </span>rerun<span class="w"> </span>&lt;run-id&gt;<span class="w"> </span>--failed
+</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>
+</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="c1"># List caches</span>
+</span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>gh<span class="w"> </span>cache<span class="w"> </span>list
+</span><span id="__span-22-18"><a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>
+</span><span id="__span-22-19"><a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="c1"># Delete cache</span>
+</span><span id="__span-22-20"><a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>gh<span class="w"> </span>cache<span class="w"> </span>delete<span class="w"> </span>&lt;cache-key&gt;
+</span></code></pre></div>
+<hr />
+<p><strong>Last Updated</strong>: 2024-11-15<br />
+<strong>Workflow Version</strong>: build-release.yml (GitHub-hosted runners)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

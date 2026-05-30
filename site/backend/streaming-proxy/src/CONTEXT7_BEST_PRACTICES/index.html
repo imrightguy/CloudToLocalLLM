@@ -1,0 +1,2183 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Context7 MCP Best Practices Reference - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#context7-mcp-best-practices-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Context7 MCP Best Practices Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../development/BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#websocket-library-ws-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSocket Library (ws) - Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WebSocket Library (ws) - Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-connection-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Connection Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-heartbeat-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Heartbeat Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-frame-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Frame Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-connection-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Connection Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-multiple-websocket-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Multiple WebSocket Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ssh2-library-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH2 Library - Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SSH2 Library - Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-best-practices_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-ssh-security-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. SSH Security Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-connection-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Connection Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-channel-multiplexing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Channel Multiplexing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-ssh-compression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. SSH Compression
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-authentication-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Authentication Methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-port-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Port Forwarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-connection-hoppingtunneling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Connection Hopping/Tunneling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prometheus-client-prom-client-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prometheus Client (prom-client) - Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prometheus Client (prom-client) - Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-best-practices_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-metric-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Metric Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-bucket-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Bucket Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-labels-and-cardinality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Labels and Cardinality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-registry-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Registry Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-metric-exposure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Metric Exposure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-default-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Default Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-cluster-aggregation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Cluster Aggregation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-pushgateway-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Pushgateway Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#websocket-handler-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSocket Handler Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-connection-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH Connection Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics-collection-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics Collection Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#websocket-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WebSocket Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitoring and Observability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring and Observability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-metrics-to-track" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Metrics to Track
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alerting-thresholds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alerting Thresholds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-implementing-websocket-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Implementing WebSocket Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-implementing-ssh-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Implementing SSH Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-implementing-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Implementing Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="context7-mcp-best-practices-reference">Context7 MCP Best Practices Reference<a class="headerlink" href="#context7-mcp-best-practices-reference" title="Permanent link">&para;</a></h1>
+<p>This document consolidates best practices from Context7 MCP tools for key dependencies used in the SSH WebSocket Tunnel Enhancement project.</p>
+<h2 id="websocket-library-ws-best-practices">WebSocket Library (ws) - Best Practices<a class="headerlink" href="#websocket-library-ws-best-practices" title="Permanent link">&para;</a></h2>
+<p><strong>Library ID:</strong> <code>/websockets/ws</code><br />
+<strong>Trust Score:</strong> 6.7<br />
+<strong>Code Snippets:</strong> 65</p>
+<h3 id="key-best-practices">Key Best Practices<a class="headerlink" href="#key-best-practices" title="Permanent link">&para;</a></h3>
+<h4 id="1-connection-management">1. Connection Management<a class="headerlink" href="#1-connection-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Always implement heartbeat/ping-pong mechanism to detect dead connections</li>
+<li>Use <code>readyState</code> constants (CONNECTING=0, OPEN=1, CLOSING=2, CLOSED=3) to check connection status</li>
+<li>Implement exponential backoff for reconnection attempts</li>
+<li>Reset reconnection delay on successful connection</li>
+</ul>
+<h4 id="2-heartbeat-implementation">2. Heartbeat Implementation<a class="headerlink" href="#2-heartbeat-implementation" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>- Send ping frames every 30 seconds
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>- Track pong responses with timeout
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>- Terminate connections that don&#39;t respond to pings within timeout
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>- Use isAlive flag to track connection health
+</span></code></pre></div>
+<h4 id="3-frame-handling">3. Frame Handling<a class="headerlink" href="#3-frame-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Set maximum frame size limits (1MB recommended)</li>
+<li>Validate frame sizes before processing</li>
+<li>Handle compression with permessage-deflate extension</li>
+<li>Configure compression parameters (level 6 for balance)</li>
+</ul>
+<h4 id="4-connection-lifecycle">4. Connection Lifecycle<a class="headerlink" href="#4-connection-lifecycle" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Implement proper close handshake with close codes</li>
+<li>Use close code 1000 for normal closure</li>
+<li>Use close code 1001 for "Going Away" (server shutdown)</li>
+<li>Wait for close acknowledgment before cleanup</li>
+</ul>
+<h4 id="5-error-handling">5. Error Handling<a class="headerlink" href="#5-error-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Distinguish between connection errors and protocol errors</li>
+<li>Log all errors with context (connection ID, user ID, timestamp)</li>
+<li>Implement graceful degradation on errors</li>
+<li>Provide user-friendly error messages</li>
+</ul>
+<h4 id="6-authentication">6. Authentication<a class="headerlink" href="#6-authentication" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Validate tokens during HTTP upgrade handshake</li>
+<li>Reject connections without valid authentication</li>
+<li>Use timing-safe comparison for token validation</li>
+<li>Cache validation results (5 minutes recommended)</li>
+</ul>
+<h4 id="7-multiple-websocket-servers">7. Multiple WebSocket Servers<a class="headerlink" href="#7-multiple-websocket-servers" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Route connections based on URL path</li>
+<li>Use noServer mode for custom routing</li>
+<li>Implement separate handlers for different protocols</li>
+<li>Aggregate metrics across servers</li>
+</ul>
+<hr />
+<h2 id="ssh2-library-best-practices">SSH2 Library - Best Practices<a class="headerlink" href="#ssh2-library-best-practices" title="Permanent link">&para;</a></h2>
+<p><strong>Library ID:</strong> <code>/mscdex/ssh2</code><br />
+<strong>Trust Score:</strong> 7.3<br />
+<strong>Code Snippets:</strong> 36</p>
+<h3 id="key-best-practices_1">Key Best Practices<a class="headerlink" href="#key-best-practices_1" title="Permanent link">&para;</a></h3>
+<h4 id="1-ssh-security-configuration">1. SSH Security Configuration<a class="headerlink" href="#1-ssh-security-configuration" title="Permanent link">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>- Enforce SSH protocol version 2 only (no SSHv1)
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>- Use strong key exchange algorithms:
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  * curve25519-sha256
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  * ecdh-sha2-nistp256
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  * ecdh-sha2-nistp384
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>- Use strong encryption algorithms:
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  * aes256-gcm@openssh.com
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  * aes256-ctr
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  * aes192-ctr
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  * aes128-ctr
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>- Use strong MAC algorithms:
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  * hmac-sha2-256
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  * hmac-sha2-512
+</span></code></pre></div>
+<h4 id="2-connection-management">2. Connection Management<a class="headerlink" href="#2-connection-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Implement SSH keep-alive every 60 seconds</li>
+<li>Track keep-alive responses with timestamps</li>
+<li>Detect dead connections after 3 failed keep-alives (180 seconds)</li>
+<li>Close unresponsive connections automatically</li>
+</ul>
+<h4 id="3-channel-multiplexing">3. Channel Multiplexing<a class="headerlink" href="#3-channel-multiplexing" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Enforce channel limits per connection (10 channels recommended)</li>
+<li>Track active channel count</li>
+<li>Increment/decrement on channel open/close</li>
+<li>Throw error when limit exceeded</li>
+</ul>
+<h4 id="4-ssh-compression">4. SSH Compression<a class="headerlink" href="#4-ssh-compression" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Enable compression for bandwidth optimization</li>
+<li>Set compression level to 6 (balanced)</li>
+<li>Monitor compression ratio (bytes sent vs compressed)</li>
+<li>Log compression effectiveness</li>
+</ul>
+<h4 id="5-authentication-methods">5. Authentication Methods<a class="headerlink" href="#5-authentication-methods" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Support multiple auth methods: password, public key, agent</li>
+<li>Use timing-safe comparison for credentials</li>
+<li>Implement keyboard-interactive for MFA</li>
+<li>Cache authentication results appropriately</li>
+</ul>
+<h4 id="6-port-forwarding">6. Port Forwarding<a class="headerlink" href="#6-port-forwarding" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Implement local port forwarding (forwardOut)</li>
+<li>Implement remote port forwarding (forwardIn)</li>
+<li>Validate forwarding requests</li>
+<li>Clean up forwarding on connection close</li>
+</ul>
+<h4 id="7-error-handling">7. Error Handling<a class="headerlink" href="#7-error-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Categorize SSH errors: auth, protocol, network, timeout, channel</li>
+<li>Log all errors with connection context</li>
+<li>Provide troubleshooting hints for common errors</li>
+<li>Track error frequency for monitoring</li>
+</ul>
+<h4 id="8-connection-hoppingtunneling">8. Connection Hopping/Tunneling<a class="headerlink" href="#8-connection-hoppingtunneling" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Support tunneling through intermediate SSH servers</li>
+<li>Use forwardOut to create tunnels</li>
+<li>Implement proper stream piping</li>
+<li>Handle tunnel failures gracefully</li>
+</ul>
+<hr />
+<h2 id="prometheus-client-prom-client-best-practices">Prometheus Client (prom-client) - Best Practices<a class="headerlink" href="#prometheus-client-prom-client-best-practices" title="Permanent link">&para;</a></h2>
+<p><strong>Library ID:</strong> <code>/siimon/prom-client</code><br />
+<strong>Trust Score:</strong> Not specified<br />
+<strong>Code Snippets:</strong> 38</p>
+<h3 id="key-best-practices_2">Key Best Practices<a class="headerlink" href="#key-best-practices_2" title="Permanent link">&para;</a></h3>
+<h4 id="1-metric-types">1. Metric Types<a class="headerlink" href="#1-metric-types" title="Permanent link">&para;</a></h4>
+<p><strong>Counter</strong> - Only increases, never decreases</p>
+<ul>
+<li>Use for: request counts, error counts, total operations</li>
+<li>Reset on process restart only</li>
+<li>Increment by 1 or specific value</li>
+</ul>
+<p><strong>Gauge</strong> - Can increase or decrease</p>
+<ul>
+<li>Use for: active connections, queue size, memory usage</li>
+<li>Set to specific value or use inc/dec</li>
+<li>Implement collect() for point-in-time observations</li>
+</ul>
+<p><strong>Histogram</strong> - Tracks distribution of values</p>
+<ul>
+<li>Use for: request latency, response size, processing time</li>
+<li>Define buckets based on expected value ranges</li>
+<li>Use startTimer() for automatic duration measurement</li>
+<li>Provides count, sum, and bucket metrics</li>
+</ul>
+<p><strong>Summary</strong> - Calculates percentiles</p>
+<ul>
+<li>Use for: latency percentiles (P50, P95, P99)</li>
+<li>Configure percentiles: [0.5, 0.9, 0.95, 0.99]</li>
+<li>Supports sliding window with maxAgeSeconds</li>
+<li>More memory efficient than histograms for percentiles</li>
+</ul>
+<h4 id="2-bucket-configuration">2. Bucket Configuration<a class="headerlink" href="#2-bucket-configuration" title="Permanent link">&para;</a></h4>
+<p><strong>Linear Buckets</strong> - Equal spacing</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>linearBuckets(start, width, count)
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Example: linearBuckets(0, 100, 11) = [0, 100, 200, ..., 1000]
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Use for: response sizes, queue depths
+</span></code></pre></div>
+<p><strong>Exponential Buckets</strong> - Exponential growth</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>exponentialBuckets(start, factor, count)
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Example: exponentialBuckets(1, 2, 9) = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Use for: latencies spanning multiple orders of magnitude
+</span></code></pre></div>
+<h4 id="3-labels-and-cardinality">3. Labels and Cardinality<a class="headerlink" href="#3-labels-and-cardinality" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Use labels for dimensions: method, status, endpoint, user_tier</li>
+<li>Avoid high-cardinality labels (user IDs, request IDs)</li>
+<li>Initialize all expected label combinations with zero()</li>
+<li>Use labelNames as const in TypeScript for type safety</li>
+</ul>
+<h4 id="4-registry-management">4. Registry Management<a class="headerlink" href="#4-registry-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Use default registry for most metrics</li>
+<li>Create custom registries for isolated metric collections</li>
+<li>Merge registries when needed</li>
+<li>Set default labels for all metrics in registry</li>
+</ul>
+<h4 id="5-metric-exposure">5. Metric Exposure<a class="headerlink" href="#5-metric-exposure" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Expose metrics at <code>/metrics</code> endpoint</li>
+<li>Use correct Content-Type: <code>text/plain; version=0.0.4</code></li>
+<li>Support OpenMetrics format for advanced features</li>
+<li>Include exemplars for trace correlation</li>
+</ul>
+<h4 id="6-default-metrics">6. Default Metrics<a class="headerlink" href="#6-default-metrics" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Enable collectDefaultMetrics() for Node.js runtime metrics</li>
+<li>Configure prefix for metric names</li>
+<li>Add custom labels (app, environment, instance)</li>
+<li>Monitor: GC duration, event loop lag, memory usage</li>
+</ul>
+<h4 id="7-cluster-aggregation">7. Cluster Aggregation<a class="headerlink" href="#7-cluster-aggregation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Use AggregatorRegistry for multi-process aggregation</li>
+<li>Workers collect metrics normally</li>
+<li>Master aggregates worker metrics</li>
+<li>Configure aggregation method: sum, first, min, max, average</li>
+</ul>
+<h4 id="8-performance-considerations">8. Performance Considerations<a class="headerlink" href="#8-performance-considerations" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Minimize metric cardinality</li>
+<li>Use appropriate bucket counts (10-20 typical)</li>
+<li>Implement metric retention policies</li>
+<li>Clean up old metrics periodically</li>
+</ul>
+<h4 id="9-pushgateway-integration">9. Pushgateway Integration<a class="headerlink" href="#9-pushgateway-integration" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Push metrics for batch jobs</li>
+<li>Use pushAdd() to add metrics</li>
+<li>Use push() to replace all metrics</li>
+<li>Use delete() to remove metrics</li>
+<li>Configure timeout and connection pooling</li>
+</ul>
+<hr />
+<h2 id="implementation-references">Implementation References<a class="headerlink" href="#implementation-references" title="Permanent link">&para;</a></h2>
+<h3 id="websocket-handler-implementation">WebSocket Handler Implementation<a class="headerlink" href="#websocket-handler-implementation" title="Permanent link">&para;</a></h3>
+<p>Reference: <code>services/streaming-proxy/src/websocket/websocket-handler-impl.ts</code></p>
+<ul>
+<li>Implements heartbeat manager for ping/pong</li>
+<li>Handles frame size validation</li>
+<li>Manages compression</li>
+<li>Implements graceful close</li>
+</ul>
+<h3 id="ssh-connection-implementation">SSH Connection Implementation<a class="headerlink" href="#ssh-connection-implementation" title="Permanent link">&para;</a></h3>
+<p>Reference: <code>services/streaming-proxy/src/connection-pool/ssh-connection-impl.ts</code></p>
+<ul>
+<li>Configures SSH security algorithms</li>
+<li>Implements keep-alive mechanism</li>
+<li>Manages channel multiplexing</li>
+<li>Handles SSH errors with categorization</li>
+</ul>
+<h3 id="metrics-collection-implementation">Metrics Collection Implementation<a class="headerlink" href="#metrics-collection-implementation" title="Permanent link">&para;</a></h3>
+<p>Reference: <code>services/streaming-proxy/src/metrics/server-metrics-collector.ts</code></p>
+<ul>
+<li>Collects tunnel metrics (requests, latency, errors)</li>
+<li>Tracks per-user metrics</li>
+<li>Implements Prometheus endpoint</li>
+<li>Manages metric retention</li>
+</ul>
+<hr />
+<h2 id="error-handling-patterns">Error Handling Patterns<a class="headerlink" href="#error-handling-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="websocket-errors">WebSocket Errors<a class="headerlink" href="#websocket-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Connection errors: Network issues, timeout</li>
+<li>Protocol errors: Invalid frames, handshake failures</li>
+<li>Authentication errors: Invalid tokens, expired credentials</li>
+<li>Recovery: Automatic reconnection with backoff</li>
+</ul>
+<h3 id="ssh-errors">SSH Errors<a class="headerlink" href="#ssh-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Authentication errors: Invalid credentials, key issues</li>
+<li>Protocol errors: Unsupported algorithms, handshake failures</li>
+<li>Network errors: Connection refused, timeout</li>
+<li>Channel errors: Channel limit exceeded, stream errors</li>
+<li>Recovery: Retry with exponential backoff, fallback to alternative auth</li>
+</ul>
+<h3 id="metrics-errors">Metrics Errors<a class="headerlink" href="#metrics-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Collection errors: Metric not found, invalid labels</li>
+<li>Export errors: Serialization failures, format issues</li>
+<li>Recovery: Log error, continue with partial metrics</li>
+</ul>
+<hr />
+<h2 id="monitoring-and-observability">Monitoring and Observability<a class="headerlink" href="#monitoring-and-observability" title="Permanent link">&para;</a></h2>
+<h3 id="key-metrics-to-track">Key Metrics to Track<a class="headerlink" href="#key-metrics-to-track" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Connection Metrics</strong></li>
+<li>Active connections (gauge)</li>
+<li>Connection attempts (counter)</li>
+<li>
+<p>Connection duration (histogram)</p>
+</li>
+<li>
+<p><strong>Request Metrics</strong></p>
+</li>
+<li>Total requests (counter)</li>
+<li>Request latency (histogram/summary)</li>
+<li>Request size (histogram)</li>
+<li>
+<p>Success rate (gauge)</p>
+</li>
+<li>
+<p><strong>Error Metrics</strong></p>
+</li>
+<li>Error count by type (counter)</li>
+<li>Error rate (gauge)</li>
+<li>
+<p>Error recovery time (histogram)</p>
+</li>
+<li>
+<p><strong>Resource Metrics</strong></p>
+</li>
+<li>Memory usage (gauge)</li>
+<li>CPU usage (gauge)</li>
+<li>Queue size (gauge)</li>
+<li>Channel count (gauge)</li>
+</ol>
+<h3 id="alerting-thresholds">Alerting Thresholds<a class="headerlink" href="#alerting-thresholds" title="Permanent link">&para;</a></h3>
+<ul>
+<li>High error rate: &gt; 5% over 5 minutes</li>
+<li>High latency: P95 &gt; 200ms</li>
+<li>Connection storm: &gt; 1000 new connections per minute</li>
+<li>Circuit breaker open: Any open state</li>
+<li>Queue nearly full: &gt; 90% capacity</li>
+</ul>
+<hr />
+<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="when-implementing-websocket-features">When Implementing WebSocket Features<a class="headerlink" href="#when-implementing-websocket-features" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Reference ws library documentation for connection patterns</li>
+<li>Implement heartbeat mechanism for connection health</li>
+<li>Add frame size validation</li>
+<li>Implement proper error handling and logging</li>
+<li>Test with multiple concurrent connections</li>
+</ol>
+<h3 id="when-implementing-ssh-features">When Implementing SSH Features<a class="headerlink" href="#when-implementing-ssh-features" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Configure security algorithms per best practices</li>
+<li>Implement keep-alive mechanism</li>
+<li>Add channel multiplexing with limits</li>
+<li>Implement comprehensive error handling</li>
+<li>Test with various SSH server configurations</li>
+</ol>
+<h3 id="when-implementing-metrics">When Implementing Metrics<a class="headerlink" href="#when-implementing-metrics" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Define metrics based on monitoring needs</li>
+<li>Choose appropriate metric types (counter/gauge/histogram/summary)</li>
+<li>Configure buckets for histograms</li>
+<li>Initialize all label combinations</li>
+<li>Expose metrics at /metrics endpoint</li>
+<li>Test metric collection and export</li>
+</ol>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>WebSocket Library: https://github.com/websockets/ws</li>
+<li>SSH2 Library: https://github.com/mscdex/ssh2</li>
+<li>Prometheus Client: https://github.com/siimon/prom-client</li>
+<li>Prometheus Best Practices: https://prometheus.io/docs/practices/</li>
+<li>OpenTelemetry: https://opentelemetry.io/docs/</li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> November 15, 2025<br />
+<strong>Context7 MCP Integration:</strong> Task 19 - Documentation and Best Practices</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

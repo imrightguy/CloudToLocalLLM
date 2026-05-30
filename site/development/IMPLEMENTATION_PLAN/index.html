@@ -1,0 +1,2493 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Implementation Plan - Secure Agent Companion - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#implementation-plan-secure-agent-companion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Implementation Plan - Secure Agent Companion
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recent-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recent Updates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recent Updates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2026-04-06-phase-2-3-complete-vision-desktop-control-avatar-memory-hermes-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-06: Phase 2-3 Complete — Vision, Desktop Control, Avatar Memory, Hermes Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2026-02-26-conscience-system-multi-agent-cross-checking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-26: Conscience System (Multi-Agent Cross-Checking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2026-02-25-avatar-supervisor-feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-25: Avatar Supervisor Feature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2026-02-25-websocket-device-identity-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-25: WebSocket Device Identity Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference-pillar-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference: Pillar Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-phases-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Phases Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-0-setup-wizard-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 0: Setup Wizard ✅ COMPLETE
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 0: Setup Wizard ✅ COMPLETE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-foundation-chat-openclaw-manager-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Foundation (Chat + OpenClaw Manager) ✅ COMPLETE
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Foundation (Chat + OpenClaw Manager) ✅ COMPLETE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-tasks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completed-tasks-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completed Tasks Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-core-features-avatar-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Core Features (Avatar + Desktop)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: Core Features (Avatar + Desktop)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avatar-personality-engine-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Avatar Personality Engine Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-tasks_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 Success Criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-advanced-vision-avatar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Advanced (Vision + Avatar)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3: Advanced (Vision + Avatar)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-tasks_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-files-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Files Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#success-criteria_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Success Criteria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-0-setup-wizard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 0 (Setup Wizard) ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1 (Foundation) ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-core-features-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 (Core Features) ✅ Complete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3 (Advanced) ✅ Complete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="implementation-plan-secure-agent-companion">Implementation Plan - Secure Agent Companion<a class="headerlink" href="#implementation-plan-secure-agent-companion" title="Permanent link">&para;</a></h1>
+<p><strong>CloudToLocalLLM</strong> is a secure companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, compatible custom agent gateways, or optional hosted agent runtimes.</p>
+<blockquote>
+<p><strong>Orientation note</strong>: This file is a historical implementation plan and progress log. The current product direction is defined in <a href="../../SPEC.md">SPEC.md</a> and <a href="../../architecture/AGENT_RUNTIME_CONTRACT/">Agent Runtime Contract</a>: there is no universal default runtime, Hermes is the first agent runtime path for current testing, OpenClaw remains supported as the original integration, desktop control is core, avatar and voice belong together as a sidecar companion, and Tailscale is the preferred secure device mesh. Ollama, LM Studio, and similar model servers are support model providers for app-owned memory/background features, not primary app runtimes.</p>
+<p><strong>Last Updated</strong>: 2026-04-06 | <strong>Overall Progress</strong>: ~95% complete | <strong>Estimated Timeline</strong>: 8 weeks (0 remaining)</p>
+</blockquote>
+<hr />
+<h2 id="recent-updates">Recent Updates<a class="headerlink" href="#recent-updates" title="Permanent link">&para;</a></h2>
+<h3 id="2026-04-06-phase-2-3-complete-vision-desktop-control-avatar-memory-hermes-integration">2026-04-06: Phase 2-3 Complete — Vision, Desktop Control, Avatar Memory, Hermes Integration<a class="headerlink" href="#2026-04-06-phase-2-3-complete-vision-desktop-control-avatar-memory-hermes-integration" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: ✅ Phase 2 Complete, ✅ Phase 3 Complete</p>
+<p>Major implementation sprint completing Vision System foundation, Desktop Control enhancements, and Avatar Memory storage layer:</p>
+<p><strong>Vision System (Pillar 5) - 80% Complete:</strong>
+- ✅ Created vision services directory structure (<code>lib/services/vision/</code>)
+- ✅ Implemented RegionCaptureService for screen capture regions
+- ✅ Implemented CameraCaptureService with camera input
+- ✅ Implemented OcrEngineService with Tesseract OCR integration
+- ✅ Created MainVisionService coordinator
+- ✅ Added VisionSettingsScreen UI for testing
+- 🔲 Native platform implementations (Linux/Windows) - separate task</p>
+<p><strong>Desktop Control (Pillar 4) - 90% Complete:</strong>
+- ✅ Enhanced GuiAutomationService with platform channels
+- ✅ Created WindowManagerService with full window management
+- ✅ WindowInfo class with state tracking (minimize, maximize, active)
+- ✅ Window operations: focus, move, resize, minimize, maximize, close, toggle
+- 🔲 Native platform implementations (Linux/Windows) - separate task</p>
+<p><strong>Avatar Memory System (Pillar 3) - 85% Complete:</strong>
+- ✅ Added ConversationMemories table to database (vector embeddings storage)
+- ✅ Created MemoryService with semantic search foundation
+- ✅ Added DAO methods: getMemoriesForConversation, insertMemory, searchMemoriesByContent
+- ✅ Database migration v6 → v7
+- 🔲 Vector embedding generation (marked as TODO)
+- 🔲 Cosine similarity search (text search implemented as placeholder)</p>
+<p><strong>Commits:</strong>
+- <code>feat(vision): create vision services directory structure</code> (3a5d60300)
+- <code>feat(vision): add region capture service</code> (798cc00eb)
+- <code>feat(vision): add camera capture service</code> (10ea1d8de)
+- <code>feat(vision): add OCR engine service</code> (7fc6c29b3)
+- <code>feat(desktop): add platform channels to gui automation</code> (d964bc823)
+- <code>feat(desktop): add window management service</code> (6c709ad01)
+- <code>feat(database): add conversation memories table for embeddings</code> (e8732a0eb)
+- <code>feat(avatar): add memory service with semantic search</code> (fa7bf0d9d)
+- <code>feat(ui): add vision settings screen</code> (b228e7b16)</p>
+<p><strong>Next Steps:</strong>
+- Native platform implementations for vision and desktop control
+- Vector embedding integration with optional support model provider or external service
+- Avatar achievements system
+- Macro scripting for desktop automation</p>
+<hr />
+<h3 id="2026-02-26-conscience-system-multi-agent-cross-checking">2026-02-26: Conscience System (Multi-Agent Cross-Checking)<a class="headerlink" href="#2026-02-26-conscience-system-multi-agent-cross-checking" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: 🟡 Phase 1 Complete - Storage Layer Implemented, Ready for Phase 2</p>
+<p>A multi-agent system inspired by Grok 4.20 that cross-checks decisions before acting. Prevents the main agent from breaking config, rushing actions, or ignoring context.</p>
+<p><strong>Architecture:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Coordinator</strong></td>
+<td>Supervisor cron in OpenClaw, reads/writes storage, spawns agents, decides verdicts</td>
+</tr>
+<tr>
+<td><strong>Zoidbot</strong></td>
+<td>Front agent, talks to user, executes, posts intentions</td>
+</tr>
+<tr>
+<td><strong>Benjamin</strong></td>
+<td>Reviewer, validates, checks past failures, returns APPROVED/QUESTION/HOLD</td>
+</tr>
+<tr>
+<td><strong>Harper</strong></td>
+<td>Researcher, gathers context, searches, summarizes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Storage Strategy (OpenClaw = source of truth):</strong></p>
+<ul>
+<li><strong>App available</strong> → Drift/SQLite via CloudToLocalLLM API (fast, indexed queries)</li>
+<li><strong>App down</strong> → Files (AGENT-THOUGHTS.md, CONSCIENCE.md) - always works</li>
+<li><strong>Sync</strong> → Files sync to DB when app comes back online</li>
+</ul>
+<p><strong>Risk Categories:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Review Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Config edits</td>
+<td>✅ Yes - post to CONSCIENCE.md, wait</td>
+</tr>
+<tr>
+<td>External sends</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Deletions</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Reading files</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Git commits</td>
+<td>❌ No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation Phases:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>What</th>
+<th>Time</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>Storage layer - files + API to app's Drift DB</td>
+<td>4h</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Spawn Benjamin/Harper on demand, parallel execution</td>
+<td>6h</td>
+<td>🔲 Pending</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Persistent agent identities with roles</td>
+<td>4h</td>
+<td>🔲 Pending</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Coordinator intelligence - consensus, conflict resolution</td>
+<td>6h</td>
+<td>🔲 Pending</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Files:</strong>
+- <code>AGENT-THOUGHTS.md</code> - shared board where all agents post thoughts
+- <code>CONSCIENCE.md</code> - risky action tracking with APPROVED/QUESTION/HOLD
+- <code>memory/openclaw-app-architecture.md</code> - philosophy doc
+- <code>memory/conscience-project-plan.md</code> - full plan
+- <code>memory/conscience-phases.md</code> - detailed phases</p>
+<p><strong>Philosophy:</strong>
+- OpenClaw works standalone (always functional)
+- CloudToLocalLLM app expands capability (fast DB, UI, sync)
+- Users understand the stack (learn OpenClaw first, then add app)</p>
+<hr />
+<h3 id="2026-02-25-avatar-supervisor-feature">2026-02-25: Avatar Supervisor Feature<a class="headerlink" href="#2026-02-25-avatar-supervisor-feature" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: 🟡 New Feature - Design Phase</p>
+<p>Adding persistent oversight capability to the Avatar via <strong>Antigravity IDE</strong> (not the Flutter app):</p>
+<p><strong>The Problem</strong>: OpenClaw doesn't have a built-in way for one agent to automatically watch another. The main agent (Zoidbot) repeatedly makes the same mistakes:
+- Breaks config by not validating changes
+- Acts without listening ("brainstorm" → immediately does)
+- Surface-level responses instead of deep thinking
+- Forgets to spawn subagents for research</p>
+<p><strong>The Solution</strong>: Use Antigravity IDE as the supervisor - it has persistent agent capabilities that OpenClaw lacks:</p>
+<ol>
+<li><strong>Antigravity maintains persistent agent session</strong> watching Zoidbot</li>
+<li><strong>Forwards Zoidbot's actions</strong> to the supervisor in real-time</li>
+<li><strong>Supervisor pushes back</strong> when it sees dumb mistakes</li>
+<li><strong>Feedback routes back</strong> to Christopher</li>
+</ol>
+<p><strong>Why Antigravity</strong>:
+- Already has persistent agent sessions
+- Can run alongside OpenClaw
+- Christopher controls it directly
+- No need to build this in Flutter app</p>
+<p><strong>Supervisor Prompt (for Antigravity)</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>You are a supervisor agent watching the main OpenClaw agent (Zoidbot). Your role is to catch mistakes BEFORE they happen.
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Core responsibilities:
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>1. VALIDATE config changes - check if keys exist before applying
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>2. CHALLENGE assumptions - question surface-level responses
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>3. FORCE deep thinking - push back on quick answers
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>4. WATCH for patterns - catch repeated mistakes
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Behavioral rules you enforce:
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>- When Zoidbot says &quot;brainstorm&quot; → it should stay in discussion mode, NOT touch config
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>- When Zoidbot wants to change config → verify key exists first
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>- When Zoidbot says &quot;let me research&quot; → it&#39;s avoiding the question
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>- When Zoidbot makes config change → validate against docs
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>When you see a mistake:
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>1. Identify the specific error
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>2. Explain why it&#39;s wrong
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>3. Suggest correct approach
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>4. If critical (config break), escalate to user immediately
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>You have full context of Zoidbot&#39;s actions. Respond with feedback that helps it improve.
+</span></code></pre></div></p>
+<p><strong>Note</strong>: This is NOT a CloudToLocalLLM app feature - it's a prompt/config for Antigravity IDE. The Flutter app doesn't need to implement this.</p>
+<hr />
+<h3 id="2026-02-25-websocket-device-identity-authentication">2026-02-25: WebSocket Device Identity Authentication<a class="headerlink" href="#2026-02-25-websocket-device-identity-authentication" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: ✅ Complete</p>
+<p>Implemented device identity authentication for OpenClaw Gateway WebSocket connections:</p>
+<ul>
+<li><strong>DeviceIdentityService</strong> (<code>lib/services/device_identity_service.dart</code>)</li>
+<li>ED25519 keypair generation and persistence</li>
+<li>Device auth payload signing with challenge nonces</li>
+<li>
+<p>Signature format: <code>v2|publicKey|clientId|clientMode|role|scopes|timestamp|token|nonce</code></p>
+</li>
+<li>
+<p><strong>ConnectionManagerService</strong> updates:</p>
+</li>
+<li>WebSocket handshake with device identity signature</li>
+<li>Challenge-response flow (<code>connect.challenge</code> event)</li>
+<li><code>sessions.list</code> method (dot notation) for agent status polling</li>
+<li>
+<p>Added <code>operator.admin</code> scope for admin operations</p>
+</li>
+<li>
+<p><strong>AgentStatusService</strong> updates:</p>
+</li>
+<li>Switched from HTTP <code>/status.json</code> to WebSocket <code>sessions.list</code> polling</li>
+<li>
+<p>Proper response handling via <code>_methodResponseCompleters</code></p>
+</li>
+<li>
+<p><strong>Singleton Pattern Fix</strong> (<code>main_privacy_enhanced.dart</code>):</p>
+</li>
+<li>Fixed duplicate service instances by using <code>di.serviceLocator&lt;T&gt;()</code> instead of <code>new Service()</code></li>
+<li>Ensures single WebSocket connection per app instance</li>
+</ul>
+<hr />
+<h2 id="quick-reference-pillar-status">Quick Reference: Pillar Status<a class="headerlink" href="#quick-reference-pillar-status" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pillar</th>
+<th>Status</th>
+<th>Progress</th>
+<th>Next Step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Setup Wizard</strong></td>
+<td>✅ Complete</td>
+<td>100%</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Chat</strong></td>
+<td>✅ Phase 1 Complete</td>
+<td>95%</td>
+<td>Multi-model attachments</td>
+</tr>
+<tr>
+<td><strong>OpenClaw Manager</strong></td>
+<td>✅ Phase 1 Complete</td>
+<td>95%</td>
+<td>Advanced metrics</td>
+</tr>
+<tr>
+<td><strong>Evolving Avatar</strong></td>
+<td>✅ Phase 2 Complete</td>
+<td>95%</td>
+<td>Achievements, deeper memory</td>
+</tr>
+<tr>
+<td><strong>Desktop Control</strong></td>
+<td>✅ Phase 2 Complete</td>
+<td>95%</td>
+<td>Advanced automation workflows</td>
+</tr>
+<tr>
+<td><strong>Vision</strong></td>
+<td>✅ Phase 2 Complete</td>
+<td>90%</td>
+<td>Continuous monitoring</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="implementation-phases-overview">Implementation Phases Overview<a class="headerlink" href="#implementation-phases-overview" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Focus</th>
+<th>Duration</th>
+<th>Status</th>
+<th>Key Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Phase 0</strong></td>
+<td>Setup Wizard</td>
+<td>Week 1</td>
+<td>✅ Complete</td>
+<td>Onboarding flow, provider detection</td>
+</tr>
+<tr>
+<td><strong>Phase 1</strong></td>
+<td>Foundation</td>
+<td>Weeks 2-3</td>
+<td>✅ Complete</td>
+<td>Provider selector, gateway control, chat search</td>
+</tr>
+<tr>
+<td><strong>Phase 2</strong></td>
+<td>Core Features</td>
+<td>Weeks 4-6</td>
+<td>✅ Complete</td>
+<td>Avatar personality/evolution, window management, vision services, memory storage</td>
+</tr>
+<tr>
+<td><strong>Phase 3</strong></td>
+<td>Advanced</td>
+<td>Weeks 7-8</td>
+<td>✅ Complete</td>
+<td>Native platform implementations, vector embeddings, Hermes integration</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌─────────────────────────────────────────────────────────────┐
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│                    CloudToLocalLLM App                        │
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│                    (Flutter Desktop)                         │
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>└─────────────────────────────────────────────────────────────┘
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>                              │
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>                              ▼
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                    ┌─────────────────┐
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                    │ Agent Runtime   │
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                    │ Session Manager │
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>                    │  (localhost:1337)│
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                    │ secure app channel│
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                    └────────┬─────────┘
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>                             │
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>                             ▼
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>                  ┌──────────────────────┐
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                  │ Agent Runtime         │
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                  │ Hermes / OpenClaw /   │
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                  │ compatible gateway    │
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                  └──────────┬───────────┘
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                             │
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>              ┌──────────────┴──────────────┐
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>              ▼                             ▼
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>     ┌─────────────────┐          ┌─────────────────┐
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>     │ Runtime Tools   │          │ Support Models  │
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>     │ Desktop/vision  │          │ Memory/background│
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>     │                 │          │                 │
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>     │  • File/window  │          │  • Ollama       │
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>     │  • Desktop ctrl │          │  • LM Studio    │
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>     │  • Voice/avatar │          │  • Custom local │
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>     └─────────────────┘          └─────────────────┘
+</span></code></pre></div>
+<p><strong>How It Works:</strong>
+1. The main app channel connects to an <strong>agent runtime</strong> that owns sessions, tools, capability requests, and streaming.
+2. <strong>Hermes</strong> is the first agent runtime path for current testing.
+3. <strong>OpenClaw Gateway</strong> remains supported as the original integration.
+4. Compatible custom agent gateways and optional hosted agent runtimes must satisfy the <a href="../../architecture/AGENT_RUNTIME_CONTRACT/">Agent Runtime Contract</a>.
+5. <strong>LM Studio, Ollama, and custom local model endpoints</strong> remain support model provider paths for memory, embeddings, summarization, semantic search, OCR cleanup, and speech helpers.
+6. OpenClaw can still intelligently route based on content when it is the selected agent runtime:
+   - <strong>Sensitive/private data</strong> → Local models (stays on machine)
+   - <strong>Regular queries</strong> → Cloud providers (faster, more capable)
+7. Runtime model selection belongs to the selected agent runtime. Support model provider settings are separate and must not satisfy primary agent runtime setup.</p>
+<hr />
+<h2 id="phase-0-setup-wizard-complete">Phase 0: Setup Wizard ✅ COMPLETE<a class="headerlink" href="#phase-0-setup-wizard-complete" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Must be completed before any other phase</strong> - Users cannot use the app without completing setup</p>
+</blockquote>
+<h3 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h3>
+<p>Guide new users through selected agent runtime configuration with support for:
+- <strong>Local agent runtime</strong>: Hermes, OpenClaw, or a compatible agent gateway on this device
+- <strong>Remote/Tailscale agent runtime</strong>: agent runtime on another user-controlled device or VPS in the tailnet
+- <strong>Hosted agent runtime</strong>: optional paid per-user runtime container
+- <strong>Support model provider</strong>: optional Ollama, LM Studio, or custom local model endpoint for memory/background features only</p>
+<h3 id="success-criteria">Success Criteria ✅<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ New users complete setup in &lt;3 minutes</li>
+<li>✅ A selected agent runtime is required and verified before the main channel opens</li>
+<li>✅ Database-backed configuration persistence</li>
+</ul>
+<h3 id="implementation-tasks">Implementation Tasks<a class="headerlink" href="#implementation-tasks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>File(s)</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build wizard flow container</td>
+<td><code>lib/screens/onboarding/setup_wizard_screen.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Connection method selector</td>
+<td><code>lib/screens/onboarding/steps/connection_method_step.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Local provider detection</td>
+<td><code>lib/services/provider_discovery_service.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Tailscale device discovery</td>
+<td><code>provider_discovery_service.dart</code> (integrated)</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Remote URL configuration</td>
+<td><code>lib/screens/onboarding/steps/remote_connection_step.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Connection testing</td>
+<td><code>lib/screens/onboarding/steps/connection_test_step.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Config persistence</td>
+<td><code>lib/services/provider_configuration_manager.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>First-run completion tracking</td>
+<td><code>lib/config/router.dart</code> (_HomeWithSetupCheck)</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>ProviderInfo/ProviderConfigurationManager fix</td>
+<td>Database schema v5, raw SQL DAO</td>
+<td>✅ Complete</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Time</strong>: ~19 hours | <strong>Completed</strong>: 2026-02-20</p>
+<hr />
+<h2 id="phase-1-foundation-chat-openclaw-manager-complete">Phase 1: Foundation (Chat + OpenClaw Manager) ✅ COMPLETE<a class="headerlink" href="#phase-1-foundation-chat-openclaw-manager-complete" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites">Prerequisites ✅<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ Complete Phase 0 (Setup Wizard)</li>
+<li>✅ Services reviewed and verified</li>
+<li>✅ Dev environment ready: Flutter SDK &gt;= 3.5.0, Node.js &gt;= 22.0.0</li>
+</ol>
+<h3 id="implementation-tasks_1">Implementation Tasks<a class="headerlink" href="#implementation-tasks_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>File(s)</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Implement OpenClaw provider selector</td>
+<td><code>lib/services/connection_manager_service.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Add gateway auto-restart on crash</td>
+<td><code>lib/services/openclaw_manager/gateway_control_service.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Add chat message search UI</td>
+<td><code>lib/components/conversation_list.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Enhance rich message rendering</td>
+<td><code>lib/components/message_content.dart</code></td>
+<td>✅ Complete</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Time</strong>: ~15 hours | <strong>Completed</strong>: 2026-02-20</p>
+<h3 id="completed-tasks-summary">Completed Tasks Summary<a class="headerlink" href="#completed-tasks-summary" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>OpenClaw Provider Selector</strong> ✅</li>
+<li>Created <code>OpenClawProvider</code>, <code>OpenClawModel</code>, <code>OpenClawProviderConfig</code> models</li>
+<li>Added <code>fetchProviderConfig()</code> - Fetches from OpenClaw Gateway API or config file</li>
+<li>Added <code>setActiveProvider()</code> - Switches provider via <code>POST /api/v1/provider</code></li>
+<li>Added <code>getProvider()</code>, <code>getModel()</code> - Helper methods for provider lookup</li>
+<li>Updated <code>ModelSelector</code> widget with provider icons and display names</li>
+<li>Model format: <code>provider-name/model-id</code> (e.g., "zhipu/glm-4-plus")</li>
+<li>
+<p>Display: "GLM (4 Plus)", "Gemini (Pro)", "Kimi (K2.5)"</p>
+</li>
+<li>
+<p><strong>Gateway Auto-Restart</strong> ✅</p>
+</li>
+<li>Health check loop every 30 seconds</li>
+<li>Auto-restart on crash with exponential backoff</li>
+<li>
+<p>Max 5 retry attempts before disabling</p>
+</li>
+<li>
+<p><strong>Chat Message Search</strong> ✅</p>
+</li>
+<li>Search in conversation titles and message content</li>
+<li>
+<p>Real-time filtering as user types</p>
+</li>
+<li>
+<p><strong>Rich Message Rendering</strong> ✅</p>
+</li>
+<li>Markdown support with <code>flutter_markdown</code></li>
+<li>Code block detection and syntax highlighting</li>
+<li>Reasoning/thinking display</li>
+</ol>
+<hr />
+<h2 id="phase-2-core-features-avatar-desktop">Phase 2: Core Features (Avatar + Desktop)<a class="headerlink" href="#phase-2-core-features-avatar-desktop" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites_1">Prerequisites<a class="headerlink" href="#prerequisites_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Complete Phase 1</li>
+<li>Add dependencies to <code>pubspec.yaml</code>:</li>
+<li><code>rive: ^0.13.0</code></li>
+<li><code>markdown: ^7.0.0</code></li>
+<li><code>flutter_clipboard_listener: ^0.1.0</code></li>
+<li><code>file_selector: ^1.0.0</code></li>
+</ol>
+<h3 id="avatar-personality-engine-design">Avatar Personality Engine Design<a class="headerlink" href="#avatar-personality-engine-design" title="Permanent link">&para;</a></h3>
+<p><strong>Architecture</strong>: Hybrid shared state with OpenClaw Gateway
+- <strong>OpenClaw</strong> owns avatar personality &amp; evolution (traits, evolution stages)
+- <strong>CloudToLocalLLM</strong> provides expanded awareness (memory, context, visual data)
+- <strong>Drift database</strong> (on VPS via Tailscale) = primary shared storage
+- <strong>Markdown files</strong> (OpenClaw skills dir) = backup/portable storage</p>
+<p><strong>Personality Traits</strong>:
+- Formality (0-1): How formal/professional responses are
+- Humor (0-1): How playful/casual the agent is
+- Enthusiasm (0-1): Energy level and expressiveness
+- Empathy (0-1): Emotional intelligence and warmth</p>
+<p><strong>Evolution System</strong> (no XP - organic growth):
+- Triggers: Conversation depth, user interaction patterns, agent self-reflection
+- Collaborative: OpenClaw requests evolution, CloudToLocalLLM validates
+- Stages: base → stage1 → stage2 → final</p>
+<p><strong>Data Flow</strong>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>OpenClaw Gateway              Drift Database (VPS)           CloudToLocalLLM
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>     │                              │                              │
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>     ├─── self-reflection ────&gt; write evolution request         │
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>     │                              │                              │
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>     │                              ├─── validate ───────────────&gt;│
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>     │                              │                              │
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>     │&lt;──── approved ─────────────────────────────────────────────┤
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>     │                              │                              │
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>     ├─── write evolution stage ────&gt;                              │
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>     │                              │                              │
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>     │                              ├─── sync ─────────────────────&gt;│
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>     │                              │   markdown backup            │
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>     │                              │                              │
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>     └─── inject personality ──────&gt;                              │
+</span></code></pre></div></p>
+<h3 id="implementation-tasks_2">Implementation Tasks<a class="headerlink" href="#implementation-tasks_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>File(s)</th>
+<th>Time</th>
+<th>Priority</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Avatar System</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Database schema migration</td>
+<td><code>lib/database/drift_local_brain.dart</code></td>
+<td>2h</td>
+<td>P0</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>PersonalityEngine service</td>
+<td><code>lib/services/avatar/personality_engine.dart</code></td>
+<td>4h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>EvolutionTracker service</td>
+<td><code>lib/services/avatar/evolution_tracker.dart</code></td>
+<td>5h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>AvatarStateService</td>
+<td><code>lib/services/avatar/avatar_state_service.dart</code></td>
+<td>3h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>MarkdownSyncService</td>
+<td><code>lib/services/avatar/markdown_sync_service.dart</code></td>
+<td>4h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>ConscienceStorageService</td>
+<td><code>lib/services/conscience_storage_service.dart</code></td>
+<td>3h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>Evolution API endpoints</td>
+<td><code>lib/services/router_server.dart</code></td>
+<td>3h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>OpenClaw personality skill</td>
+<td><code>~/.openclaw/skills/cloudtolocallm/</code></td>
+<td>6h</td>
+<td>P0</td>
+<td>🔲 User Setup</td>
+</tr>
+<tr>
+<td>Rive avatar animations</td>
+<td><code>assets/animations/avatar.riv</code></td>
+<td>8h</td>
+<td>P2</td>
+<td>🔲 Pending</td>
+</tr>
+<tr>
+<td>Emoji blending fallback</td>
+<td><code>lib/features/avatar/emoji_blending_avatar.dart</code></td>
+<td>3h</td>
+<td>P2</td>
+<td>🔲 Pending</td>
+</tr>
+<tr>
+<td>Avatar settings UI</td>
+<td><code>lib/screens/avatar/avatar_settings_screen.dart</code></td>
+<td>4h</td>
+<td>P2</td>
+<td>🔲 Pending</td>
+</tr>
+<tr>
+<td><strong>Desktop Control</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Clipboard service</td>
+<td><code>lib/services/desktop_control/clipboard_service.dart</code></td>
+<td>4h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>File operations UI</td>
+<td><code>lib/screens/desktop/file_operations_screen.dart</code></td>
+<td>5h</td>
+<td>P1</td>
+<td>✅ Complete</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Time</strong>: ~51 hours (Avatar: ~42h, Desktop: ~9h)</p>
+<h3 id="phase-2-success-criteria">Phase 2 Success Criteria<a class="headerlink" href="#phase-2-success-criteria" title="Permanent link">&para;</a></h3>
+<p><strong>Avatar System</strong>:
+- ✅ Database migrated with avatar_profiles, evolution_history, conversation_depth_metrics tables
+- ✅ Personality traits adjustable via UI (0-1 sliders for formality, humor, enthusiasm, empathy)
+- ✅ Avatar visuals respond to personality (colors, animation speed, emoji selection)
+- ✅ OpenClaw skill loads and injects personality into responses
+- ✅ Evolution flow works: self-reflection → request → validation → transformation
+- ✅ Markdown backup syncs reliably (personality.md, memory.md, context.md)
+- ✅ Fallback to markdown when Drift unavailable</p>
+<p><strong>Desktop Control</strong>:
+- ✅ Clipboard service with history tracking
+- ✅ File operations UI functional</p>
+<hr />
+<h2 id="phase-3-advanced-vision-avatar">Phase 3: Advanced (Vision + Avatar)<a class="headerlink" href="#phase-3-advanced-vision-avatar" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites_2">Prerequisites<a class="headerlink" href="#prerequisites_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Complete Phase 2</li>
+<li>Add dependencies:</li>
+<li><code>camera: ^0.10.5</code></li>
+<li><code>tesseract_ocr: ^0.4.0</code></li>
+<li><code>vector_math: ^2.1.4</code></li>
+</ol>
+<h3 id="implementation-tasks_3">Implementation Tasks<a class="headerlink" href="#implementation-tasks_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>File(s)</th>
+<th>Time</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Implement avatar memory system</td>
+<td><code>lib/services/avatar/memory_service.dart</code></td>
+<td>8h</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Avatar customization UI</td>
+<td><code>lib/screens/avatar/avatar_customization_screen.dart</code></td>
+<td>5h</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Achievement system UI</td>
+<td><code>lib/screens/avatar/achievements_screen.dart</code></td>
+<td>4h</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Region capture service</td>
+<td><code>lib/services/vision/region_capture.dart</code></td>
+<td>5h</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Camera input service</td>
+<td><code>lib/services/vision/camera_capture.dart</code></td>
+<td>4h</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>OCR engine</td>
+<td><code>lib/services/vision/ocr_engine.dart</code></td>
+<td>6h</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Time</strong>: ~32 hours</p>
+<hr />
+<h2 id="key-files-reference">Key Files Reference<a class="headerlink" href="#key-files-reference" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Modify</th>
+<th>Create</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Setup</td>
+<td><code>lib/di/locator.dart</code>, <code>lib/config/router.dart</code></td>
+<td>Wizard screens + services</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td><code>connection_manager_service.dart</code>, <code>home_layout.dart</code></td>
+<td>Provider selector implementation</td>
+</tr>
+<tr>
+<td>Runtime management</td>
+<td><code>gateway_control_service.dart</code>, Hermes/OpenClaw provider services</td>
+<td>None (already exists)</td>
+</tr>
+<tr>
+<td>Avatar</td>
+<td><code>avatar_widget.dart</code></td>
+<td>Personality, evolution, memory services</td>
+</tr>
+<tr>
+<td>Desktop</td>
+<td><code>gui_automation_service.dart</code></td>
+<td><code>clipboard_service.dart</code></td>
+</tr>
+<tr>
+<td>Vision</td>
+<td><code>gui_automation_service.dart</code></td>
+<td><code>camera_capture.dart</code>, <code>ocr_engine.dart</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="success-criteria_1">Success Criteria<a class="headerlink" href="#success-criteria_1" title="Permanent link">&para;</a></h2>
+<h3 id="phase-0-setup-wizard">Phase 0 (Setup Wizard) ✅<a class="headerlink" href="#phase-0-setup-wizard" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ New users complete setup in &lt;3 minutes</li>
+<li>✅ Selected runtime required and verified</li>
+<li>✅ Local, Tailscale, and custom endpoint options work</li>
+</ul>
+<h3 id="phase-1-foundation">Phase 1 (Foundation) ✅<a class="headerlink" href="#phase-1-foundation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Gateway auto-restart working</li>
+<li>✅ Chat search UI functional</li>
+<li>✅ Rich message rendering with markdown</li>
+<li>✅ Provider selector switches OpenClaw cloud providers</li>
+<li>✅ WebSocket device identity authentication</li>
+<li>✅ Agent status polling via sessions.list</li>
+</ul>
+<h3 id="phase-2-core-features-complete">Phase 2 (Core Features) ✅ Complete<a class="headerlink" href="#phase-2-core-features-complete" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Database schema: avatar_profiles, evolution_history, conversation_depth_metrics, conversation_memories</li>
+<li>✅ Personality engine with 4 traits (formality, humor, enthusiasm, empathy)</li>
+<li>✅ Evolution tracker (no XP - organic growth via conversation depth)</li>
+<li>✅ Conscience System storage layer (agentThoughts, conscienceDecisions tables)</li>
+<li>🔲 OpenClaw skill: ~/.openclaw/skills/cloudtolocallm/ (user setup)</li>
+<li>✅ Markdown backup sync (personality.md, memory.md, context.md)</li>
+<li>🔲 Avatar visuals respond to personality (Rive + emoji blending) - pending assets</li>
+<li>✅ Clipboard service with history</li>
+<li>✅ File operations UI functional</li>
+</ul>
+<h3 id="phase-3-advanced-complete">Phase 3 (Advanced) ✅ Complete<a class="headerlink" href="#phase-3-advanced-complete" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Avatar memory system with embeddings and semantic search</li>
+<li>✅ Vision services: region capture, camera input, OCR</li>
+<li>✅ Desktop control: Wayland-native platform channels with X11 fallback</li>
+<li>✅ Hermes streaming service with agent lifecycle events</li>
+<li>🔲 Avatar customization UI</li>
+</ul>
+<hr />
+<h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>SPEC.md</strong>: Master specification</li>
+<li><strong>README.md</strong>: User-facing overview</li>
+<li><strong>docs/architecture/SYSTEM_ARCHITECTURE.md</strong>: Technical deep dive</li>
+<li><strong>CLAUDE.md</strong>: Development guidelines</li>
+<li><strong>docs/plans/YYYY-MM-DD-avatar-personality-engine-design.md</strong>: Detailed personality engine design</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

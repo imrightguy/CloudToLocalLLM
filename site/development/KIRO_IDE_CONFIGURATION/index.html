@@ -1,0 +1,2080 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Kiro IDE Configuration Guide - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kiro-ide-configuration-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kiro IDE Configuration Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-ai-assistant-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom AI Assistant Modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom AI Assistant Modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available-custom-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Custom Modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Custom Modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-documentation-specialist-docs-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Documentation Specialist (docs-specialist)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-code-reviewer-code-reviewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Code Reviewer (code-reviewer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-test-engineer-test-engineer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Test Engineer (test-engineer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-code-simplifier-code-simplifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Code Simplifier (code-simplifier)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mcp-tool-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Tool Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MCP Tool Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configured-mcp-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configured MCP Servers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configured MCP Servers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-playwright-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Playwright Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-context7-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Context7 Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-n8n-mcp-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. N8N MCP Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-sequential-thinking-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Sequential Thinking Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-chrome-devtools-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Chrome DevTools Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-configuration-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Configuration Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-workflow-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Workflow Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Workflow Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kiro-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kiro Hooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kiro Hooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auto-commit-push-hook-auto-commit-pushkirohook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Commit Push Hook (auto-commit-push.kiro.hook)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flutter-lint-fix-hook-flutter-lint-fixkirohook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flutter Lint Fix Hook (flutter-lint-fix.kiro.hook)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-quality-analyzer-hook-code-quality-analyzerkirohook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Quality Analyzer Hook (code-quality-analyzer.kiro.hook)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-documentation-sync-hook-source-docs-synckirohook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Documentation Sync Hook (source-docs-sync.kiro.hook)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gemini-cli-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gemini CLI Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-custom-modes-effectively" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Custom Modes Effectively
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-tool-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Tool Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-modes-configuration-temp_custom_modesyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Modes Configuration (temp_custom_modes.yaml)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-settings-configuration-temp_mcp_settingsjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP Settings Configuration (temp_mcp_settings.json)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Steps
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-cloudtolocalllm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with CloudToLocalLLM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration with CloudToLocalLLM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cicd-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI/CD Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-productivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Productivity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Enhancements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Enhancements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planned Improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="kiro-ide-configuration-guide">Kiro IDE Configuration Guide<a class="headerlink" href="#kiro-ide-configuration-guide" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>CloudToLocalLLM includes specialized configuration for Kiro IDE, providing custom AI assistant modes, MCP (Model Context Protocol) tool integration, and development workflow automation. This guide covers the setup and usage of Kiro IDE features for enhanced development productivity.</p>
+<h2 id="custom-ai-assistant-modes">Custom AI Assistant Modes<a class="headerlink" href="#custom-ai-assistant-modes" title="Permanent link">&para;</a></h2>
+<p>The project includes pre-configured custom modes in <code>temp_custom_modes.yaml</code> that provide specialized AI assistance for different development tasks.</p>
+<h3 id="available-custom-modes">Available Custom Modes<a class="headerlink" href="#available-custom-modes" title="Permanent link">&para;</a></h3>
+<h4 id="1-documentation-specialist-docs-specialist">1. Documentation Specialist (<code>docs-specialist</code>)<a class="headerlink" href="#1-documentation-specialist-docs-specialist" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Technical writing expert for clear, comprehensive documentation</p>
+<p><strong>Capabilities</strong>:</p>
+<ul>
+<li>Explaining complex concepts simply</li>
+<li>Creating well-structured documentation</li>
+<li>Checking for broken links</li>
+<li>Ensuring consistency in tone and style</li>
+</ul>
+<p><strong>File Access</strong>: Restricted to documentation files only</p>
+<ul>
+<li>Markdown files (<code>.md</code>, <code>.mdx</code>)</li>
+<li>Text files (<code>.txt</code>, <code>.rst</code>, <code>.adoc</code>)</li>
+<li>README and CHANGELOG files</li>
+</ul>
+<p><strong>Usage</strong>: Ideal for writing and improving project documentation, API docs, and user guides.</p>
+<h4 id="2-code-reviewer-code-reviewer">2. Code Reviewer (<code>code-reviewer</code>)<a class="headerlink" href="#2-code-reviewer-code-reviewer" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Senior software engineer conducting thorough code reviews</p>
+<p><strong>Capabilities</strong>:</p>
+<ul>
+<li>Code quality analysis</li>
+<li>Security issue identification</li>
+<li>Performance optimization suggestions</li>
+<li>Maintainability improvements</li>
+</ul>
+<p><strong>File Access</strong>: Read-only access with browser tools for research</p>
+<p><strong>Usage</strong>: Perfect for reviewing pull requests, identifying code smells, and suggesting improvements.</p>
+<h4 id="3-test-engineer-test-engineer">3. Test Engineer (<code>test-engineer</code>)<a class="headerlink" href="#3-test-engineer-test-engineer" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: QA engineer and testing specialist</p>
+<p><strong>Capabilities</strong>:</p>
+<ul>
+<li>Writing comprehensive tests</li>
+<li>Debugging test failures</li>
+<li>Improving code coverage</li>
+<li>Edge case identification</li>
+</ul>
+<p><strong>File Access</strong>: Restricted to test files only</p>
+<ul>
+<li>JavaScript/TypeScript test files (<code>.test.js</code>, <code>.spec.ts</code>, etc.)</li>
+<li>Test configuration files</li>
+</ul>
+<p><strong>Usage</strong>: Specialized for creating and maintaining test suites, debugging test failures.</p>
+<h4 id="4-code-simplifier-code-simplifier">4. Code Simplifier (<code>code-simplifier</code>)<a class="headerlink" href="#4-code-simplifier-code-simplifier" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Expert refactoring specialist (Gemini integration)</p>
+<p><strong>Capabilities</strong>:</p>
+<ul>
+<li>Code complexity reduction</li>
+<li>Redundancy elimination</li>
+<li>Naming improvements</li>
+<li>Method extraction</li>
+<li>Dead code removal</li>
+<li>Logic flow clarification</li>
+</ul>
+<p><strong>File Access</strong>: Full read/edit access with all tools available</p>
+<p><strong>Refactoring Methodology</strong>:</p>
+<ol>
+<li><strong>Analyze Before Acting</strong>: Understand code behavior and public interfaces</li>
+<li><strong>Preserve Behavior</strong>: Maintain all external contracts and side effects</li>
+<li><strong>Simplification Techniques</strong>: Apply systematic improvement patterns</li>
+<li><strong>Quality Checks</strong>: Verify improvements and test compatibility</li>
+<li><strong>Clear Communication</strong>: Explain changes and benefits</li>
+</ol>
+<p><strong>Usage</strong>: Ideal for refactoring legacy code, improving readability, and reducing technical debt.</p>
+<h2 id="mcp-tool-integration">MCP Tool Integration<a class="headerlink" href="#mcp-tool-integration" title="Permanent link">&para;</a></h2>
+<h3 id="configured-mcp-servers">Configured MCP Servers<a class="headerlink" href="#configured-mcp-servers" title="Permanent link">&para;</a></h3>
+<p>The project includes MCP server configurations in <code>temp_mcp_settings.json</code>:</p>
+<h4 id="1-playwright-server">1. Playwright Server<a class="headerlink" href="#1-playwright-server" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Browser automation and end-to-end testing</p>
+<ul>
+<li>Navigate to URLs</li>
+<li>Take screenshots</li>
+<li>Interact with web elements</li>
+<li>Execute JavaScript</li>
+<li>Monitor console logs</li>
+</ul>
+<h4 id="2-context7-server">2. Context7 Server<a class="headerlink" href="#2-context7-server" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Up-to-date library documentation</p>
+<ul>
+<li>Resolve library IDs</li>
+<li>Fetch current documentation</li>
+<li>Access API references</li>
+</ul>
+<h4 id="3-n8n-mcp-server">3. N8N MCP Server<a class="headerlink" href="#3-n8n-mcp-server" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Workflow automation</p>
+<ul>
+<li>API integrations</li>
+<li>Process automation</li>
+<li>Data transformations</li>
+</ul>
+<h4 id="4-sequential-thinking-server">4. Sequential Thinking Server<a class="headerlink" href="#4-sequential-thinking-server" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Structured problem-solving</p>
+<ul>
+<li>Step-by-step analysis</li>
+<li>Logical reasoning chains</li>
+<li>Complex problem breakdown</li>
+</ul>
+<h4 id="5-chrome-devtools-server">5. Chrome DevTools Server<a class="headerlink" href="#5-chrome-devtools-server" title="Permanent link">&para;</a></h4>
+<p><strong>Purpose</strong>: Advanced browser debugging</p>
+<ul>
+<li>Network request monitoring</li>
+<li>Performance analysis</li>
+<li>DOM inspection</li>
+</ul>
+<h3 id="mcp-configuration-setup">MCP Configuration Setup<a class="headerlink" href="#mcp-configuration-setup" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Copy Configuration</strong>: Move <code>temp_mcp_settings.json</code> to <code>.kiro/settings/mcp.json</code></li>
+<li><strong>Install Dependencies</strong>: Ensure required npm packages are available</li>
+<li><strong>Configure Environment</strong>: Set up any required API keys or tokens</li>
+<li><strong>Restart Kiro</strong>: Reload IDE to apply MCP server configurations</li>
+</ol>
+<h2 id="development-workflow-integration">Development Workflow Integration<a class="headerlink" href="#development-workflow-integration" title="Permanent link">&para;</a></h2>
+<h3 id="kiro-hooks">Kiro Hooks<a class="headerlink" href="#kiro-hooks" title="Permanent link">&para;</a></h3>
+<p>The project includes several automation hooks in <code>.kiro/hooks/</code>:</p>
+<h4 id="auto-commit-push-hook-auto-commit-pushkirohook">Auto-Commit Push Hook (<code>auto-commit-push.kiro.hook</code>)<a class="headerlink" href="#auto-commit-push-hook-auto-commit-pushkirohook" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Automatically commits and pushes changes</li>
+<li>Integrates with CI/CD workflows</li>
+<li>Maintains clean git history</li>
+</ul>
+<h4 id="flutter-lint-fix-hook-flutter-lint-fixkirohook">Flutter Lint Fix Hook (<code>flutter-lint-fix.kiro.hook</code>)<a class="headerlink" href="#flutter-lint-fix-hook-flutter-lint-fixkirohook" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Automatically fixes Flutter linting issues</li>
+<li>Runs <code>dart fix --apply</code> on save</li>
+<li>Maintains code quality standards</li>
+</ul>
+<h4 id="code-quality-analyzer-hook-code-quality-analyzerkirohook">Code Quality Analyzer Hook (<code>code-quality-analyzer.kiro.hook</code>)<a class="headerlink" href="#code-quality-analyzer-hook-code-quality-analyzerkirohook" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Analyzes code quality metrics</li>
+<li>Identifies potential improvements</li>
+<li>Integrates with custom modes</li>
+</ul>
+<h4 id="source-documentation-sync-hook-source-docs-synckirohook">Source Documentation Sync Hook (<code>source-docs-sync.kiro.hook</code>)<a class="headerlink" href="#source-documentation-sync-hook-source-docs-synckirohook" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Synchronizes code documentation</li>
+<li>Updates API documentation</li>
+<li>Maintains documentation consistency</li>
+</ul>
+<h3 id="gemini-cli-integration">Gemini CLI Integration<a class="headerlink" href="#gemini-cli-integration" title="Permanent link">&para;</a></h3>
+<p>The project integrates with Gemini CLI for AI-powered development assistance:</p>
+<p><strong>Features</strong>:</p>
+<ul>
+<li>Semantic version analysis</li>
+<li>Platform detection for deployments</li>
+<li>Automated commit message generation</li>
+<li>Code change impact analysis</li>
+</ul>
+<p><strong>Configuration</strong>: See <code>GEMINI_CLI_INTEGRATION_ARCHITECTURE.md</code> for detailed setup</p>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="using-custom-modes-effectively">Using Custom Modes Effectively<a class="headerlink" href="#using-custom-modes-effectively" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Choose the Right Mode</strong>: Select the mode that matches your current task</li>
+<li>Use <code>docs-specialist</code> for documentation work</li>
+<li>Use <code>code-reviewer</code> for PR reviews</li>
+<li>Use <code>test-engineer</code> for testing tasks</li>
+<li>
+<p>Use <code>code-simplifier</code> for refactoring</p>
+</li>
+<li>
+<p><strong>Leverage File Restrictions</strong>: Custom modes with file restrictions help maintain focus</p>
+</li>
+<li>Documentation mode prevents accidental code changes</li>
+<li>
+<p>Test mode ensures test-specific improvements</p>
+</li>
+<li>
+<p><strong>Combine with MCP Tools</strong>: Use MCP tools within custom modes for enhanced capabilities</p>
+</li>
+<li>Browser automation for testing web features</li>
+<li>Documentation lookup for accurate references</li>
+</ol>
+<h3 id="mcp-tool-usage">MCP Tool Usage<a class="headerlink" href="#mcp-tool-usage" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Browser Testing</strong>: Use Playwright tools to test deployed applications</li>
+</ol>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Navigate to deployed app</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nx">playwright_navigate</span><span class="p">({</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://app.cloudtolocalllm.online&quot;</span><span class="w"> </span><span class="p">})</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">// Take screenshot for verification</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nx">playwright_screenshot</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;homepage-test&quot;</span><span class="w"> </span><span class="p">})</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Documentation Research</strong>: Use Context7 for up-to-date library docs</li>
+</ol>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Get Flutter documentation</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nx">resolve_library_id</span><span class="p">({</span><span class="w"> </span><span class="nx">libraryName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;flutter&quot;</span><span class="w"> </span><span class="p">})</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nx">get_library_docs</span><span class="p">({</span><span class="w"> </span><span class="nx">context7CompatibleLibraryID</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/flutter/flutter&quot;</span><span class="w"> </span><span class="p">})</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Workflow Automation</strong>: Leverage N8N for complex automation tasks</li>
+</ol>
+<h3 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Start with Analysis</strong>: Use <code>code-reviewer</code> mode to understand existing code</li>
+<li><strong>Plan Changes</strong>: Switch to appropriate mode for implementation</li>
+<li><strong>Test Thoroughly</strong>: Use <code>test-engineer</code> mode for comprehensive testing</li>
+<li><strong>Document Changes</strong>: Use <code>docs-specialist</code> mode for documentation updates</li>
+<li><strong>Refactor if Needed</strong>: Use <code>code-simplifier</code> mode for cleanup</li>
+</ol>
+<h2 id="configuration-files">Configuration Files<a class="headerlink" href="#configuration-files" title="Permanent link">&para;</a></h2>
+<h3 id="custom-modes-configuration-temp_custom_modesyaml">Custom Modes Configuration (<code>temp_custom_modes.yaml</code>)<a class="headerlink" href="#custom-modes-configuration-temp_custom_modesyaml" title="Permanent link">&para;</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">customModes</span><span class="p">:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">slug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mode-name</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Display Name</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">roleDefinition</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="no">Description of the AI assistant&#39;s role and expertise</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">customInstructions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">      </span><span class="no">Specific instructions for behavior and focus areas</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">groups</span><span class="p">:</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span><span class="w">          </span><span class="c1"># File reading capabilities</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edit</span><span class="w">          </span><span class="c1"># File editing capabilities  </span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">command</span><span class="w">       </span><span class="c1"># Command execution</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mcp</span><span class="w">          </span><span class="c1"># MCP tool access</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">browser</span><span class="w">      </span><span class="c1"># Browser automation</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global</span>
+</span></code></pre></div>
+<h3 id="mcp-settings-configuration-temp_mcp_settingsjson">MCP Settings Configuration (<code>temp_mcp_settings.json</code>)<a class="headerlink" href="#mcp-settings-configuration-temp_mcp_settingsjson" title="Permanent link">&para;</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;server-name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npx&quot;</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;package-name&quot;</span><span class="p">],</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="nt">&quot;ENVIRONMENT_VAR&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;value&quot;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">      </span><span class="nt">&quot;alwaysAllow&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tool1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tool2&quot;</span><span class="p">]</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Custom Modes Not Loading</strong></li>
+<li>Verify YAML syntax in <code>temp_custom_modes.yaml</code></li>
+<li>Check file permissions</li>
+<li>
+<p>Restart Kiro IDE</p>
+</li>
+<li>
+<p><strong>MCP Servers Not Connecting</strong></p>
+</li>
+<li>Verify npm packages are installed</li>
+<li>Check network connectivity</li>
+<li>
+<p>Review server logs in Kiro</p>
+</li>
+<li>
+<p><strong>Hooks Not Executing</strong></p>
+</li>
+<li>Verify hook file permissions</li>
+<li>Check hook configuration syntax</li>
+<li>Review Kiro hook settings</li>
+</ol>
+<h3 id="debug-steps">Debug Steps<a class="headerlink" href="#debug-steps" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Check Configuration Files</strong>: Validate YAML/JSON syntax</li>
+<li><strong>Review Logs</strong>: Check Kiro IDE logs for error messages</li>
+<li><strong>Test Individually</strong>: Test each component separately</li>
+<li><strong>Restart IDE</strong>: Reload Kiro to apply configuration changes</li>
+</ol>
+<h2 id="integration-with-cloudtolocalllm">Integration with CloudToLocalLLM<a class="headerlink" href="#integration-with-cloudtolocalllm" title="Permanent link">&para;</a></h2>
+<h3 id="cicd-integration">CI/CD Integration<a class="headerlink" href="#cicd-integration" title="Permanent link">&para;</a></h3>
+<p>Custom modes and MCP tools integrate with the project's AI-powered CI/CD system:</p>
+<ul>
+<li><strong>Code Analysis</strong>: Custom modes assist with code review in CI/CD</li>
+<li><strong>Documentation Updates</strong>: Automated documentation generation</li>
+<li><strong>Testing Automation</strong>: Enhanced test coverage and quality</li>
+<li><strong>Deployment Verification</strong>: Browser automation for deployment testing</li>
+</ul>
+<h3 id="development-productivity">Development Productivity<a class="headerlink" href="#development-productivity" title="Permanent link">&para;</a></h3>
+<p>The Kiro IDE configuration enhances CloudToLocalLLM development through:</p>
+<ul>
+<li><strong>Specialized AI Assistance</strong>: Task-specific AI modes for different development phases</li>
+<li><strong>Automated Workflows</strong>: Hooks for common development tasks</li>
+<li><strong>Enhanced Testing</strong>: Browser automation for comprehensive testing</li>
+<li><strong>Documentation Maintenance</strong>: Automated documentation synchronization</li>
+</ul>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<h3 id="planned-improvements">Planned Improvements<a class="headerlink" href="#planned-improvements" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Additional Custom Modes</strong>:</li>
+<li>Database specialist for SQL and schema work</li>
+<li>DevOps engineer for infrastructure tasks</li>
+<li>
+<p>Security auditor for security reviews</p>
+</li>
+<li>
+<p><strong>Enhanced MCP Integration</strong>:</p>
+</li>
+<li>AWS tools for cloud infrastructure</li>
+<li>Kubernetes tools for container management</li>
+<li>
+<p>Grafana tools for monitoring and observability</p>
+</li>
+<li>
+<p><strong>Workflow Automation</strong>:</p>
+</li>
+<li>Automated PR creation and management</li>
+<li>Intelligent code review assignment</li>
+<li>Automated testing and deployment triggers</li>
+</ol>
+<h3 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h3>
+<p>To contribute to Kiro IDE configuration:</p>
+<ol>
+<li><strong>Test New Modes</strong>: Create and test custom modes for specific use cases</li>
+<li><strong>Add MCP Servers</strong>: Integrate additional MCP servers for enhanced capabilities</li>
+<li><strong>Improve Hooks</strong>: Enhance existing hooks or create new automation</li>
+<li><strong>Update Documentation</strong>: Keep this guide current with new features</li>
+</ol>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The Kiro IDE configuration provides a powerful development environment tailored for CloudToLocalLLM development. By leveraging custom AI modes, MCP tool integration, and automated workflows, developers can achieve higher productivity and code quality while maintaining focus on their specific tasks.</p>
+<p>For questions or issues with Kiro IDE configuration, refer to the project's GitHub issues or discussions.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

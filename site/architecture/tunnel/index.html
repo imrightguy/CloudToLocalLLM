@@ -1,0 +1,1914 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Tunnel Enhancement Implementation - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tunnel-enhancement-implementation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tunnel Enhancement Implementation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-project-structure-and-core-interfaces-completed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Task 1: Project Structure and Core Interfaces (COMPLETED)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Task 1: Project Structure and Core Interfaces (COMPLETED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-11-server-side-interface-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 1.1: Server-side Interface Definitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-12-client-side-interface-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 1.2: Client-side Interface Definitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-13-dependency-injection-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 1.3: Dependency Injection Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-implement-connection-resilience-client-side-completed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Task 3: Implement Connection Resilience (Client-side) (COMPLETED)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Task 3: Implement Connection Resilience (Client-side) (COMPLETED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-31-create-reconnectionmanager-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 3.1: Create ReconnectionManager class ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-32-implement-connection-state-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 3.2: Implement connection state tracking ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-33-build-websocket-heartbeat-mechanism" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 3.3: Build WebSocket heartbeat mechanism ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-34-implement-connection-recovery-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 3.4: Implement connection recovery flow ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#barrel-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Barrel Export
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-2-implement-data-models-and-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Implement Data Models and Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-implement-request-queue-completed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Task 4: Implement Request Queue (COMPLETED)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-implement-error-handling-and-diagnostics-completed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Task 5: Implement Error Handling and Diagnostics (COMPLETED)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Task 5: Implement Error Handling and Diagnostics (COMPLETED)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-51-create-error-categorization-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 5.1: Create error categorization system ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-52-build-diagnostic-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 5.2: Build diagnostic test suite ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-53-create-diagnosticreport-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 5.3: Create DiagnosticReport generator ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sub-task-54-implement-error-recovery-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-task 5.4: Implement error recovery strategies ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#barrel-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Barrel Exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-implement-metrics-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Implement Metrics Collection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-after-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage (After Implementation)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements Coverage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="tunnel-enhancement-implementation">Tunnel Enhancement Implementation<a class="headerlink" href="#tunnel-enhancement-implementation" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Status</strong>: Legacy/fallback tunnel implementation notes. Current multi-device and cloud connector work should start from <a href="../SECURE_DEVICE_MESH/">Secure Device Mesh</a> and the selected agent runtime path. Use this directory only when maintaining or migrating the older SSH WebSocket tunnel stack.</p>
+</blockquote>
+<p>This directory contains the enhanced SSH WebSocket tunnel implementation for CloudToLocalLLM.</p>
+<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>lib/services/tunnel/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── interfaces/              # Interface definitions and data models
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── tunnel_service.dart         # Main tunnel service interface
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── request_queue.dart          # Priority-based request queue interface
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── metrics_collector.dart      # Metrics collection interface
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── tunnel_config.dart          # Configuration models
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── tunnel_health_metrics.dart  # Health and quality metrics
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── tunnel_models.dart          # Request/response/error models
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── diagnostic_report.dart      # Diagnostic test models
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └── interfaces.dart             # Barrel file for all interfaces
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── tunnel_service_factory.dart     # Factory methods for service creation
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└── tunnel_service_lifecycle.dart   # Lifecycle management
+</span></code></pre></div>
+<h2 id="implementation-status">Implementation Status<a class="headerlink" href="#implementation-status" title="Permanent link">&para;</a></h2>
+<h3 id="task-1-project-structure-and-core-interfaces-completed">✅ Task 1: Project Structure and Core Interfaces (COMPLETED)<a class="headerlink" href="#task-1-project-structure-and-core-interfaces-completed" title="Permanent link">&para;</a></h3>
+<h4 id="sub-task-11-server-side-interface-definitions">Sub-task 1.1: Server-side Interface Definitions<a class="headerlink" href="#sub-task-11-server-side-interface-definitions" title="Permanent link">&para;</a></h4>
+<p>Created TypeScript interfaces in <code>services/streaming-proxy/src/interfaces/</code>:</p>
+<ul>
+<li><code>websocket-handler.ts</code> - WebSocket connection management</li>
+<li><code>auth-middleware.ts</code> - JWT validation and user context</li>
+<li><code>rate-limiter.ts</code> - Token bucket rate limiting</li>
+<li><code>connection-pool.ts</code> - SSH connection pooling</li>
+<li><code>circuit-breaker.ts</code> - Circuit breaker pattern</li>
+<li><code>metrics-collector.ts</code> - Server-side metrics</li>
+<li><code>index.ts</code> - Central export point</li>
+</ul>
+<h4 id="sub-task-12-client-side-interface-definitions">Sub-task 1.2: Client-side Interface Definitions<a class="headerlink" href="#sub-task-12-client-side-interface-definitions" title="Permanent link">&para;</a></h4>
+<p>Created Dart interfaces in <code>lib/services/tunnel/interfaces/</code>:</p>
+<ul>
+<li><code>tunnel_service.dart</code> - Main tunnel service interface</li>
+<li><code>request_queue.dart</code> - Priority queue with persistence</li>
+<li><code>metrics_collector.dart</code> - Client-side metrics</li>
+<li><code>tunnel_config.dart</code> - Configuration with predefined profiles</li>
+<li><code>tunnel_health_metrics.dart</code> - Health and quality indicators</li>
+<li><code>tunnel_models.dart</code> - Request, response, and error models</li>
+<li><code>diagnostic_report.dart</code> - Diagnostic test results</li>
+<li><code>interfaces.dart</code> - Barrel file for all interfaces</li>
+</ul>
+<h4 id="sub-task-13-dependency-injection-setup">Sub-task 1.3: Dependency Injection Setup<a class="headerlink" href="#sub-task-13-dependency-injection-setup" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Updated <code>lib/di/locator.dart</code> with placeholders for tunnel services</li>
+<li>Created <code>tunnel_service_factory.dart</code> for service instantiation</li>
+<li>Created <code>tunnel_service_lifecycle.dart</code> for lifecycle management</li>
+</ul>
+<h3 id="task-3-implement-connection-resilience-client-side-completed">✅ Task 3: Implement Connection Resilience (Client-side) (COMPLETED)<a class="headerlink" href="#task-3-implement-connection-resilience-client-side-completed" title="Permanent link">&para;</a></h3>
+<h4 id="sub-task-31-create-reconnectionmanager-class">Sub-task 3.1: Create ReconnectionManager class ✅<a class="headerlink" href="#sub-task-31-create-reconnectionmanager-class" title="Permanent link">&para;</a></h4>
+<p>Created <code>reconnection_manager.dart</code> with:</p>
+<ul>
+<li>Exponential backoff algorithm with jitter (±30% randomness)</li>
+<li>Configurable max attempts and delays</li>
+<li>Attempt tracking and detailed logging</li>
+<li>Cancellation support for manual intervention</li>
+<li>Reset functionality for state management</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Formula: <code>min(maxDelay, baseDelay * 2^(attempt-1) * (1 + jitter))</code></li>
+<li>Prevents thundering herd problem with jitter</li>
+<li>Comprehensive logging for debugging</li>
+<li>Clean cancellation and disposal</li>
+</ul>
+<h4 id="sub-task-32-implement-connection-state-tracking">Sub-task 3.2: Implement connection state tracking ✅<a class="headerlink" href="#sub-task-32-implement-connection-state-tracking" title="Permanent link">&para;</a></h4>
+<p>Created <code>connection_state_tracker.dart</code> with:</p>
+<ul>
+<li>Complete connection lifecycle event tracking</li>
+<li>Event history with configurable size limit (default: 100 events)</li>
+<li>State transition management with automatic event recording</li>
+<li>Stream-based event notifications for reactive UI</li>
+<li>Reconnection attempt tracking and reset</li>
+<li>Health check and configuration change recording</li>
+<li>Error event tracking with full context</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li><code>ChangeNotifier</code> integration for Flutter state management</li>
+<li>Event filtering by type and time window</li>
+<li>JSON serialization for persistence</li>
+<li>Comprehensive event metadata support</li>
+</ul>
+<h4 id="sub-task-33-build-websocket-heartbeat-mechanism">Sub-task 3.3: Build WebSocket heartbeat mechanism ✅<a class="headerlink" href="#sub-task-33-build-websocket-heartbeat-mechanism" title="Permanent link">&para;</a></h4>
+<p>Created <code>websocket_heartbeat.dart</code> with:</p>
+<ul>
+<li>Ping/pong protocol implementation</li>
+<li>Configurable ping interval (default: 30s) and pong timeout (default: 45s)</li>
+<li>Automatic connection loss detection</li>
+<li>Heartbeat statistics tracking (pings sent, pongs received, missed pongs)</li>
+<li><code>HeartbeatWebSocket</code> wrapper for easy integration</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Automatic ping sending with periodic timer</li>
+<li>Pong timeout detection (1.5x ping interval)</li>
+<li>Connection loss callback for recovery triggering</li>
+<li>Message filtering (pong messages handled internally)</li>
+<li>Comprehensive statistics for monitoring</li>
+</ul>
+<h4 id="sub-task-34-implement-connection-recovery-flow">Sub-task 3.4: Implement connection recovery flow ✅<a class="headerlink" href="#sub-task-34-implement-connection-recovery-flow" title="Permanent link">&para;</a></h4>
+<p>Created <code>connection_recovery.dart</code> with:</p>
+<ul>
+<li>Complete recovery orchestration</li>
+<li>Disconnection detection and handling</li>
+<li>Automatic reconnection with backoff</li>
+<li>Connection state restoration</li>
+<li>Queued request flushing coordination</li>
+<li>Network change handling</li>
+<li>Connection health testing</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Integrates <code>ReconnectionManager</code> and <code>ConnectionStateTracker</code></li>
+<li>Handles both automatic and manual recovery</li>
+<li>Supports cancellation of ongoing recovery</li>
+<li>Network change event handling</li>
+<li>Recovery statistics for monitoring</li>
+<li>Comprehensive error handling and logging</li>
+</ul>
+<h4 id="barrel-export">Barrel Export<a class="headerlink" href="#barrel-export" title="Permanent link">&para;</a></h4>
+<p>Created <code>resilience.dart</code> to export all resilience components:</p>
+<ul>
+<li><code>ReconnectionManager</code></li>
+<li><code>ConnectionStateTracker</code></li>
+<li><code>WebSocketHeartbeat</code> and <code>HeartbeatWebSocket</code></li>
+<li><code>ConnectionRecovery</code></li>
+</ul>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>The following tasks are ready to be implemented:</p>
+<h3 id="task-2-implement-data-models-and-validation">Task 2: Implement Data Models and Validation<a class="headerlink" href="#task-2-implement-data-models-and-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Connection state models (already in tunnel_models.dart)</li>
+<li>✅ Request and response models (already in tunnel_models.dart)</li>
+<li>✅ Error models with categorization (already in tunnel_models.dart)</li>
+<li>✅ Metrics models (already in tunnel_models.dart)</li>
+</ul>
+<p><strong>Note:</strong> Task 2 was already completed as part of Task 1.2 when creating the data models.</p>
+<h3 id="task-4-implement-request-queue-completed">✅ Task 4: Implement Request Queue (COMPLETED)<a class="headerlink" href="#task-4-implement-request-queue-completed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Create PersistentRequestQueue class</li>
+<li>✅ Implement request persistence</li>
+<li>✅ Add backpressure mechanism</li>
+<li>✅ Implement request timeout handling</li>
+</ul>
+<h3 id="task-5-implement-error-handling-and-diagnostics-completed">✅ Task 5: Implement Error Handling and Diagnostics (COMPLETED)<a class="headerlink" href="#task-5-implement-error-handling-and-diagnostics-completed" title="Permanent link">&para;</a></h3>
+<h4 id="sub-task-51-create-error-categorization-system">Sub-task 5.1: Create error categorization system ✅<a class="headerlink" href="#sub-task-51-create-error-categorization-system" title="Permanent link">&para;</a></h4>
+<p>Created <code>error_categorization.dart</code> with:</p>
+<ul>
+<li>Intelligent exception categorization by type</li>
+<li>Specific handlers for SocketException, WebSocketChannelException, TimeoutException</li>
+<li>String-based categorization fallback</li>
+<li>HTTP status code to error code mapping</li>
+<li>Context-aware error messages and suggestions</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Detects network errors (connection refused, DNS failures, network unreachable)</li>
+<li>Identifies authentication errors (invalid credentials, expired tokens)</li>
+<li>Recognizes server errors (unavailable, rate limits, queue full)</li>
+<li>Categorizes protocol errors (SSH, WebSocket, compression, host key)</li>
+<li>Provides detailed error context for debugging</li>
+</ul>
+<h4 id="sub-task-52-build-diagnostic-test-suite">Sub-task 5.2: Build diagnostic test suite ✅<a class="headerlink" href="#sub-task-52-build-diagnostic-test-suite" title="Permanent link">&para;</a></h4>
+<p>Created <code>diagnostics/diagnostic_test_suite.dart</code> with:</p>
+<ul>
+<li>DNS resolution test</li>
+<li>WebSocket connectivity test</li>
+<li>SSH authentication test</li>
+<li>Tunnel establishment test</li>
+<li>Data transfer test</li>
+<li>Latency test (10 ping-pong measurements)</li>
+<li>Throughput test (64KB chunks)</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Comprehensive test coverage for all connection aspects</li>
+<li>Configurable test timeout (default: 30s)</li>
+<li>Detailed test results with timing and metrics</li>
+<li>Graceful failure handling with informative error messages</li>
+<li>Sequential test execution with early termination on critical failures</li>
+</ul>
+<h4 id="sub-task-53-create-diagnosticreport-generator">Sub-task 5.3: Create DiagnosticReport generator ✅<a class="headerlink" href="#sub-task-53-create-diagnosticreport-generator" title="Permanent link">&para;</a></h4>
+<p>Created <code>diagnostics/diagnostic_report_generator.dart</code> with:</p>
+<ul>
+<li>Test result aggregation</li>
+<li>Intelligent recommendation generation</li>
+<li>Health score calculation (0-100)</li>
+<li>Multiple output formats (text, JSON, Markdown)</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Context-aware recommendations based on failed tests</li>
+<li>Health score with weighted test importance</li>
+<li>Health status levels (Excellent, Good, Fair, Poor, Critical)</li>
+<li>Color-coded health indicators</li>
+<li>Detailed formatting for different use cases</li>
+</ul>
+<p><strong>Health Score Breakdown:</strong></p>
+<ul>
+<li>Base score from pass rate: 0-60 points</li>
+<li>DNS resolution: 5 points</li>
+<li>WebSocket connectivity: 10 points</li>
+<li>Authentication: 5 points</li>
+<li>Tunnel establishment: 10 points</li>
+<li>Latency: 5 points (+ 3 bonus for &lt; 50ms)</li>
+<li>Throughput: 5 points (+ 2 bonus for &gt; 500 KB/s)</li>
+</ul>
+<h4 id="sub-task-54-implement-error-recovery-strategies">Sub-task 5.4: Implement error recovery strategies ✅<a class="headerlink" href="#sub-task-54-implement-error-recovery-strategies" title="Permanent link">&para;</a></h4>
+<p>Created <code>error_recovery_strategy.dart</code> with:</p>
+<ul>
+<li>Network error recovery with exponential backoff</li>
+<li>Authentication error recovery with token refresh</li>
+<li>Server error recovery with appropriate delays</li>
+<li>Protocol error recovery with reconnection</li>
+<li>Recovery result tracking</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li>Category-specific recovery strategies</li>
+<li>Automatic retry with exponential backoff</li>
+<li>Token refresh for expired authentication</li>
+<li>Rate limit handling with appropriate delays</li>
+<li>Recovery attempt tracking and reporting</li>
+<li>Configurable recovery behavior</li>
+</ul>
+<p><strong>Recovery Strategies:</strong></p>
+<ul>
+<li>Network errors: Exponential backoff reconnection</li>
+<li>Token expired: Automatic token refresh</li>
+<li>Rate limit: Wait 60 seconds before retry</li>
+<li>Server unavailable: Retry with backoff (max 5 attempts)</li>
+<li>Queue full: Wait 5 seconds for queue to drain</li>
+<li>Protocol errors: Simple reconnection</li>
+<li>Unknown errors: Attempt reconnection</li>
+</ul>
+<h4 id="barrel-exports">Barrel Exports<a class="headerlink" href="#barrel-exports" title="Permanent link">&para;</a></h4>
+<p>Created barrel files for easy imports:</p>
+<ul>
+<li><code>diagnostics/diagnostics.dart</code> - All diagnostic components</li>
+<li><code>error_handling.dart</code> - All error handling components</li>
+</ul>
+<h3 id="task-6-implement-metrics-collection">Task 6: Implement Metrics Collection<a class="headerlink" href="#task-6-implement-metrics-collection" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Create MetricsCollector class</li>
+<li>Implement connection quality calculation</li>
+<li>Add metrics export functionality</li>
+<li>Create performance dashboard UI component</li>
+</ul>
+<h2 id="configuration-profiles">Configuration Profiles<a class="headerlink" href="#configuration-profiles" title="Permanent link">&para;</a></h2>
+<p>Three predefined configuration profiles are available:</p>
+<ol>
+<li><strong>Stable Network</strong> - Optimized for reliable connections</li>
+<li>5 max reconnect attempts</li>
+<li>1 second base delay</li>
+<li>30 second timeout</li>
+<li>
+<p>50 request queue size</p>
+</li>
+<li>
+<p><strong>Unstable Network</strong> - Optimized for unreliable connections</p>
+</li>
+<li>20 max reconnect attempts</li>
+<li>5 second base delay</li>
+<li>60 second timeout</li>
+<li>200 request queue size</li>
+<li>
+<p>Compression disabled</p>
+</li>
+<li>
+<p><strong>Low Bandwidth</strong> - Optimized for slow connections</p>
+</li>
+<li>10 max reconnect attempts</li>
+<li>3 second base delay</li>
+<li>45 second timeout</li>
+<li>100 request queue size</li>
+<li>Compression enabled</li>
+</ol>
+<h2 id="usage-after-implementation">Usage (After Implementation)<a class="headerlink" href="#usage-after-implementation" title="Permanent link">&para;</a></h2>
+<div class="language-dart highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Get services from dependency injection</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kd">final</span><span class="w"> </span><span class="n">tunnelService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serviceLocator</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="n">TunnelService</span><span class="o">&gt;</span><span class="p">();</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">final</span><span class="w"> </span><span class="n">requestQueue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serviceLocator</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="n">RequestQueue</span><span class="o">&gt;</span><span class="p">();</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">final</span><span class="w"> </span><span class="n">metricsCollector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serviceLocator</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="n">MetricsCollector</span><span class="o">&gt;</span><span class="p">();</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1">// Connect to tunnel</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kd">await</span><span class="w"> </span><span class="n">tunnelService</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nl">serverUrl:</span><span class="w"> </span><span class="s1">&#39;wss://api.cloudtolocalllm.online/tunnel&#39;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nl">authToken:</span><span class="w"> </span><span class="n">accessToken</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nl">config:</span><span class="w"> </span><span class="n">TunnelConfig</span><span class="p">.</span><span class="n">stableNetwork</span><span class="p">(),</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">);</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1">// Forward request</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">tunnelService</span><span class="p">.</span><span class="n">forwardRequest</span><span class="p">(</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="n">TunnelRequest</span><span class="p">(</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nl">id:</span><span class="w"> </span><span class="s1">&#39;req-123&#39;</span><span class="p">,</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="nl">userId:</span><span class="w"> </span><span class="n">userId</span><span class="p">,</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nl">payload:</span><span class="w"> </span><span class="n">requestData</span><span class="p">,</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="p">),</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="p">);</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="c1">// Get metrics</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="kd">final</span><span class="w"> </span><span class="n">metrics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metricsCollector</span><span class="p">.</span><span class="n">getMetrics</span><span class="p">();</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Success rate: </span><span class="si">${</span><span class="n">metrics</span><span class="p">.</span><span class="n">successRate</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">);</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Average latency: </span><span class="si">${</span><span class="n">metrics</span><span class="p">.</span><span class="n">averageLatency</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">);</span>
+</span></code></pre></div>
+<h2 id="requirements-coverage">Requirements Coverage<a class="headerlink" href="#requirements-coverage" title="Permanent link">&para;</a></h2>
+<p>This implementation addresses the following requirements from the design document:</p>
+<ul>
+<li><strong>Requirement 1</strong>: Connection Resilience and Auto-Recovery</li>
+<li><strong>Requirement 2</strong>: Enhanced Error Handling and Diagnostics</li>
+<li><strong>Requirement 3</strong>: Performance Monitoring and Metrics</li>
+<li><strong>Requirement 9</strong>: Configuration and Customization</li>
+<li><strong>Requirement 11</strong>: Monitoring and Observability</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>Unit tests will be added in Task 21 to cover:</p>
+<ul>
+<li>Connection state management</li>
+<li>Request queue priority handling</li>
+<li>Error categorization</li>
+<li>Metrics calculation</li>
+<li>Configuration validation</li>
+</ul>
+<p>Integration tests will be added in Task 22 to cover:</p>
+<ul>
+<li>End-to-end connection flow</li>
+<li>Reconnection scenarios</li>
+<li>Request queuing during disconnection</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

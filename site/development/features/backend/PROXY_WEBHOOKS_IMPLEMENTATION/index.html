@@ -1,0 +1,2015 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Proxy Status Webhooks Implementation - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#proxy-status-webhooks-implementation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Proxy Status Webhooks Implementation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-database-schema-migration-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Database Schema (Migration 017)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Database Schema (Migration 017)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proxy_webhooks-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proxy_webhooks Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proxy_webhook_deliveries-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proxy_webhook_deliveries Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proxy_webhook_events-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        proxy_webhook_events Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-service-layer-proxy-webhook-servicejs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Service Layer (proxy-webhook-service.js)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Service Layer (proxy-webhook-service.js)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#webhook-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Webhook Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delivery-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delivery Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-api-routes-proxy-webhooksjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. API Routes (proxy-webhooks.js)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. API Routes (proxy-webhooks.js)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#webhook-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Webhook Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delivery-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delivery Tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-supported-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Supported Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-webhook-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Webhook Delivery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Webhook Delivery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#payload-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Payload Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signature-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signature Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-retry-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Retry Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#url-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proxy-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proxy Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signature-verification-4-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signature Verification (4 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retry-logic-3-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retry Logic (3 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-validation-4-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Validation (4 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#url-validation-5-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        URL Validation (5 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#payload-structure-3-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Payload Structure (3 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delivery-status-3-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delivery Status (3 tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#with-proxy-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Proxy Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Considerations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Enhancements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files Created
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="proxy-status-webhooks-implementation">Proxy Status Webhooks Implementation<a class="headerlink" href="#proxy-status-webhooks-implementation" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Task 29 implements proxy status webhooks for the API backend, enabling real-time notifications when proxy instances change status. This implementation follows the same pattern as tunnel webhooks and provides comprehensive webhook management, delivery, and retry logic.</p>
+<p><strong>Validates: Requirements 5.10, 10.1, 10.2, 10.3, 10.4</strong>
+<strong>Feature: api-backend-enhancement, Property 13: Webhook delivery consistency</strong></p>
+<h2 id="implementation-summary">Implementation Summary<a class="headerlink" href="#implementation-summary" title="Permanent link">&para;</a></h2>
+<h3 id="1-database-schema-migration-017">1. Database Schema (Migration 017)<a class="headerlink" href="#1-database-schema-migration-017" title="Permanent link">&para;</a></h3>
+<p>Created three new tables for proxy webhook management:</p>
+<h4 id="proxy_webhooks-table"><code>proxy_webhooks</code> Table<a class="headerlink" href="#proxy_webhooks-table" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Stores webhook registrations for proxy events</li>
+<li>Fields:</li>
+<li><code>id</code> (UUID): Unique webhook identifier</li>
+<li><code>user_id</code> (UUID): Owner of the webhook</li>
+<li><code>proxy_id</code> (UUID, nullable): Specific proxy or null for all proxies</li>
+<li><code>url</code> (TEXT): Webhook endpoint URL</li>
+<li><code>events</code> (TEXT[]): Array of subscribed events</li>
+<li><code>secret</code> (VARCHAR): HMAC secret for signature verification</li>
+<li><code>is_active</code> (BOOLEAN): Enable/disable webhook</li>
+<li><code>created_at</code>, <code>updated_at</code> (TIMESTAMPTZ): Timestamps</li>
+</ul>
+<h4 id="proxy_webhook_deliveries-table"><code>proxy_webhook_deliveries</code> Table<a class="headerlink" href="#proxy_webhook_deliveries-table" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Tracks webhook delivery attempts and status</li>
+<li>Fields:</li>
+<li><code>id</code> (UUID): Unique delivery identifier</li>
+<li><code>webhook_id</code> (UUID): Reference to webhook</li>
+<li><code>proxy_id</code> (UUID): Reference to proxy instance</li>
+<li><code>user_id</code> (UUID): Owner of the webhook</li>
+<li><code>event_type</code> (VARCHAR): Type of event</li>
+<li><code>payload</code> (JSONB): Webhook payload</li>
+<li><code>status</code> (VARCHAR): pending, delivered, failed, retrying</li>
+<li><code>http_status_code</code> (INTEGER): HTTP response code</li>
+<li><code>error_message</code> (TEXT): Error details</li>
+<li><code>attempt_count</code> (INTEGER): Number of delivery attempts</li>
+<li><code>max_attempts</code> (INTEGER): Maximum retry attempts (default: 5)</li>
+<li><code>next_retry_at</code> (TIMESTAMPTZ): Next retry time</li>
+<li><code>delivered_at</code> (TIMESTAMPTZ): Successful delivery time</li>
+</ul>
+<h4 id="proxy_webhook_events-table"><code>proxy_webhook_events</code> Table<a class="headerlink" href="#proxy_webhook_events-table" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Audit log for webhook events</li>
+<li>Fields:</li>
+<li><code>id</code> (UUID): Unique event identifier</li>
+<li><code>webhook_id</code> (UUID): Reference to webhook</li>
+<li><code>proxy_id</code> (UUID): Reference to proxy instance</li>
+<li><code>user_id</code> (UUID): Owner of the webhook</li>
+<li><code>event_type</code> (VARCHAR): Type of event</li>
+<li><code>event_data</code> (JSONB): Event details</li>
+<li><code>created_at</code> (TIMESTAMPTZ): Event timestamp</li>
+</ul>
+<h3 id="2-service-layer-proxy-webhook-servicejs">2. Service Layer (<code>proxy-webhook-service.js</code>)<a class="headerlink" href="#2-service-layer-proxy-webhook-servicejs" title="Permanent link">&para;</a></h3>
+<p>Implements <code>ProxyWebhookService</code> class with the following methods:</p>
+<h4 id="webhook-management">Webhook Management<a class="headerlink" href="#webhook-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>registerWebhook(userId, proxyId, url, events)</code>: Register a new webhook</li>
+<li><code>getWebhookById(webhookId, userId)</code>: Retrieve webhook details</li>
+<li><code>listWebhooks(userId, proxyId, options)</code>: List webhooks with pagination</li>
+<li><code>updateWebhook(webhookId, userId, updateData)</code>: Update webhook configuration</li>
+<li><code>deleteWebhook(webhookId, userId)</code>: Delete a webhook</li>
+</ul>
+<h4 id="event-handling">Event Handling<a class="headerlink" href="#event-handling" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>triggerWebhookEvent(proxyId, userId, eventType, eventData)</code>: Trigger webhook event</li>
+<li><code>queueWebhookDelivery(webhookId, proxyId, userId, eventType, eventData)</code>: Queue delivery</li>
+</ul>
+<h4 id="delivery-management">Delivery Management<a class="headerlink" href="#delivery-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>deliverWebhook(deliveryId)</code>: Attempt webhook delivery</li>
+<li><code>scheduleRetry(deliveryId, attemptCount, httpStatusCode, errorMessage)</code>: Schedule retry</li>
+<li><code>getDeliveryStatus(deliveryId)</code>: Get delivery status</li>
+<li><code>getDeliveryHistory(webhookId, userId, options)</code>: Get delivery history</li>
+<li><code>retryFailedDeliveries()</code>: Retry pending/retrying deliveries</li>
+</ul>
+<h3 id="3-api-routes-proxy-webhooksjs">3. API Routes (<code>proxy-webhooks.js</code>)<a class="headerlink" href="#3-api-routes-proxy-webhooksjs" title="Permanent link">&para;</a></h3>
+<p>Implements REST endpoints for webhook management:</p>
+<h4 id="webhook-registration">Webhook Registration<a class="headerlink" href="#webhook-registration" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>POST /api/proxy/:proxyId/webhooks</code> - Register webhook</li>
+<li><code>GET /api/proxy/:proxyId/webhooks</code> - List webhooks</li>
+<li><code>GET /api/proxy/:proxyId/webhooks/:webhookId</code> - Get webhook details</li>
+<li><code>PUT /api/proxy/:proxyId/webhooks/:webhookId</code> - Update webhook</li>
+<li><code>DELETE /api/proxy/:proxyId/webhooks/:webhookId</code> - Delete webhook</li>
+</ul>
+<h4 id="delivery-tracking">Delivery Tracking<a class="headerlink" href="#delivery-tracking" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>GET /api/proxy/:proxyId/webhooks/:webhookId/deliveries</code> - Get delivery history</li>
+<li><code>GET /api/proxy/:proxyId/webhooks/:webhookId/deliveries/:deliveryId</code> - Get delivery status</li>
+</ul>
+<h3 id="4-supported-events">4. Supported Events<a class="headerlink" href="#4-supported-events" title="Permanent link">&para;</a></h3>
+<p>The following proxy events are supported:</p>
+<ul>
+<li><code>proxy.status_changed</code> - Proxy status changed</li>
+<li><code>proxy.created</code> - Proxy instance created</li>
+<li><code>proxy.deleted</code> - Proxy instance deleted</li>
+<li><code>proxy.metrics_updated</code> - Proxy metrics updated</li>
+</ul>
+<h3 id="5-webhook-delivery">5. Webhook Delivery<a class="headerlink" href="#5-webhook-delivery" title="Permanent link">&para;</a></h3>
+<h4 id="payload-structure">Payload Structure<a class="headerlink" href="#payload-structure" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;delivery-uuid&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;proxy.status_changed&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-19T12:00:00Z&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;connected&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-19T12:00:00Z&quot;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="headers">Headers<a class="headerlink" href="#headers" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>Content-Type: application/json</code></li>
+<li><code>X-Webhook-Signature: &lt;HMAC-SHA256 signature&gt;</code></li>
+<li><code>X-Webhook-ID: &lt;webhook-id&gt;</code></li>
+<li><code>X-Delivery-ID: &lt;delivery-id&gt;</code></li>
+</ul>
+<h4 id="signature-verification">Signature Verification<a class="headerlink" href="#signature-verification" title="Permanent link">&para;</a></h4>
+<p>Webhooks are signed using HMAC-SHA256 with the webhook secret:</p>
+<div class="language-javascript highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nx">signature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">HMAC</span><span class="o">-</span><span class="nx">SHA256</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span><span class="w"> </span><span class="nx">payload</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="6-retry-logic">6. Retry Logic<a class="headerlink" href="#6-retry-logic" title="Permanent link">&para;</a></h3>
+<p>Implements exponential backoff with the following delays:</p>
+<ul>
+<li>Attempt 1: 1 second</li>
+<li>Attempt 2: 5 seconds</li>
+<li>Attempt 3: 30 seconds</li>
+<li>Attempt 4: 5 minutes (300 seconds)</li>
+<li>Attempt 5: 1 hour (3600 seconds)</li>
+</ul>
+<p>Maximum 5 retry attempts before marking as failed.</p>
+<h3 id="7-validation">7. Validation<a class="headerlink" href="#7-validation" title="Permanent link">&para;</a></h3>
+<h4 id="url-validation">URL Validation<a class="headerlink" href="#url-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Must be valid HTTPS or HTTP URL</li>
+<li>Must not be empty</li>
+<li>Validated using Node.js URL constructor</li>
+</ul>
+<h4 id="event-validation">Event Validation<a class="headerlink" href="#event-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Must be one of supported event types</li>
+<li>At least one event must be specified</li>
+<li>Events array must not be empty</li>
+</ul>
+<h4 id="proxy-validation">Proxy Validation<a class="headerlink" href="#proxy-validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>If proxyId specified, must exist and belong to user</li>
+<li>If proxyId is null, webhook applies to all user's proxies</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>Created comprehensive test suite (<code>proxy-webhooks.test.js</code>) with 22 tests covering:</p>
+<h3 id="signature-verification-4-tests">Signature Verification (4 tests)<a class="headerlink" href="#signature-verification-4-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Valid HMAC signature generation</li>
+<li>Invalid signature rejection</li>
+<li>Different signatures for different payloads</li>
+<li>Consistent signatures for same payload</li>
+</ul>
+<h3 id="retry-logic-3-tests">Retry Logic (3 tests)<a class="headerlink" href="#retry-logic-3-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Exponential backoff calculation</li>
+<li>Max retry attempts</li>
+<li>Next retry time calculation</li>
+</ul>
+<h3 id="event-validation-4-tests">Event Validation (4 tests)<a class="headerlink" href="#event-validation-4-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Supported event type validation</li>
+<li>Invalid event type rejection</li>
+<li>Non-empty event array validation</li>
+<li>Empty event array rejection</li>
+</ul>
+<h3 id="url-validation-5-tests">URL Validation (5 tests)<a class="headerlink" href="#url-validation-5-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>HTTPS URL validation</li>
+<li>HTTP URL validation</li>
+<li>Invalid URL rejection</li>
+<li>Empty URL rejection</li>
+<li>URLs with paths and query parameters</li>
+</ul>
+<h3 id="payload-structure-3-tests">Payload Structure (3 tests)<a class="headerlink" href="#payload-structure-3-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Valid payload structure creation</li>
+<li>JSON serialization</li>
+<li>Required headers in delivery</li>
+</ul>
+<h3 id="delivery-status-3-tests">Delivery Status (3 tests)<a class="headerlink" href="#delivery-status-3-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Delivery status transitions</li>
+<li>HTTP status code validation</li>
+<li>Attempt count tracking</li>
+</ul>
+<p><strong>All 22 tests pass successfully.</strong></p>
+<h2 id="integration-points">Integration Points<a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h2>
+<h3 id="with-proxy-services">With Proxy Services<a class="headerlink" href="#with-proxy-services" title="Permanent link">&para;</a></h3>
+<p>The webhook service integrates with proxy management services:</p>
+<ul>
+<li>Proxy health service triggers <code>proxy.status_changed</code> events</li>
+<li>Proxy metrics service triggers <code>proxy.metrics_updated</code> events</li>
+<li>Proxy lifecycle endpoints trigger <code>proxy.created</code> and <code>proxy.deleted</code> events</li>
+</ul>
+<h3 id="with-database">With Database<a class="headerlink" href="#with-database" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Uses PostgreSQL connection pool for all database operations</li>
+<li>Supports transactions for data consistency</li>
+<li>Implements cascading deletes for cleanup</li>
+</ul>
+<h3 id="with-authentication">With Authentication<a class="headerlink" href="#with-authentication" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All endpoints require JWT authentication</li>
+<li>User ownership verified for all operations</li>
+<li>RBAC middleware ensures proper authorization</li>
+</ul>
+<h2 id="security-features">Security Features<a class="headerlink" href="#security-features" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Webhook Secrets</strong>: Each webhook has a unique HMAC secret</li>
+<li><strong>Signature Verification</strong>: All deliveries are signed with HMAC-SHA256</li>
+<li><strong>User Isolation</strong>: Users can only manage their own webhooks</li>
+<li><strong>URL Validation</strong>: Webhook URLs are validated before storage</li>
+<li><strong>Event Filtering</strong>: Users can subscribe to specific events</li>
+<li><strong>Delivery Tracking</strong>: All delivery attempts are logged</li>
+</ol>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Asynchronous Delivery</strong>: Webhook deliveries are queued and processed asynchronously</li>
+<li><strong>Connection Pooling</strong>: Database operations use connection pooling</li>
+<li><strong>Pagination</strong>: List endpoints support pagination for large result sets</li>
+<li><strong>Indexing</strong>: Database indexes on frequently queried columns</li>
+<li><strong>Retry Scheduling</strong>: Failed deliveries are retried with exponential backoff</li>
+</ol>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Invalid URLs: 400 Bad Request</li>
+<li>Non-existent webhooks: 404 Not Found</li>
+<li>Non-existent proxies: 404 Not Found</li>
+<li>Authentication failures: 401 Unauthorized</li>
+<li>Service unavailable: 503 Service Unavailable</li>
+<li>Server errors: 500 Internal Server Error</li>
+</ul>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Webhook Filtering</strong>: Support for filtering events by proxy attributes</li>
+<li><strong>Payload Transformation</strong>: Support for custom payload transformations</li>
+<li><strong>Rate Limiting</strong>: Per-webhook rate limiting</li>
+<li><strong>Webhook Testing</strong>: Test endpoint for webhook debugging</li>
+<li><strong>Event Replay</strong>: Ability to replay failed events</li>
+<li><strong>Webhook Analytics</strong>: Dashboard for webhook delivery metrics</li>
+</ol>
+<h2 id="files-created">Files Created<a class="headerlink" href="#files-created" title="Permanent link">&para;</a></h2>
+<ol>
+<li><code>services/api-backend/database/migrations/017_proxy_webhooks.sql</code> - Database schema</li>
+<li><code>services/api-backend/services/proxy-webhook-service.js</code> - Service implementation</li>
+<li><code>services/api-backend/routes/proxy-webhooks.js</code> - API routes</li>
+<li><code>test/api-backend/proxy-webhooks.test.js</code> - Test suite</li>
+</ol>
+<h2 id="compliance">Compliance<a class="headerlink" href="#compliance" title="Permanent link">&para;</a></h2>
+<p>✅ Validates Requirements 5.10, 10.1, 10.2, 10.3, 10.4
+✅ Implements Property 13: Webhook delivery consistency
+✅ All 22 tests passing
+✅ Follows existing webhook patterns (tunnel webhooks)
+✅ Comprehensive error handling
+✅ Security best practices implemented</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

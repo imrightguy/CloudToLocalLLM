@@ -6,8 +6,6 @@ import 'package:cloudtolocalllm/services/voice/hermes_voice_bridge_service.dart'
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   group('HermesVoiceBridgeService', () {
     late Directory tempDir;
     late VoiceConversationService voiceService;
@@ -37,13 +35,15 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 80));
 
       final snapshot = voiceService.snapshot;
+      // Direct health check: no Hermes gateway in test env, so connected is false
       expect(snapshot.liveBridgeConnected, isFalse);
-      expect(snapshot.liveBridgeStatus,
-          contains('waiting for Hermes voice reactor status'));
+      // Status should reflect the direct health check result
+      expect(snapshot.liveBridgeStatus, contains('waiting for Hermes'));
       expect(snapshot.mode, VoiceConversationMode.idle);
     });
 
-    test('maps live Hermes observer files into conversational state', () async {
+    test('maps live Hermes observer files into conversational state',
+        () async {
       await _writeJson(
         File('${tempDir.path}/voice_reactor_status.json'),
         {
@@ -81,6 +81,8 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 120));
 
       final snapshot = voiceService.snapshot;
+      // Files have running: true, so bridgeConnected should be true
+      // even though direct Hermes health check fails in test env
       expect(snapshot.liveBridgeConnected, isTrue);
       expect(snapshot.liveBridgeStatus, 'live Hermes bridge');
       expect(snapshot.lastUserTranscript, 'Are you hearing me now?');
@@ -88,6 +90,16 @@ void main() {
       expect(snapshot.mode,
           anyOf(VoiceConversationMode.speaking, VoiceConversationMode.engaged));
       expect(snapshot.isEngaged, isTrue);
+    });
+
+    test('direct health check reports offline when no Hermes gateway',
+        () async {
+      bridgeService.start();
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+
+      final snapshot = voiceService.snapshot;
+      // No running Hermes gateway in test environment
+      expect(snapshot.liveBridgeConnected, isFalse);
     });
   });
 }

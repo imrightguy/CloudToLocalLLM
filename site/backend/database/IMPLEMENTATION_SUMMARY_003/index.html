@@ -1,0 +1,2064 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Task 1 Implementation Summary: Database Schema for Email Relay & DNS Setup - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#task-1-implementation-summary-database-schema-for-email-relay-dns-setup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Task 1 Implementation Summary: Database Schema for Email Relay &amp; DNS Setup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-completed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Completed ✅
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-implemented" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Was Implemented
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Was Implemented">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-migration-files-created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Migration Files Created
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Migration Files Created">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forward-migration-003_email_relay_dns_setupsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward Migration: 003_email_relay_dns_setup.sql
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-migration-003_email_relay_dns_setup_rollbacksql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback Migration: 003_email_relay_dns_setup_rollback.sql
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-runner-update-run-migrationjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration Runner Update: run-migration.js
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-database-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Database Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Database Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#email_configurations-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        email_configurations Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns_records-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dns_records Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email_queue-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        email_queue Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email_delivery_logs-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        email_delivery_logs Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#google_workspace_quota-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        google_workspace_quota Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email_templates-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        email_templates Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-triggers-and-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Triggers and Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Triggers and Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-logging-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Logging Triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updated_at-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updated_at Triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-security-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Security Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-performance-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Performance Optimizations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements Coverage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Requirements Coverage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requirement-11-google-workspace-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirement 1.1: Google Workspace Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirement-12-email-relay-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirement 1.2: Email Relay Container
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirement-13-dns-configuration-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirement 1.3: DNS Configuration Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-schema-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Schema Statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-apply-the-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Apply the Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to Apply the Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apply Migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify Migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-if-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback if Needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-modifiedcreated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files Modified/Created
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files Modified/Created">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#created-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Created Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modified-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modified Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Recommendations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Recommendations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback Plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="task-1-implementation-summary-database-schema-for-email-relay-dns-setup">Task 1 Implementation Summary: Database Schema for Email Relay &amp; DNS Setup<a class="headerlink" href="#task-1-implementation-summary-database-schema-for-email-relay-dns-setup" title="Permanent link">&para;</a></h1>
+<h2 id="task-completed">Task Completed ✅<a class="headerlink" href="#task-completed" title="Permanent link">&para;</a></h2>
+<p><strong>Task:</strong> Create database schema for email and DNS management</p>
+<p><strong>Status:</strong> COMPLETED</p>
+<p><strong>Date:</strong> November 16, 2025</p>
+<h2 id="what-was-implemented">What Was Implemented<a class="headerlink" href="#what-was-implemented" title="Permanent link">&para;</a></h2>
+<h3 id="1-migration-files-created">1. Migration Files Created<a class="headerlink" href="#1-migration-files-created" title="Permanent link">&para;</a></h3>
+<h4 id="forward-migration-003_email_relay_dns_setupsql">Forward Migration: <code>003_email_relay_dns_setup.sql</code><a class="headerlink" href="#forward-migration-003_email_relay_dns_setupsql" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Size:</strong> ~450 lines</li>
+<li><strong>Tables Created:</strong> 6 tables</li>
+<li><strong>Triggers Created:</strong> 7 triggers</li>
+<li><strong>Functions Created:</strong> 3 functions</li>
+<li><strong>Indexes Created:</strong> 25+ indexes</li>
+</ul>
+<h4 id="rollback-migration-003_email_relay_dns_setup_rollbacksql">Rollback Migration: <code>003_email_relay_dns_setup_rollback.sql</code><a class="headerlink" href="#rollback-migration-003_email_relay_dns_setup_rollbacksql" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Size:</strong> ~30 lines</li>
+<li><strong>Safely drops all tables, triggers, and functions</strong></li>
+<li><strong>Uses CASCADE to handle dependencies</strong></li>
+</ul>
+<h4 id="migration-runner-update-run-migrationjs">Migration Runner Update: <code>run-migration.js</code><a class="headerlink" href="#migration-runner-update-run-migrationjs" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Updated to support multiple migration file naming patterns</li>
+<li>Added support for version 003 (email_relay_dns_setup)</li>
+<li>Maintains backward compatibility with existing migrations</li>
+</ul>
+<h3 id="2-database-tables">2. Database Tables<a class="headerlink" href="#2-database-tables" title="Permanent link">&para;</a></h3>
+<h4 id="email_configurations-table"><code>email_configurations</code> Table<a class="headerlink" href="#email_configurations-table" title="Permanent link">&para;</a></h4>
+<p>Stores email provider configuration with encrypted credentials.</p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li>UUID primary key</li>
+<li>User ID (foreign key to users)</li>
+<li>Provider type (google_workspace, smtp_relay, sendgrid)</li>
+<li>Google Workspace OAuth tokens (encrypted)</li>
+<li>Google service account (encrypted)</li>
+<li>SMTP relay credentials (encrypted)</li>
+<li>Email sender information</li>
+<li>Configuration status (active, verified)</li>
+<li>Audit fields (created_by, updated_by)</li>
+<li>Metadata (JSONB)</li>
+</ul>
+<p><strong>Indexes:</strong> 5 indexes for optimal query performance</p>
+<h4 id="dns_records-table"><code>dns_records</code> Table<a class="headerlink" href="#dns_records-table" title="Permanent link">&para;</a></h4>
+<p>Stores DNS records managed via Cloudflare or other providers.</p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li>UUID primary key</li>
+<li>User ID (foreign key to users)</li>
+<li>DNS provider (cloudflare, route53, azure_dns)</li>
+<li>Provider record ID</li>
+<li>Record type (A, AAAA, CNAME, MX, TXT, SPF, DKIM, DMARC)</li>
+<li>Domain name and value</li>
+<li>TTL and priority</li>
+<li>Validation status</li>
+<li>Audit fields</li>
+</ul>
+<p><strong>Indexes:</strong> 6 indexes for efficient DNS record queries</p>
+<h4 id="email_queue-table"><code>email_queue</code> Table<a class="headerlink" href="#email_queue-table" title="Permanent link">&para;</a></h4>
+<p>Stores pending and processed emails for delivery tracking.</p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li>UUID primary key</li>
+<li>User ID (foreign key to users)</li>
+<li>Recipient email and name</li>
+<li>Subject and template information</li>
+<li>HTML and text body</li>
+<li>Delivery status (pending, queued, sending, sent, failed, bounced, spam)</li>
+<li>Retry tracking (count, max retries)</li>
+<li>Provider message ID</li>
+<li>Delivery timestamps (sent_at, delivered_at, bounced_at)</li>
+<li>Bounce information (type, reason)</li>
+<li>Audit fields</li>
+</ul>
+<p><strong>Indexes:</strong> 6 indexes including composite index for queue processing</p>
+<h4 id="email_delivery_logs-table"><code>email_delivery_logs</code> Table<a class="headerlink" href="#email_delivery_logs-table" title="Permanent link">&para;</a></h4>
+<p>Stores detailed delivery logs for auditing and troubleshooting.</p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li>UUID primary key</li>
+<li>Email queue ID (foreign key)</li>
+<li>User ID (foreign key to users)</li>
+<li>Event type (queued, sending, sent, failed, bounced, opened, clicked, complained)</li>
+<li>Error information (code, message)</li>
+<li>Provider information</li>
+<li>Timestamp</li>
+</ul>
+<p><strong>Indexes:</strong> 4 indexes for efficient log queries</p>
+<h4 id="google_workspace_quota-table"><code>google_workspace_quota</code> Table<a class="headerlink" href="#google_workspace_quota-table" title="Permanent link">&para;</a></h4>
+<p>Tracks Google Workspace API quota usage and limits.</p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li>UUID primary key</li>
+<li>User ID (foreign key to users)</li>
+<li>Daily quota (limit, used, reset_at)</li>
+<li>Hourly quota (limit, used, reset_at)</li>
+<li>Quota exceeded status and timestamp</li>
+<li>Audit fields</li>
+</ul>
+<p><strong>Indexes:</strong> 3 indexes for quota monitoring</p>
+<h4 id="email_templates-table"><code>email_templates</code> Table<a class="headerlink" href="#email_templates-table" title="Permanent link">&para;</a></h4>
+<p>Stores email templates for different notification types.</p>
+<p><strong>Columns:</strong></p>
+<ul>
+<li>UUID primary key</li>
+<li>User ID (foreign key to users, NULL for system templates)</li>
+<li>Template name and description</li>
+<li>Subject and body (HTML and text)</li>
+<li>Variables array (JSONB)</li>
+<li>Active status and system template flag</li>
+<li>Audit fields (created_by, updated_by)</li>
+</ul>
+<p><strong>Indexes:</strong> 4 indexes for template lookups</p>
+<h3 id="3-triggers-and-functions">3. Triggers and Functions<a class="headerlink" href="#3-triggers-and-functions" title="Permanent link">&para;</a></h3>
+<h4 id="audit-logging-triggers">Audit Logging Triggers<a class="headerlink" href="#audit-logging-triggers" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>email_config_audit_trigger</code> - Logs email configuration changes</li>
+<li><code>dns_record_audit_trigger</code> - Logs DNS record changes</li>
+<li>Both log to existing <code>audit_logs</code> table with full change details</li>
+</ul>
+<h4 id="updated_at-triggers">Updated_at Triggers<a class="headerlink" href="#updated_at-triggers" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>email_configurations_updated_at_trigger</code></li>
+<li><code>dns_records_updated_at_trigger</code></li>
+<li><code>email_queue_updated_at_trigger</code></li>
+<li><code>google_workspace_quota_updated_at_trigger</code></li>
+<li><code>email_templates_updated_at_trigger</code></li>
+</ul>
+<p>All use the <code>update_updated_at_column()</code> function to automatically update timestamps.</p>
+<h3 id="4-security-features">4. Security Features<a class="headerlink" href="#4-security-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Encrypted Fields:</strong> OAuth tokens, refresh tokens, service accounts, and SMTP passwords are stored encrypted</li>
+<li><strong>Audit Logging:</strong> All configuration changes are logged with user ID and timestamp</li>
+<li><strong>Foreign Key Constraints:</strong> All user references use ON DELETE CASCADE for data integrity</li>
+<li><strong>Status Validation:</strong> CHECK constraints on provider types, record types, and status values</li>
+</ul>
+<h3 id="5-performance-optimizations">5. Performance Optimizations<a class="headerlink" href="#5-performance-optimizations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Strategic Indexes:</strong> 25+ indexes on frequently queried columns</li>
+<li><strong>Composite Indexes:</strong> <code>(status, created_at)</code> on email_queue for efficient queue processing</li>
+<li><strong>Partial Indexes:</strong> Indexes on boolean columns with WHERE clauses</li>
+<li><strong>Foreign Key Indexes:</strong> Automatic indexes on all foreign keys</li>
+</ul>
+<h3 id="6-documentation">6. Documentation<a class="headerlink" href="#6-documentation" title="Permanent link">&para;</a></h3>
+<p>Created comprehensive documentation:</p>
+<ul>
+<li><code>MIGRATION_003_README.md</code> - Detailed migration documentation</li>
+<li><code>IMPLEMENTATION_SUMMARY_003.md</code> - This file</li>
+</ul>
+<h2 id="requirements-coverage">Requirements Coverage<a class="headerlink" href="#requirements-coverage" title="Permanent link">&para;</a></h2>
+<h3 id="requirement-11-google-workspace-integration">Requirement 1.1: Google Workspace Integration<a class="headerlink" href="#requirement-11-google-workspace-integration" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Covered by:</strong></p>
+<ul>
+<li><code>email_configurations</code> table with Google OAuth token storage</li>
+<li>Encrypted fields for sensitive credentials</li>
+<li>Configuration status tracking (is_active, is_verified)</li>
+</ul>
+<h3 id="requirement-12-email-relay-container">Requirement 1.2: Email Relay Container<a class="headerlink" href="#requirement-12-email-relay-container" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Covered by:</strong></p>
+<ul>
+<li><code>email_queue</code> table for email delivery queue</li>
+<li><code>email_delivery_logs</code> table for delivery tracking</li>
+<li>Retry logic support (retry_count, max_retries)</li>
+<li>Status tracking (pending, queued, sending, sent, failed, bounced)</li>
+</ul>
+<h3 id="requirement-13-dns-configuration-management">Requirement 1.3: DNS Configuration Management<a class="headerlink" href="#requirement-13-dns-configuration-management" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Covered by:</strong></p>
+<ul>
+<li><code>dns_records</code> table for Cloudflare DNS record tracking</li>
+<li>Support for multiple DNS providers</li>
+<li>Record type validation (MX, SPF, DKIM, DMARC, etc.)</li>
+<li>Validation status tracking</li>
+</ul>
+<h2 id="database-schema-statistics">Database Schema Statistics<a class="headerlink" href="#database-schema-statistics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tables Created</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Indexes Created</td>
+<td>25+</td>
+</tr>
+<tr>
+<td>Triggers Created</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Functions Created</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Encrypted Fields</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Foreign Key Constraints</td>
+<td>12+</td>
+</tr>
+<tr>
+<td>CHECK Constraints</td>
+<td>8+</td>
+</tr>
+<tr>
+<td>Total Lines of SQL</td>
+<td>~450</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-to-apply-the-migration">How to Apply the Migration<a class="headerlink" href="#how-to-apply-the-migration" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Ensure PostgreSQL is running</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># Set environment variables</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PGHOST</span><span class="o">=</span>localhost
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PGPORT</span><span class="o">=</span><span class="m">5432</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PGDATABASE</span><span class="o">=</span>CloudToLocalLLM
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PGUSER</span><span class="o">=</span>postgres
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PGPASSWORD</span><span class="o">=</span>yourpassword
+</span></code></pre></div>
+<h3 id="apply-migration">Apply Migration<a class="headerlink" href="#apply-migration" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>services/api-backend
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>node<span class="w"> </span>database/migrations/run-migration.js<span class="w"> </span>up<span class="w"> </span><span class="m">003</span>
+</span></code></pre></div>
+<h3 id="verify-migration">Verify Migration<a class="headerlink" href="#verify-migration" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>node<span class="w"> </span>database/migrations/run-migration.js<span class="w"> </span>status
+</span></code></pre></div>
+<h3 id="rollback-if-needed">Rollback if Needed<a class="headerlink" href="#rollback-if-needed" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>node<span class="w"> </span>database/migrations/run-migration.js<span class="w"> </span>down<span class="w"> </span><span class="m">003</span>
+</span></code></pre></div>
+<h2 id="files-modifiedcreated">Files Modified/Created<a class="headerlink" href="#files-modifiedcreated" title="Permanent link">&para;</a></h2>
+<h3 id="created-files">Created Files<a class="headerlink" href="#created-files" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>services/api-backend/database/migrations/003_email_relay_dns_setup.sql</code> - Forward migration</li>
+<li><code>services/api-backend/database/migrations/003_email_relay_dns_setup_rollback.sql</code> - Rollback migration</li>
+<li><code>services/api-backend/database/migrations/MIGRATION_003_README.md</code> - Migration documentation</li>
+<li><code>services/api-backend/database/migrations/IMPLEMENTATION_SUMMARY_003.md</code> - This file</li>
+</ol>
+<h3 id="modified-files">Modified Files<a class="headerlink" href="#modified-files" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>services/api-backend/database/migrations/run-migration.js</code> - Updated to support version 003</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>After this migration is applied, the following tasks can proceed:</p>
+<ol>
+<li><strong>Task 2:</strong> Implement Google Workspace Integration Service</li>
+<li>Uses <code>email_configurations</code> table for OAuth token storage</li>
+<li>Implements Gmail API integration</li>
+<li>
+<p>Manages quota tracking via <code>google_workspace_quota</code> table</p>
+</li>
+<li>
+<p><strong>Task 3:</strong> Implement Cloudflare DNS Configuration Service</p>
+</li>
+<li>Uses <code>dns_records</code> table for record tracking</li>
+<li>Implements DNS record CRUD operations</li>
+<li>
+<p>Validates records before activation</p>
+</li>
+<li>
+<p><strong>Task 4:</strong> Implement Email Configuration Service</p>
+</li>
+<li>Manages encryption/decryption of credentials</li>
+<li>Handles configuration persistence</li>
+<li>
+<p>Tracks delivery metrics</p>
+</li>
+<li>
+<p><strong>Task 5:</strong> Implement Email Queue Service</p>
+</li>
+<li>Manages email queue in <code>email_queue</code> table</li>
+<li>Implements retry logic with exponential backoff</li>
+<li>Tracks delivery status in <code>email_delivery_logs</code> table</li>
+</ol>
+<h2 id="testing-recommendations">Testing Recommendations<a class="headerlink" href="#testing-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="manual-testing">Manual Testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">-- Verify tables exist</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">table_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;public&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;email_%&#39;</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;dns_%&#39;</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">table_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;google_%&#39;</span><span class="p">;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1">-- Verify indexes</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">indexname</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_indexes</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">tablename</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;email_configurations&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dns_records&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;email_queue&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;email_delivery_logs&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;google_workspace_quota&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;email_templates&#39;</span><span class="p">);</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1">-- Verify triggers</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">SELECT</span><span class="w"> </span><span class="k">trigger_name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">information_schema</span><span class="p">.</span><span class="n">triggers</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">WHERE</span><span class="w"> </span><span class="k">trigger_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;public&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="k">trigger_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%email%&#39;</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">trigger_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%dns%&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<h3 id="integration-testing">Integration Testing<a class="headerlink" href="#integration-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Test email configuration creation and encryption</li>
+<li>Test DNS record creation and validation</li>
+<li>Test email queue operations</li>
+<li>Test audit logging for configuration changes</li>
+<li>Test quota tracking</li>
+</ul>
+<h2 id="rollback-plan">Rollback Plan<a class="headerlink" href="#rollback-plan" title="Permanent link">&para;</a></h2>
+<p>If issues occur after applying the migration:</p>
+<ol>
+<li><strong>Immediate Rollback:</strong></li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>node<span class="w"> </span>database/migrations/run-migration.js<span class="w"> </span>down<span class="w"> </span><span class="m">003</span>
+</span></code></pre></div>
+<ol>
+<li><strong>Verify Rollback:</strong></li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>node<span class="w"> </span>database/migrations/run-migration.js<span class="w"> </span>status
+</span></code></pre></div>
+<ol>
+<li><strong>Check Database State:</strong></li>
+</ol>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">schema_migrations</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;003&#39;</span><span class="p">;</span>
+</span></code></pre></div>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Task 1 has been successfully completed. The database schema for email relay and DNS configuration management is now in place with:</p>
+<ul>
+<li>✅ 6 well-designed tables with proper relationships</li>
+<li>✅ 25+ strategic indexes for performance</li>
+<li>✅ Comprehensive audit logging</li>
+<li>✅ Encrypted storage for sensitive credentials</li>
+<li>✅ Full rollback capability</li>
+<li>✅ Complete documentation</li>
+</ul>
+<p>The schema is ready for the implementation of the email relay and DNS configuration services.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

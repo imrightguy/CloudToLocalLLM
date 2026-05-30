@@ -1,0 +1,2045 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CloudToLocalLLM Release Notes - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cloudtolocalllm-release-notes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CloudToLocalLLM Release Notes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-release-v313" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 Current Release: v3.1.3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Current Release: v3.1.3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whats-new-in-v313" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's New in v3.1.3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📚 Version History
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Version History">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v300-enhanced-system-tray-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.0.0 - Enhanced System Tray Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v3.0.0 - Enhanced System Tray Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#complete-architecture-overhaul" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏗️ Complete Architecture Overhaul
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✨ Key Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔄 Migration Guide
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detailed-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 Detailed Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v251-windows-installer-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.1 - Windows Installer Release
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.5.1 - Windows Installer Release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#windows-platform-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🪟 Windows Platform Enhancements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v200-multi-tenant-streaming-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.0.0 - Multi-Tenant Streaming Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.0.0 - Multi-Tenant Streaming Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#production-ready-multi-tenant-streaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🌐 Production-Ready Multi-Tenant Streaming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-management-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔄 Release Management Process
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 Release Management Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#release-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality Gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-specific-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 Platform-Specific Releases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 Platform-Specific Releases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#linux-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux Releases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windows-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Windows Releases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web Releases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔒 Security Updates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔒 Security Updates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recent-security-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recent Security Updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🐛 Known Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🐛 Known Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-known-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Known Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workarounds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upcoming-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔮 Upcoming Releases
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔮 Upcoming Releases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v320-enhanced-features-planned-july-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v3.2.0 - Enhanced Features (Planned: July 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v400-next-generation-planned-q4-2025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4.0.0 - Next Generation (Planned: Q4 2025)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-and-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📞 Support and Feedback
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📞 Support and Feedback">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cloudtolocalllm-release-notes">CloudToLocalLLM Release Notes<a class="headerlink" href="#cloudtolocalllm-release-notes" title="Permanent link">&para;</a></h1>
+<h2 id="overview">📋 Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This document consolidates all release information, version history, and release management processes for CloudToLocalLLM into a single authoritative reference.</p>
+<hr />
+<h2 id="current-release-v313">🚀 <strong>Current Release: v3.1.3</strong><a class="headerlink" href="#current-release-v313" title="Permanent link">&para;</a></h2>
+<p><strong>Release Date</strong>: June 4, 2025<br />
+<strong>Type</strong>: Patch Release<br />
+<strong>Status</strong>: Stable</p>
+<h3 id="whats-new-in-v313"><strong>What's New in v3.1.3</strong><a class="headerlink" href="#whats-new-in-v313" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Enhanced Deployment Workflow</strong>: Streamlined deployment process with comprehensive verification</li>
+<li>✅ <strong>Documentation Consolidation</strong>: Organized documentation structure with clear hierarchies</li>
+<li>✅ <strong>Version Synchronization</strong>: Automated version management across all platforms</li>
+<li>✅ <strong>AUR Package Improvements</strong>: Enhanced Arch Linux package with better integration</li>
+<li>✅ <strong>VPS Deployment Fixes</strong>: Improved container deployment and SSL certificate management</li>
+</ul>
+<h3 id="bug-fixes"><strong>Bug Fixes</strong><a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fixed version mismatch issues between Git, VPS, and AUR deployments</li>
+<li>Resolved Docker container permission issues on VPS</li>
+<li>Fixed SSL certificate renewal automation</li>
+<li>Corrected Flutter web build deployment process</li>
+<li>Improved error handling in deployment scripts</li>
+</ul>
+<h3 id="platform-support"><strong>Platform Support</strong><a class="headerlink" href="#platform-support" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Linux</strong>: AppImage, DEB (Ubuntu/Debian), Manual Build. AUR support is temporarily unavailable. See <a href="../DEPLOYMENT/AUR_STATUS.md">AUR Status</a> for details.</li>
+<li><strong>Windows</strong>: Installer with Docker/Ollama integration</li>
+<li><strong>Web</strong>: Progressive Web App with cloud connectivity</li>
+<li><strong>Self-Hosting</strong>: Complete VPS deployment solution</li>
+</ul>
+<hr />
+<h2 id="version-history">📚 <strong>Version History</strong><a class="headerlink" href="#version-history" title="Permanent link">&para;</a></h2>
+<h3 id="v300-enhanced-system-tray-architecture"><strong>v3.0.0 - Enhanced System Tray Architecture</strong><a class="headerlink" href="#v300-enhanced-system-tray-architecture" title="Permanent link">&para;</a></h3>
+<p><strong>Release Date</strong>: March 15, 2025<br />
+<strong>Type</strong>: Major Release</p>
+<h4 id="complete-architecture-overhaul"><strong>🏗️ Complete Architecture Overhaul</strong><a class="headerlink" href="#complete-architecture-overhaul" title="Permanent link">&para;</a></h4>
+<p>The most significant architectural improvement since the project's inception, featuring independent operation, universal connection management, and enhanced reliability.</p>
+<h4 id="key-features"><strong>✨ Key Features</strong><a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>🔧 Independent System Tray Daemon</strong>: Python-based daemon with crash isolation</li>
+<li><strong>🌐 Universal Connection Management</strong>: Unified broker for local and cloud connections</li>
+<li><strong>🔒 Enhanced Security</strong>: JWT authentication with automatic token management</li>
+<li><strong>⚡ Improved Performance</strong>: Reduced memory usage and faster startup times</li>
+<li><strong>🛡️ Better Reliability</strong>: Elimination of system tray crashes and segmentation faults</li>
+</ul>
+<h4 id="migration-guide"><strong>🔄 Migration Guide</strong><a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h4>
+<p><strong>Automatic Migration</strong>: The enhanced architecture is backward compatible. Existing installations automatically:</p>
+<ul>
+<li>Transfer authentication tokens to enhanced daemon</li>
+<li>Preserve local Ollama settings and user preferences</li>
+<li>Maintain all existing conversation history and data</li>
+</ul>
+<p><strong>New Installation Methods</strong>:</p>
+<ul>
+<li><strong>AppImage</strong>: Enhanced daemon automatically included and started</li>
+<li><strong>AUR Package</strong>: Systemd service automatically manages the daemon</li>
+<li><strong>DEB Package</strong>: Daemon installed as system service</li>
+<li><strong>Manual Build</strong>: Enhanced daemon built and configured automatically</li>
+</ul>
+<h4 id="detailed-changes"><strong>📋 Detailed Changes</strong><a class="headerlink" href="#detailed-changes" title="Permanent link">&para;</a></h4>
+<p><strong>New Components</strong>:</p>
+<ul>
+<li><strong>Enhanced Tray Daemon</strong> (<code>CloudToLocalLLM-enhanced-tray</code>): Independent Python daemon</li>
+<li><strong>Connection Broker</strong>: Universal connection management service</li>
+<li><strong>Settings Application</strong> (<code>CloudToLocalLLM-settings</code>): Dedicated configuration interface</li>
+<li><strong>Health Monitor</strong>: Continuous connection health monitoring</li>
+<li><strong>Token Manager</strong>: Secure authentication token handling</li>
+</ul>
+<p><strong>Architecture Benefits</strong>:</p>
+<ul>
+<li><strong>Separation of Concerns</strong>: Clear separation between UI, connection management, and system integration</li>
+<li><strong>Scalability</strong>: Modular architecture supporting additional connection types</li>
+<li><strong>Maintainability</strong>: Independent components for separate testing and updates</li>
+<li><strong>Reliability</strong>: Fault isolation prevents cascading failures</li>
+</ul>
+<p><strong>Performance Enhancements</strong>:</p>
+<ul>
+<li><strong>Connection Pooling</strong>: Efficient connection reuse through broker</li>
+<li><strong>Async Operations</strong>: Non-blocking operations for better responsiveness</li>
+<li><strong>Memory Optimization</strong>: Reduced memory footprint through efficient resource management</li>
+<li><strong>Startup Optimization</strong>: Faster application startup with parallel initialization</li>
+</ul>
+<h3 id="v251-windows-installer-release"><strong>v2.5.1 - Windows Installer Release</strong><a class="headerlink" href="#v251-windows-installer-release" title="Permanent link">&para;</a></h3>
+<p><strong>Release Date</strong>: February 10, 2025<br />
+<strong>Type</strong>: Minor Release</p>
+<h4 id="windows-platform-enhancements"><strong>🪟 Windows Platform Enhancements</strong><a class="headerlink" href="#windows-platform-enhancements" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Automated Installer</strong>: Complete Windows installer with Docker/Ollama setup</li>
+<li><strong>GPU Acceleration</strong>: NVIDIA GPU support with automatic detection</li>
+<li><strong>System Integration</strong>: Desktop shortcuts and startup configuration</li>
+<li><strong>Docker Integration</strong>: Automatic Docker Desktop installation and configuration</li>
+</ul>
+<h4 id="features"><strong>Features</strong><a class="headerlink" href="#features" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Installation Options</strong>: Current user or all users installation</li>
+<li><strong>Component Selection</strong>: Customizable installation components</li>
+<li><strong>Ollama Configuration</strong>: Automated Ollama Docker container setup</li>
+<li><strong>GPU Support</strong>: Optional GPU acceleration for NVIDIA cards</li>
+<li><strong>Startup Integration</strong>: Automatic Windows startup configuration</li>
+</ul>
+<h4 id="system-requirements"><strong>System Requirements</strong><a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Windows 10/11</li>
+<li>Internet connection for Docker Desktop download</li>
+<li>NVIDIA GPU with CUDA support (optional)</li>
+<li>WSL (Windows Subsystem for Linux) enabled</li>
+</ul>
+<h3 id="v200-multi-tenant-streaming-architecture"><strong>v2.0.0 - Multi-Tenant Streaming Architecture</strong><a class="headerlink" href="#v200-multi-tenant-streaming-architecture" title="Permanent link">&para;</a></h3>
+<p><strong>Release Date</strong>: January 5, 2025<br />
+<strong>Type</strong>: Major Release</p>
+<h4 id="production-ready-multi-tenant-streaming"><strong>🌐 Production-Ready Multi-Tenant Streaming</strong><a class="headerlink" href="#production-ready-multi-tenant-streaming" title="Permanent link">&para;</a></h4>
+<p>Complete production-ready multi-tenant streaming architecture with user isolation and minimal cloud footprint.</p>
+<h4 id="core-components"><strong>Core Components</strong><a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Streaming Proxy Containers</strong>: Ultra-lightweight Alpine Linux containers (~50MB each)</li>
+<li><strong>Streaming Proxy Manager</strong>: Container orchestration with Docker API integration</li>
+<li><strong>Enhanced API Backend</strong>: Node.js backend with WebSocket management</li>
+<li><strong>Zero-Storage Design</strong>: No persistent user data in cloud infrastructure</li>
+</ul>
+<h4 id="security-architecture"><strong>Security Architecture</strong><a class="headerlink" href="#security-architecture" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Multi-Tenant Isolation</strong>: Per-user Docker networks with unique subnets</li>
+<li><strong>Zero Data Persistence</strong>: All user data remains on local machines</li>
+<li><strong>Ephemeral Containers</strong>: Auto-destroy on disconnect</li>
+<li><strong>Comprehensive Audit</strong>: Session logging without user data retention</li>
+</ul>
+<h4 id="performance-characteristics"><strong>Performance Characteristics</strong><a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Scalability</strong>: 1000+ concurrent streaming sessions per VPS</li>
+<li><strong>Efficiency</strong>: ~50MB RAM per active user</li>
+<li><strong>Startup Time</strong>: &lt;5 seconds per container</li>
+<li><strong>Monitoring</strong>: Real-time health checks and activity tracking</li>
+</ul>
+<hr />
+<h2 id="release-management-process">🔄 <strong>Release Management Process</strong><a class="headerlink" href="#release-management-process" title="Permanent link">&para;</a></h2>
+<h3 id="release-types"><strong>Release Types</strong><a class="headerlink" href="#release-types" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Major Release</strong> (x.0.0): Significant architectural changes, new major features</li>
+<li><strong>Minor Release</strong> (x.y.0): New features, enhancements, non-breaking changes</li>
+<li><strong>Patch Release</strong> (x.y.z): Bug fixes, security updates, minor improvements</li>
+<li><strong>Build Release</strong> (x.y.z+nnn): Build increments, no functional changes</li>
+</ul>
+<h3 id="release-workflow"><strong>Release Workflow</strong><a class="headerlink" href="#release-workflow" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Version Planning</strong>: Define release scope and target features</li>
+<li><strong>Development</strong>: Feature development and testing</li>
+<li><strong>Quality Assurance</strong>: Comprehensive testing across all platforms</li>
+<li><strong>Documentation</strong>: Update documentation and release notes</li>
+<li><strong>Packaging</strong>: Create platform-specific packages (AppImage, AUR, DEB, Windows)</li>
+<li><strong>Deployment</strong>: Deploy to VPS and update cloud services</li>
+<li><strong>Verification</strong>: Comprehensive deployment verification</li>
+<li><strong>Announcement</strong>: Release announcement and documentation updates</li>
+</ol>
+<h3 id="version-management"><strong>Version Management</strong><a class="headerlink" href="#version-management" title="Permanent link">&para;</a></h3>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c"># Version increment using PowerShell version manager</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">./</span><span class="n">scripts</span><span class="p">/</span><span class="n">powershell</span><span class="p">/</span><span class="n">version_manager</span><span class="p">.</span><span class="n">ps1</span> <span class="n">increment</span> <span class="n">major</span>    <span class="c"># x.0.0</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">./</span><span class="n">scripts</span><span class="p">/</span><span class="n">powershell</span><span class="p">/</span><span class="n">version_manager</span><span class="p">.</span><span class="n">ps1</span> <span class="n">increment</span> <span class="n">minor</span>    <span class="c"># x.y.0</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">./</span><span class="n">scripts</span><span class="p">/</span><span class="n">powershell</span><span class="p">/</span><span class="n">version_manager</span><span class="p">.</span><span class="n">ps1</span> <span class="n">increment</span> <span class="n">patch</span>    <span class="c"># x.y.z</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">./</span><span class="n">scripts</span><span class="p">/</span><span class="n">powershell</span><span class="p">/</span><span class="n">version_manager</span><span class="p">.</span><span class="n">ps1</span> <span class="n">increment</span> <span class="n">build</span>    <span class="c"># x.y.z+nnn</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c"># PowerShell version manager automatically synchronizes all components</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c"># Verify version consistency</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">./</span><span class="n">scripts</span><span class="p">/</span><span class="n">deploy</span><span class="p">/</span><span class="n">verify_deployment</span><span class="p">.</span><span class="n">sh</span>
+</span></code></pre></div>
+<h3 id="quality-gates"><strong>Quality Gates</strong><a class="headerlink" href="#quality-gates" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Code Quality</strong>: Automated testing and code review</li>
+<li><strong>Security Scan</strong>: Vulnerability assessment and dependency audit</li>
+<li><strong>Performance Testing</strong>: Load testing and performance benchmarks</li>
+<li><strong>Cross-Platform Testing</strong>: Verification on all supported platforms</li>
+<li><strong>Documentation Review</strong>: Complete documentation updates and validation</li>
+</ul>
+<hr />
+<h2 id="platform-specific-releases">📦 <strong>Platform-Specific Releases</strong><a class="headerlink" href="#platform-specific-releases" title="Permanent link">&para;</a></h2>
+<h3 id="linux-releases"><strong>Linux Releases</strong><a class="headerlink" href="#linux-releases" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>AppImage</strong>: Portable application for all Linux distributions</li>
+<li><strong>AUR Package</strong>: Native Arch Linux package with system integration</li>
+<li><strong>DEB Package</strong>: Ubuntu/Debian package with dependency management</li>
+<li><strong>Manual Build</strong>: Source code compilation for custom environments</li>
+</ul>
+<h3 id="windows-releases"><strong>Windows Releases</strong><a class="headerlink" href="#windows-releases" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Windows Installer</strong>: Automated installer with Docker/Ollama setup</li>
+<li><strong>Portable Version</strong>: Standalone executable without installation</li>
+<li><strong>Manual Build</strong>: Source compilation for development environments</li>
+</ul>
+<h3 id="web-releases"><strong>Web Releases</strong><a class="headerlink" href="#web-releases" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Progressive Web App</strong>: Browser-based application with offline support</li>
+<li><strong>Cloud Deployment</strong>: Hosted version with full cloud features</li>
+<li><strong>Self-Hosted</strong>: Complete VPS deployment for private cloud</li>
+</ul>
+<hr />
+<h2 id="security-updates">🔒 <strong>Security Updates</strong><a class="headerlink" href="#security-updates" title="Permanent link">&para;</a></h2>
+<h3 id="security-policy"><strong>Security Policy</strong><a class="headerlink" href="#security-policy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Vulnerability Disclosure</strong>: Responsible disclosure process</li>
+<li><strong>Security Patches</strong>: Rapid response to security issues</li>
+<li><strong>Dependency Updates</strong>: Regular security dependency updates</li>
+<li><strong>Audit Process</strong>: Periodic security audits and assessments</li>
+</ul>
+<h3 id="recent-security-updates"><strong>Recent Security Updates</strong><a class="headerlink" href="#recent-security-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>v3.1.2</strong>: Updated Auth0 integration with enhanced PKCE support</li>
+<li><strong>v3.1.1</strong>: Fixed JWT token validation vulnerability</li>
+<li><strong>v3.0.1</strong>: Enhanced container security with non-root execution</li>
+<li><strong>v2.5.2</strong>: Updated SSL/TLS configuration for better security</li>
+</ul>
+<hr />
+<h2 id="known-issues">🐛 <strong>Known Issues</strong><a class="headerlink" href="#known-issues" title="Permanent link">&para;</a></h2>
+<h3 id="current-known-issues"><strong>Current Known Issues</strong><a class="headerlink" href="#current-known-issues" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Linux</strong>: System tray may not appear on some Wayland compositors</li>
+<li><strong>Windows</strong>: GPU acceleration requires NVIDIA Container Toolkit</li>
+<li><strong>Web</strong>: Some features require modern browser with WebSocket support</li>
+<li><strong>Self-Hosting</strong>: Wildcard SSL requires manual DNS configuration</li>
+</ul>
+<h3 id="workarounds"><strong>Workarounds</strong><a class="headerlink" href="#workarounds" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>System Tray</strong>: Install libayatana-appindicator3-1 on Ubuntu/Debian</li>
+<li><strong>GPU Acceleration</strong>: Follow NVIDIA Container Toolkit installation guide</li>
+<li><strong>Browser Compatibility</strong>: Use Chrome/Firefox/Edge for best experience</li>
+<li><strong>SSL Setup</strong>: Follow detailed SSL configuration in self-hosting guide</li>
+</ul>
+<hr />
+<h2 id="upcoming-releases">🔮 <strong>Upcoming Releases</strong><a class="headerlink" href="#upcoming-releases" title="Permanent link">&para;</a></h2>
+<h3 id="v320-enhanced-features-planned-july-2025"><strong>v3.2.0 - Enhanced Features</strong> (Planned: July 2025)<a class="headerlink" href="#v320-enhanced-features-planned-july-2025" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Advanced Model Management</strong>: Enhanced model discovery and management</li>
+<li><strong>Plugin System</strong>: Extensible plugin architecture for custom integrations</li>
+<li><strong>Mobile Support</strong>: React Native mobile application</li>
+<li><strong>Enhanced Analytics</strong>: Detailed usage analytics and insights</li>
+</ul>
+<h3 id="v400-next-generation-planned-q4-2025"><strong>v4.0.0 - Next Generation</strong> (Planned: Q4 2025)<a class="headerlink" href="#v400-next-generation-planned-q4-2025" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Microservices Architecture</strong>: Complete microservices redesign</li>
+<li><strong>Kubernetes Support</strong>: Native Kubernetes deployment</li>
+<li><strong>Advanced AI Features</strong>: Enhanced AI capabilities and integrations</li>
+<li><strong>Enterprise Features</strong>: Advanced enterprise features and compliance</li>
+</ul>
+<hr />
+<h2 id="support-and-feedback">📞 <strong>Support and Feedback</strong><a class="headerlink" href="#support-and-feedback" title="Permanent link">&para;</a></h2>
+<h3 id="getting-help"><strong>Getting Help</strong><a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Documentation</strong>: Comprehensive guides in <code>/docs</code> directory</li>
+<li><strong>GitHub Issues</strong>: Bug reports and feature requests</li>
+<li><strong>Community Discussions</strong>: Peer support and tips</li>
+<li><strong>Email Support</strong>: Premium support for enterprise users</li>
+</ul>
+<h3 id="contributing"><strong>Contributing</strong><a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Bug Reports</strong>: Detailed issue reports with reproduction steps</li>
+<li><strong>Feature Requests</strong>: Enhancement suggestions and use cases</li>
+<li><strong>Code Contributions</strong>: Pull requests with tests and documentation</li>
+<li><strong>Documentation</strong>: Improvements to guides and references</li>
+</ul>
+<hr />
+<p>This consolidated release notes document provides complete version history and release management information, replacing scattered release documentation with a single authoritative reference.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1826 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for CloudToLocalLLM — a local-first companion and desktop capability layer for agent runtimes">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Desktop/Linux UX Priorities - CloudToLocalLLM Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#desktoplinux-ux-priorities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="CloudToLocalLLM Docs" class="md-header__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudToLocalLLM Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Desktop/Linux UX Priorities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user-guide/SETUP_GUIDE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/SYSTEM_ARCHITECTURE/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operations/backend/DEPLOYMENT/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Deployment
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operations/cicd/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/BUILD_SCRIPTS/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CloudToLocalLLM Docs" class="md-nav__button md-logo" aria-label="CloudToLocalLLM Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudToLocalLLM Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/SETUP_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/FEATURES_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/USER_GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/SYSTEM_ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/AGENT_RUNTIME_CONTRACT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Runtime Contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/SECURE_DEVICE_MESH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure Device Mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/AVATAR_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Avatar System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/DESKTOP_CONTROL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/VISION_SYSTEM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deployment
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/backend/DEPLOYMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../operations/cicd/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/security/BACKEND_SECURITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/BUILD_SCRIPTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/versioning/VERSIONING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-ux-issues-all-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core UX Issues - ALL FIXED ✅
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core UX Issues - ALL FIXED ✅">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-back-button-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Back Button Navigation ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-settings-two-level-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Settings Two-Level Navigation ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-duplicate-chat-routes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Duplicate Chat Routes ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#desktop-specific-ux-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop-Specific UX Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Desktop-Specific UX Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sidebar-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sidebar Navigation ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings Navigation ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overall-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overall Navigation ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remaining-desktop-ux-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remaining Desktop UX Work
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remaining Desktop UX Work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#low-priority-nice-to-have" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOW PRIORITY (Nice-to-Have)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LOW PRIORITY (Nice-to-Have)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-breadcrumbs-for-deep-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Breadcrumbs for Deep Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-settings-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Settings Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-recent-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Recent Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-keyboard-shortcuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Keyboard Shortcuts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#webcloud-only-issues-not-desktop-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web/Cloud-Only Issues (NOT Desktop Concerns)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Web/Cloud-Only Issues (NOT Desktop Concerns)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#admin-center-overwhelm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admin Center Overwhelm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mobile-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mobile Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#desktop-ux-health-excellent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop UX Health: EXCELLENT ✅
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Desktop UX Health: EXCELLENT ✅">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#navigation-quality-910" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation Quality: 9/10
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-experience-910" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Experience: 9/10
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#desktop-ux-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop UX Assessment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Desktop UX Assessment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-works-well" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Works Well:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nothing-urgent-remaining" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nothing Urgent Remaining
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommendations-for-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendations for Desktop
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recommendations for Desktop">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-state-ready-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State: READY TO USE ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-enhancements-if-desired" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Enhancements (If Desired):
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#webcloud-vs-desktop-priorities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web/Cloud vs Desktop Priorities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Web/Cloud vs Desktop Priorities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#desktop-current-focus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop (Current Focus):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webcloud-separate-concern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web/Cloud (Separate Concern):
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="desktoplinux-ux-priorities">Desktop/Linux UX Priorities<a class="headerlink" href="#desktoplinux-ux-priorities" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Platform Focus:</strong> Desktop/Linux (Web/Cloud issues separated)
+<strong>Date:</strong> 2026-03-04</p>
+</blockquote>
+<hr />
+<h2 id="core-ux-issues-all-fixed">Core UX Issues - ALL FIXED ✅<a class="headerlink" href="#core-ux-issues-all-fixed" title="Permanent link">&para;</a></h2>
+<h3 id="1-back-button-navigation">1. Back Button Navigation ✅<a class="headerlink" href="#1-back-button-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Desktop Impact:</strong> HIGH - Affects all desktop navigation</li>
+<li><strong>Status:</strong> FIXED - All screens have working back buttons</li>
+<li><strong>Commit:</strong> <code>100ba12bc</code></li>
+</ul>
+<h3 id="2-settings-two-level-navigation">2. Settings Two-Level Navigation ✅<a class="headerlink" href="#2-settings-two-level-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Desktop Impact:</strong> HIGH - Settings is primary navigation target</li>
+<li><strong>Status:</strong> FIXED - Pure route-based, no confusion</li>
+<li><strong>Commit:</strong> <code>b68570fbb</code></li>
+</ul>
+<h3 id="3-duplicate-chat-routes">3. Duplicate Chat Routes ✅<a class="headerlink" href="#3-duplicate-chat-routes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Desktop Impact:</strong> MEDIUM - Confusing to have same content at two URLs</li>
+<li><strong>Status:</strong> FIXED - Single <code>/</code> route only</li>
+<li><strong>Commit:</strong> <code>0e6963739</code></li>
+</ul>
+<hr />
+<h2 id="desktop-specific-ux-status">Desktop-Specific UX Status<a class="headerlink" href="#desktop-specific-ux-status" title="Permanent link">&para;</a></h2>
+<h3 id="sidebar-navigation">Sidebar Navigation ✅<a class="headerlink" href="#sidebar-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Current:</strong> Clean 5-item sidebar (Chat, Dashboard, Agents, Settings, Avatar)</li>
+<li><strong>Selection Logic:</strong> Works correctly - highlights active section</li>
+<li><strong>Desktop Drawer:</strong> Available in compact mode</li>
+</ul>
+<h3 id="settings-navigation">Settings Navigation ✅<a class="headerlink" href="#settings-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Structure:</strong> Pure route-based with 6 category routes</li>
+<li><strong>URLs:</strong> <code>/settings/general</code>, <code>/settings/appearance</code>, etc.</li>
+<li><strong>Navigation:</strong> Clean, predictable, with working back buttons</li>
+</ul>
+<h3 id="overall-navigation">Overall Navigation ✅<a class="headerlink" href="#overall-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Pattern:</strong> GoRouter consistently used throughout</li>
+<li><strong>Back Button:</strong> Works naturally across all screens</li>
+<li><strong>URL Structure:</strong> Semantic and predictable</li>
+</ul>
+<hr />
+<h2 id="remaining-desktop-ux-work">Remaining Desktop UX Work<a class="headerlink" href="#remaining-desktop-ux-work" title="Permanent link">&para;</a></h2>
+<h3 id="low-priority-nice-to-have">LOW PRIORITY (Nice-to-Have)<a class="headerlink" href="#low-priority-nice-to-have" title="Permanent link">&para;</a></h3>
+<h4 id="1-breadcrumbs-for-deep-navigation">1. Breadcrumbs for Deep Navigation<a class="headerlink" href="#1-breadcrumbs-for-deep-navigation" title="Permanent link">&para;</a></h4>
+<p><strong>Example:</strong> Settings &gt; Connection &gt; Tunnel
+<strong>Benefit:</strong> Clear indication of location in hierarchy
+<strong>Effort:</strong> 1-2 hours
+<strong>Impact:</strong> MINOR - Navigation is already clear</p>
+<h4 id="2-settings-search">2. Settings Search<a class="headerlink" href="#2-settings-search" title="Permanent link">&para;</a></h4>
+<p><strong>Benefit:</strong> Quick access to any setting
+<strong>Effort:</strong> 2-3 hours
+<strong>Impact:</strong> LOW - Settings are well organized</p>
+<h4 id="3-recent-settings">3. Recent Settings<a class="headerlink" href="#3-recent-settings" title="Permanent link">&para;</a></h4>
+<p><strong>Benefit:</strong> Quick access to frequently used settings
+<strong>Effort:</strong> 1-2 hours
+<strong>Impact:</strong> LOW - Convenience feature</p>
+<h4 id="4-keyboard-shortcuts">4. Keyboard Shortcuts<a class="headerlink" href="#4-keyboard-shortcuts" title="Permanent link">&para;</a></h4>
+<p><strong>Benefit:</strong> Power user efficiency
+<strong>Effort:</strong> 1-2 hours
+<strong>Impact:</strong> LOW - Nice to have for advanced users</p>
+<hr />
+<h2 id="webcloud-only-issues-not-desktop-concerns">Web/Cloud-Only Issues (NOT Desktop Concerns)<a class="headerlink" href="#webcloud-only-issues-not-desktop-concerns" title="Permanent link">&para;</a></h2>
+<h3 id="admin-center-overwhelm">Admin Center Overwhelm<a class="headerlink" href="#admin-center-overwhelm" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Platform:</strong> Web/Cloud ONLY</li>
+<li><strong>Desktop Impact:</strong> NONE - Desktop users never see this screen</li>
+<li><strong>Priority:</strong> LOW for desktop development</li>
+<li><strong>Note:</strong> Can be addressed separately when working on web platform</li>
+</ul>
+<h3 id="mobile-navigation">Mobile Navigation<a class="headerlink" href="#mobile-navigation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Platform:</strong> Mobile devices (phone/tablet)</li>
+<li><strong>Desktop Impact:</strong> MINIMAL - Only affects compact mode</li>
+<li><strong>Priority:</strong> LOW - Desktop is primary focus</li>
+</ul>
+<hr />
+<h2 id="desktop-ux-health-excellent">Desktop UX Health: EXCELLENT ✅<a class="headerlink" href="#desktop-ux-health-excellent" title="Permanent link">&para;</a></h2>
+<h3 id="navigation-quality-910">Navigation Quality: 9/10<a class="headerlink" href="#navigation-quality-910" title="Permanent link">&para;</a></h3>
+<p><strong>Strengths:</strong>
+- ✅ Clear, predictable navigation
+- ✅ Working back buttons everywhere
+- ✅ Semantic URL structure
+- ✅ No duplicate routes
+- ✅ Consistent GoRouter patterns
+- ✅ Well-organized settings
+- ✅ Responsive sidebar</p>
+<p><strong>Minor Improvements Possible:</strong>
+- Breadcrumbs for deep navigation (cosmetic)
+- Settings search (convenience)
+- More keyboard shortcuts (power user feature)</p>
+<h3 id="user-experience-910">User Experience: 9/10<a class="headerlink" href="#user-experience-910" title="Permanent link">&para;</a></h3>
+<p><strong>For Desktop Users:</strong>
+- Settings are easy to navigate
+- Back button always works
+- No confusing two-level navigation
+- Clear visual feedback in sidebar
+- Routes make sense</p>
+<hr />
+<h2 id="desktop-ux-assessment">Desktop UX Assessment<a class="headerlink" href="#desktop-ux-assessment" title="Permanent link">&para;</a></h2>
+<h3 id="what-works-well">What Works Well:<a class="headerlink" href="#what-works-well" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Single-Level Settings</strong> - Each category is one click away</li>
+<li><strong>Clear URL Structure</strong> - <code>/settings/avatar</code> makes sense</li>
+<li><strong>Natural Back Navigation</strong> - GoRouter handles stack properly</li>
+<li><strong>Sidebar Highlights</strong> - Shows which section you're in</li>
+<li><strong>No Duplicate Paths</strong> - One way to get everywhere</li>
+</ol>
+<h3 id="nothing-urgent-remaining">Nothing Urgent Remaining<a class="headerlink" href="#nothing-urgent-remaining" title="Permanent link">&para;</a></h3>
+<p>All critical UX issues for desktop have been resolved. The app now has:
+- Clean navigation structure
+- Working back buttons
+- Organized settings
+- Consistent patterns</p>
+<hr />
+<h2 id="recommendations-for-desktop">Recommendations for Desktop<a class="headerlink" href="#recommendations-for-desktop" title="Permanent link">&para;</a></h2>
+<h3 id="current-state-ready-to-use">Current State: READY TO USE ✅<a class="headerlink" href="#current-state-ready-to-use" title="Permanent link">&para;</a></h3>
+<p>The desktop UX is in excellent shape. No critical issues remain.</p>
+<h3 id="optional-enhancements-if-desired">Optional Enhancements (If Desired):<a class="headerlink" href="#optional-enhancements-if-desired" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Polish Items</strong> (1-2 hours each):</li>
+<li>Add breadcrumbs to deeply nested pages</li>
+<li>Implement settings search</li>
+<li>Add more keyboard shortcuts</li>
+<li>
+<p>Add "Quick Settings" to home screen</p>
+</li>
+<li>
+<p><strong>Testing</strong> (30 minutes):</p>
+</li>
+<li>Navigate through all settings categories</li>
+<li>Test back button behavior</li>
+<li>Verify all routes work</li>
+<li>
+<p>Check sidebar highlighting</p>
+</li>
+<li>
+<p><strong>Documentation</strong> (30 minutes):</p>
+</li>
+<li>Update user guide with new navigation structure</li>
+<li>Document settings categories</li>
+<li>Create screenshots of navigation flow</li>
+</ol>
+<hr />
+<h2 id="webcloud-vs-desktop-priorities">Web/Cloud vs Desktop Priorities<a class="headerlink" href="#webcloud-vs-desktop-priorities" title="Permanent link">&para;</a></h2>
+<h3 id="desktop-current-focus">Desktop (Current Focus):<a class="headerlink" href="#desktop-current-focus" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ All critical issues RESOLVED</li>
+<li>✅ Native platform implementation ready</li>
+<li>✅ Navigation excellent</li>
+<li>🟡 Optional polish items available</li>
+</ul>
+<h3 id="webcloud-separate-concern">Web/Cloud (Separate Concern):<a class="headerlink" href="#webcloud-separate-concern" title="Permanent link">&para;</a></h3>
+<ul>
+<li>⚠️ Admin Center needs reorganization (9 tabs)</li>
+<li>⚠️ Mobile navigation improvements needed</li>
+<li>⚠️ Different user flows for web vs desktop</li>
+</ul>
+<p><strong>Recommendation:</strong> Desktop is production-ready. Web/Cloud can be addressed separately when working on that platform.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p><strong>Desktop/Linux UX Status:</strong> EXCELLENT ✅</p>
+<p><strong>All Critical Issues:</strong> RESOLVED</p>
+<p><strong>Time to Ship Desktop:</strong> YES - No blockers remaining</p>
+<p><strong>Optional Work:</strong> Polish items (breadcrumbs, search, shortcuts) - can be done anytime</p>
+<p><strong>Next Steps for Desktop:</strong>
+1. Test the app thoroughly (navigation, settings, back buttons)
+2. Test native platform features (screenshot, windows, input)
+3. Or move to next feature (Region Capture, Vector Embeddings, etc.)</p>
+<hr />
+<p><strong>Conclusion:</strong> Desktop UX is in great shape. The navigation refactoring successfully addressed all critical issues. The app is ready for desktop users.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
