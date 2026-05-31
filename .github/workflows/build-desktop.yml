@@ -1,0 +1,256 @@
+name: "💻 Desktop Build & Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 10.1.202). Leave empty for auto-bump."
+        required: false
+        default: ""
+        type: string
+      platforms:
+        description: "Platforms to build (comma-separated)"
+        required: false
+        default: "linux,windows,macos"
+        type: string
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  build_linux:
+    name: Linux Build
+    if: contains(inputs.platforms, 'linux')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set Version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION=${{ inputs.version }}
+          else
+            VERSION=$(jq -r '.version' assets/version.json)
+            IFS='.' read -r -a v <<< "$VERSION"
+            v[2]=$((v[2] + 1))
+            VERSION="${v[0]}.${v[1]}.${v[2]}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
+
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++6 libayatana-appindicator3-dev libsecret-1-dev libcurl4-openssl-dev libnotify-dev zip
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Flutter Build Linux
+        run: |
+          flutter pub get
+          flutter build linux --release
+
+      - name: Package Linux Distributions
+        run: |
+          sudo apt-get install -y libfuse2
+          mkdir -p dist/linux
+
+          STAGING_DIR=$(mktemp -d)
+          mkdir -p $STAGING_DIR/cloudtolocalllm
+          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/cloudtolocalllm/
+          tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
+
+          chmod +x scripts/packaging/build_deb.sh
+          ./scripts/packaging/build_deb.sh
+
+          chmod +x scripts/packaging/build_appimage.sh
+          ./scripts/packaging/build_appimage.sh || echo "AppImage build skipped"
+
+          chmod +x scripts/packaging/update_aur_pkgbuild.sh
+          ./scripts/packaging/update_aur_pkgbuild.sh
+
+      - name: Generate Installer Script
+        run: |
+          chmod +x scripts/packaging/build_installer.sh
+          ./scripts/packaging/build_installer.sh
+
+      - name: Upload Linux Bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-bundles
+          path: dist/linux/*
+          retention-days: 7
+
+  build_windows:
+    name: Windows Build
+    if: contains(inputs.platforms, 'windows')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set Version
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION=${{ inputs.version }}
+          else
+            VERSION=$(jq -r '.version' assets/version.json)
+            IFS='.' read -r -a v <<< "$VERSION"
+            v[2]=$((v[2] + 1))
+            VERSION="${v[0]}.${v[1]}.${v[2]}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Flutter Build Windows
+        run: |
+          flutter pub get
+          flutter build windows --release
+
+      - name: Build Windows Installer
+        shell: pwsh
+        run: ./scripts/packaging/build_windows_installer.ps1
+
+      - name: Upload Windows Bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-bundles
+          path: |
+            build/windows/x64/runner/Release/*.zip
+            dist/windows/*.exe
+          retention-days: 7
+
+  build_macos:
+    name: macOS Build
+    if: contains(inputs.platforms, 'macos')
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set Version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION=${{ inputs.version }}
+          else
+            VERSION=$(jq -r '.version' assets/version.json)
+            IFS='.' read -r -a v <<< "$VERSION"
+            v[2]=$((v[2] + 1))
+            VERSION="${v[0]}.${v[1]}.${v[2]}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          sed -i "" "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Flutter Build macOS
+        run: |
+          flutter pub get
+          flutter build macos --release
+
+      - name: Package macOS DMG
+        run: |
+          mkdir -p dist/macos
+          if command -v create-dmg &>/dev/null; then
+            create-dmg --volname "CloudToLocalLLM" \
+              --window-pos 200 120 \
+              --window-size 800 400 \
+              --icon-size 100 \
+              --app-drop-link 600 185 \
+              dist/macos/CloudToLocalLLM-macOS-x64.dmg \
+              build/macos/Build/Products/Release/CloudToLocalLLM.app
+          else
+            echo "create-dmg not available, bundling .app as zip"
+            cd build/macos/Build/Products/Release
+            zip -r ../../../../dist/macos/CloudToLocalLLM-macOS-x64.zip CloudToLocalLLM.app
+          fi
+
+      - name: Upload macOS Bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-bundles
+          path: dist/macos/*
+          retention-days: 7
+
+  create_release:
+    needs: [build_linux, build_windows, build_macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Compute version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+          else
+            VERSION=$(jq -r '.version' assets/version.json)
+            IFS='.' read -r -a v <<< "$VERSION"
+            v[2]=$((v[2] + 1))
+            VERSION="${v[0]}.${v[1]}.${v[2]}"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          fi
+          echo "tag=v${{ env.VERSION }}" >> $GITHUB_ENV
+
+      - name: Prepare AUR metadata
+        run: |
+          set -euo pipefail
+          APPIMAGE=$(ls linux-bundles/*.AppImage 2>/dev/null | head -1 || echo "")
+          if [ -n "$APPIMAGE" ]; then
+            SHA256=$(sha256sum "$APPIMAGE" | awk '{print $1}')
+            AUR_VERSION_OVERRIDE="${{ env.VERSION }}" AUR_APPIMAGE_SHA256="$SHA256" bash ./scripts/packaging/update_aur_pkgbuild.sh
+          fi
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            linux-bundles/*,
+            windows-bundles/*,
+            macos-bundles/*
+          tag: "v${{ env.VERSION }}"
+          name: "Release v${{ env.VERSION }}"
+          artifactErrorsFailBuild: false
+          allowUpdates: true
+          removeAritifacts: true
+          makeLatest: true
+          body: |
+            ## Desktop Release v${{ env.VERSION }}
+
+            ### Linux
+            - **AppImage**: CloudToLocalLLM-x86_64.AppImage
+            - **Debian/Ubuntu**: .deb package
+            - **Portable**: .tar.gz bundle
+            - **Arch Linux**: AUR package
+            - Install script: `curl -fsSL https://cloudtolocalllm.online/install.sh | bash`
+
+            ### Windows
+            - **Installer**: CloudToLocalLLM-Windows-x64-Setup.exe
+            - **Portable ZIP**: CloudToLocalLLM-Windows-x64.zip
+
+            ### macOS
+            - **DMG**: CloudToLocalLLM-macOS-x64.dmg
+            - **ZIP**: CloudToLocalLLM-macOS-x64.zip
+          token: ${{ secrets.GITHUB_TOKEN }}

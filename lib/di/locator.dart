@@ -71,6 +71,7 @@ import 'package:cloudtolocalllm/services/vision/camera_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
 import 'package:cloudtolocalllm/services/voice/cloud_tts_service.dart';
 import 'package:cloudtolocalllm/services/voice/hermes_voice_bridge_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 import 'package:cloudtolocalllm/services/desktop_control/window_manager_service.dart';
 import 'package:cloudtolocalllm/services/popout/popout_manager.dart';
@@ -259,6 +260,15 @@ Future<void> setupCoreServices() async {
         hermesVoiceBridgeService,
       );
       hermesVoiceBridgeService.start();
+
+      // Local microphone capture → STT → voice conversation service
+      final localVoiceInputService = LocalVoiceInputService(
+        voiceConversationService: voiceConversationService,
+        sttUrl: 'http://127.0.0.1:8643/v1/audio/transcriptions',
+      );
+      serviceLocator.registerSingleton<LocalVoiceInputService>(
+        localVoiceInputService,
+      );
 
       // Start the router server in the background.
       unawaited(routerServer.start());

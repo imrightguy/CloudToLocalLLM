@@ -179,9 +179,14 @@ class WindowManagerService {
       );
       return false; // Prevent actual window close
     } catch (e) {
-      appLogger.error('[WindowManager] Failed to handle window close',
-          error: e);
-      return true; // Allow close if error occurs
+      // GTK window may already be partially destroyed (Niri/Wayland).
+      // Set state manually and hard-prevent the close.
+      appLogger.warning(
+        '[WindowManager] hideToTray failed, forcing close prevention: $e',
+      );
+      _isWindowVisible = false;
+      _isMinimizedToTray = true;
+      return false; // Still prevent close — keep the process alive
     }
   }
 

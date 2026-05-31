@@ -108,9 +108,8 @@ class ProviderDiscoveryService {
           role: ProviderRole.agentRuntime,
         );
       }
-    } catch (e) {
-      // Not an error - just not available
-      debugPrint('[ProviderDiscovery] OpenClaw Gateway not available: $e');
+    } catch (_) {
+      // Not available — expected on this machine
     }
     return null;
   }
@@ -136,8 +135,8 @@ class ProviderDiscoveryService {
           role: ProviderRole.supportModelProvider,
         );
       }
-    } catch (e) {
-      debugPrint('[ProviderDiscovery] LM Studio not available: $e');
+    } catch (_) {
+      // Not available — expected on this machine
     }
     return null;
   }
@@ -199,8 +198,8 @@ class ProviderDiscoveryService {
           role: ProviderRole.supportModelProvider,
         );
       }
-    } catch (e) {
-      debugPrint('[ProviderDiscovery] Ollama not available: $e');
+    } catch (_) {
+      // Not available — expected on this machine
     }
     return null;
   }

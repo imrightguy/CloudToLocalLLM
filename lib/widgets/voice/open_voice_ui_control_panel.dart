@@ -2,16 +2,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/connection_manager_service.dart';
-import '../../services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/connection_manager_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
+import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 
 class OpenVoiceUIControlPanel extends StatelessWidget {
   const OpenVoiceUIControlPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<ConnectionManagerService, VoiceConversationService>(
-      builder: (context, connectionManager, voiceService, child) {
+    return Consumer3<ConnectionManagerService, VoiceConversationService, LocalVoiceInputService>(
+      builder: (context, connectionManager, voiceService, localVoice, child) {
         final backend = connectionManager.activeBackend;
         final gatewayStatus = connectionManager.getGatewayStatus();
         final backendLabel =
@@ -165,6 +166,42 @@ class OpenVoiceUIControlPanel extends StatelessWidget {
                         ),
                   ),
                 const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 16),
+                Text(
+                  'Local Mic',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: localVoice.isCapturing
+                          ? null
+                          : () => _toggleMic(context, localVoice),
+                      icon: const Icon(Icons.mic),
+                      label: const Text('Listen'),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: localVoice.isCapturing
+                          ? () => _toggleMic(context, localVoice)
+                          : null,
+                      icon: const Icon(Icons.mic_off),
+                      label: const Text('Stop'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    ),
+                    _StatusChip(
+                      label: 'Mic',
+                      value: localVoice.isCapturing ? 'ON' : 'OFF',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 _TranscriptPreview(
                   title: 'Last heard',
                   value: voiceSnapshot.lastUserTranscript,
@@ -182,6 +219,29 @@ class OpenVoiceUIControlPanel extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _toggleMic(
+    BuildContext context,
+    LocalVoiceInputService localVoice,
+  ) async {
+    if (localVoice.isCapturing) {
+      await localVoice.stopCapture();
+      if (!context.mounted) return;
+      _showFeedback(context, 'Mic off', true);
+    } else {
+      final ok = await localVoice.startCapture();
+      if (!context.mounted) return;
+      if (ok) {
+        _showFeedback(context, 'Mic on — listening...', true);
+      } else {
+        _showFeedback(
+          context,
+          localVoice.snapshot.lastError ?? 'Failed to start mic',
+          false,
+        );
+      }
+    }
   }
 
   Future<void> _switchBackend(
