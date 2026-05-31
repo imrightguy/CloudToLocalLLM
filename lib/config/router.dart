@@ -526,8 +526,9 @@ class AppRouter {
 
         // 4. Handle root route redirect
         if (location == '/') {
-          if (isAuthenticated || !kIsWeb) {
-            // Redirect to chat as default home
+          // If authenticated, on native desktop, or on the app subdomain web landing page,
+          // redirect to '/chat' (which will trigger standard Auth0 login if unauthenticated).
+          if (isAuthenticated || !kIsWeb || isAppSubdomain) {
             return '/chat';
           }
           return null; // Let marketing/home logic handle it
