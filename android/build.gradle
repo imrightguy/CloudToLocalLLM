@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.24'
+    ext.kotlin_version = '2.1.0'
     repositories {
         google()
         mavenCentral()
@@ -30,6 +30,14 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+
+    // Force Kotlin 1.9 language mode for K2 compiler compatibility
+    // with older plugins (tesseract_ocr 0.5.0, etc.)
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            languageVersion = "1.9"
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')
