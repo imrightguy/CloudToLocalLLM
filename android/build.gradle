@@ -41,6 +41,13 @@ allprojects {
         }
     }
 }
+
+// K2 generates duplicate .class entries in bundled JARs (tesseract_ocr 0.5.0)
+allprojects {
+    tasks.withType(AbstractArchiveTask).configureEach {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}
 subprojects {
     project.evaluationDependsOn(':app')
     
