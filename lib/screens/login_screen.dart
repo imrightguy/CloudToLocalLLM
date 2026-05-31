@@ -302,6 +302,32 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () => context.go('/'),
                             child: const Text('Continue in Local Mode'),
                           ),
+
+                          const SizedBox(height: 8.0),
+
+                           TextButton(
+                             onPressed: _isLoading
+                                 ? null
+                                 : () async {
+                                     final authService = context.read<AuthService>();
+                                     setState(() => _isLoading = true);
+                                     try {
+                                       await authService.loginMockDeveloper();
+                                       if (!context.mounted) return;
+                                       context.go('/');
+                                     } catch (e) {
+                                       debugPrint('Bypass failed: $e');
+                                     } finally {
+                                       if (mounted) {
+                                         setState(() => _isLoading = false);
+                                       }
+                                     }
+                                   },
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.orange,
+                            ),
+                            child: const Text('Bypass to Test User (Debug)'),
+                          ),
                         ],
                       ),
                     ),

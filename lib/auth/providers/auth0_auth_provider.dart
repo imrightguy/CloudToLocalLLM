@@ -463,5 +463,43 @@ class Auth0AuthProvider implements AuthProvider {
     }
   }
 
+  @override
+  Future<void> loginMockDeveloper() async {
+    _currentUser = UserModel(
+      id: 'google-oauth2|102509433531341542550',
+      email: 'dev@cloudtolocalllm.online',
+      name: 'Christopher (Dev)',
+      nickname: 'rightguy',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    if (kIsWeb) {
+      authWebUtils.setLocalStorageItem('auth_access_token', 'mock_dev_access_token');
+      authWebUtils.setLocalStorageItem('auth_id_token', 'mock_dev_id_token');
+      authWebUtils.setLocalStorageItem(
+          'auth_user_data',
+          json.encode({
+            'sub': _currentUser!.id,
+            'email': _currentUser!.email,
+            'name': _currentUser!.name,
+            'nickname': _currentUser!.nickname,
+          }));
+    } else {
+      await _storage.write(key: 'access_token', value: 'mock_dev_access_token');
+      await _storage.write(key: 'id_token', value: 'mock_dev_id_token');
+      await _storage.write(
+          key: 'user_data',
+          value: json.encode({
+            'sub': _currentUser!.id,
+            'email': _currentUser!.email,
+            'name': _currentUser!.name,
+            'nickname': _currentUser!.nickname,
+          }));
+    }
+
+    _authSubject.add(true);
+  }
+
   void dispose() => _authSubject.close();
 }

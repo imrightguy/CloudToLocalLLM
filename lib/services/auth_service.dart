@@ -168,6 +168,19 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Mock/Developer login for testing purposes
+  Future<void> loginMockDeveloper() async {
+    debugPrint('[AuthService] loginMockDeveloper() called');
+    _isLoading.value = true;
+    notifyListeners();
+    try {
+      await _authProvider.loginMockDeveloper();
+    } finally {
+      _isLoading.value = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     try {
       _isLoading.value = true;

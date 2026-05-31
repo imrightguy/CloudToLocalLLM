@@ -23,4 +23,7 @@ abstract class AuthProvider {
 
   /// Handle auth callback (if required by provider)
   Future<bool> handleCallback({String? url});
+
+  /// Mock/Developer login for testing purposes
+  Future<void> loginMockDeveloper();
 }
