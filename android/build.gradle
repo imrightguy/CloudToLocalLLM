@@ -43,8 +43,23 @@ allprojects {
 }
 
 // AGP 8.6+ Kotlin K2 generates duplicate .class in bundle jars (tesseract_ocr 0.5.0)
-// useLegacyPackaging falls back to zip-based packaging that allows overwrite
+// Exclude the duplicate TesseractOcrPlugin.java file from compilation under tesseract_ocr subproject.
+// useLegacyPackaging falls back to zip-based packaging that allows overwrite on older AGP versions.
 subprojects { subproject ->
+    subproject.pluginManager.withPlugin('com.android.library') {
+        if (subproject.name == 'tesseract_ocr') {
+            subproject.android {
+                sourceSets {
+                    main {
+                        java {
+                            exclude '**/TesseractOcrPlugin.java'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     afterEvaluate {
         try {
             def bundleTaskClass = Class.forName("com.android.build.gradle.tasks.BundleLibraryClasses")
