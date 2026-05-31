@@ -1,0 +1,225 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:cloudtolocalllm/database/drift_local_brain.dart' as brain;
+import 'package:cloudtolocalllm/services/providers/base_provider.dart'
+    as provider;
+import 'package:cloudtolocalllm/services/rate_limit_manager.dart';
+import 'package:cloudtolocalllm/services/router_server.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  setUpAll(() {
+    HttpOverrides.global = null;
+  });
+
+  group('RouterServer local security defaults', () {
+    RouterServer? server;
+
+    tearDown(() async {
+      await server?.stop();
+      server = null;
+    });
+
+    test('binds to loopback by default', () async {
+      final port = await _availableLoopbackPort();
+      server = _buildRouter(port: port);
+
+      await server!.start();
+
+      final dynamic startedServer = server;
+      expect(startedServer.boundAddress.address, '127.0.0.1');
+    });
+
+    test('does not hard-code all-interface binding', () {
+      final source = File('lib/services/router_server.dart').readAsStringSync();
+
+      expect(
+        source,
+        contains("static const String defaultBindHost = '127.0.0.1';"),
+      );
+      expect(source, contains('this.bindHost = defaultBindHost'));
+      expect(source, contains('io.serve(handler, bindHost, port)'));
+      expect(source, isNot(contains('InternetAddress.anyIPv4')));
+    });
+
+    test('keeps all-interface binding as an explicit override only', () {
+      final configured = _buildRouter(port: 0, bindHost: '0.0.0.0');
+
+      expect(configured.bindHost, '0.0.0.0');
+    });
+
+    test('rejects privileged local requests when no local token is available',
+        () async {
+      final baseUrl = await _startRouter(serverRef: (value) => server = value);
+
+      final response = await http.post(
+        baseUrl.replace(path: '/v1/chat/completions'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'model': 'glm-4-flash',
+          'messages': [
+            {'role': 'user', 'content': 'hello'},
+          ],
+        }),
+      );
+
+      expect(response.statusCode, HttpStatus.forbidden);
+    });
+
+    test('rejects privileged local requests without the configured local token',
+        () async {
+      final baseUrl = await _startRouter(
+        serverRef: (value) => server = value,
+        localAuthTokenProvider: () async => 'router-secret',
+      );
+
+      final response = await http.post(
+        baseUrl.replace(path: '/v1/chat/completions'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'model': 'glm-4-flash',
+          'messages': [
+            {'role': 'user', 'content': 'hello'},
+          ],
+        }),
+      );
+
+      expect(response.statusCode, HttpStatus.unauthorized);
+    });
+
+    test('allows privileged local requests with the configured bearer token',
+        () async {
+      final baseUrl = await _startRouter(
+        serverRef: (value) => server = value,
+        localAuthTokenProvider: () async => 'router-secret',
+      );
+
+      final response = await http.post(
+        baseUrl.replace(path: '/v1/chat/completions'),
+        headers: {
+          'Authorization': 'Bearer router-secret',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': 'glm-4-flash',
+          'messages': [
+            {'role': 'user', 'content': 'hello'},
+          ],
+        }),
+      );
+
+      expect(response.statusCode, HttpStatus.ok);
+      expect(jsonDecode(response.body), containsPair('model', 'glm-4-flash'));
+    });
+
+    test('keeps health and model listing available locally without a token',
+        () async {
+      final baseUrl = await _startRouter(serverRef: (value) => server = value);
+
+      final health = await http.get(baseUrl.replace(path: '/health'));
+      final models = await http.get(baseUrl.replace(path: '/v1/models'));
+
+      expect(health.statusCode, HttpStatus.ok);
+      expect(health.body, 'OK');
+      expect(models.statusCode, HttpStatus.ok);
+      expect(jsonDecode(models.body), containsPair('object', 'list'));
+    });
+  });
+}
+
+RouterServer _buildRouter({
+  required int port,
+  String bindHost = RouterServer.defaultBindHost,
+  Future<String?> Function()? localAuthTokenProvider,
+}) {
+  return RouterServer(
+    port: port,
+    bindHost: bindHost,
+    localAuthTokenProvider: localAuthTokenProvider,
+    rateLimitManager: _TestRateLimitManager(),
+    providers: {'zhipu': _EchoProvider()},
+  );
+}
+
+Future<Uri> _startRouter({
+  required void Function(RouterServer server) serverRef,
+  Future<String?> Function()? localAuthTokenProvider,
+}) async {
+  final port = await _availableLoopbackPort();
+  final server = _buildRouter(
+    port: port,
+    localAuthTokenProvider: localAuthTokenProvider,
+  );
+  serverRef(server);
+  await server.start();
+  return Uri.parse('http://127.0.0.1:$port');
+}
+
+Future<int> _availableLoopbackPort() async {
+  final socket = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+  final port = socket.port;
+  await socket.close();
+  return port;
+}
+
+class _TestRateLimitManager implements RateLimitManager {
+  @override
+  brain.LocalBrain get db => throw UnimplementedError();
+
+  @override
+  Future<void> endRequest(String modelId) async {}
+
+  @override
+  Future<String> getAvailableModel(String requestedModelId) async {
+    return requestedModelId;
+  }
+
+  @override
+  Future<bool> isAvailable(String modelId) async => true;
+
+  @override
+  Future<void> startRequest(String modelId) async {}
+
+  @override
+  Future<void> syncFromHeader(String modelId, int remaining) async {}
+
+  @override
+  Stream<List<brain.ModelCapacityData>> watchCapacities() =>
+      const Stream.empty();
+}
+
+class _EchoProvider implements provider.LlmProvider {
+  @override
+  String get baseUrl => 'http://127.0.0.1:0';
+
+  @override
+  String get name => 'test-echo';
+
+  @override
+  Future<provider.CompletionResponse> complete(
+    provider.CompletionRequest request,
+  ) async {
+    return provider.CompletionResponse(
+      id: 'chatcmpl-test',
+      object: 'chat.completion',
+      created: 0,
+      model: request.model,
+      choices: [
+        provider.Choice(
+          index: 0,
+          message: provider.Message(role: 'assistant', content: 'hello'),
+          finishReason: 'stop',
+        ),
+      ],
+    );
+  }
+
+  @override
+  Stream<provider.StreamEvent> streamCompletion(
+    provider.CompletionRequest request,
+  ) {
+    return Stream.value(provider.StreamEvent(data: '{"done":true}'));
+  }
+}
