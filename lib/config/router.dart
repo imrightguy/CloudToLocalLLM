@@ -200,6 +200,10 @@ class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
   }
 
   Future<void> _checkSetupNeeded() async {
+    if (kIsWeb) {
+      // Setup wizard is desktop-only, skip check on web
+      return;
+    }
     try {
       final setupWizardService = serviceLocator<SetupWizardService>();
       final shouldShow = await setupWizardService.shouldShowWizard();
