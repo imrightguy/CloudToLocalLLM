@@ -47,7 +47,7 @@ allprojects {
 subprojects { subproject ->
     afterEvaluate {
         subproject.tasks.configureEach { task ->
-            if (task.class.name.contains("BundleLibraryClasses")) {
+            if (task.hasProperty("useLegacyPackaging")) {
                 task.setProperty("useLegacyPackaging", true)
             }
         }
