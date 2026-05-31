@@ -180,6 +180,13 @@ jobs:
           docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
           docker push ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG}
 
+      - name: Upload Flutter web build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
+          retention-days: 1
+
   build_desktop_apps:
     needs: [ai_change_analysis, run_tests]
     if: always() && (needs.ai_change_analysis.outputs.linux_needed == 'true' || needs.ai_change_analysis.outputs.windows_needed == 'true' || github.event_name == 'workflow_dispatch') && (needs.run_tests.result == 'success' || contains(github.event.head_commit.message, '[skip tests]'))
@@ -358,6 +365,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download Flutter web build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
 
       - name: Deploy Web to Simon VPS
         env:
