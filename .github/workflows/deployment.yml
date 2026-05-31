@@ -135,7 +135,7 @@ jobs:
           npm ci
           npm run lint || echo "Lint warnings"
           # Run tests with timeout to prevent CI hangs from open handles
-          timeout 180 npm run test:unit || { echo "Tests failed or timed out"; exit 0; }
+          timeout 180 npm run test:unit
 
   build_images:
     needs: [ai_change_analysis, run_tests]
@@ -154,7 +154,7 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Build Kubernetes Web Image
+      - name: Build and Test Kubernetes Web Image
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
@@ -165,7 +165,52 @@ jobs:
           flutter build web --release --no-tree-shake-icons
 
           echo "Building Kubernetes Web Image..."
-          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG} -f config/docker/Dockerfile.web .
+          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG} -t web-test:latest -f config/docker/Dockerfile.web .
+
+          echo "Testing Web image locally..."
+          # Start container
+          docker run -d --name web-test -p 8080:8080 web-test:latest
+          sleep 3
+
+          # Test health endpoint
+          echo "Testing health endpoint..."
+          if curl -f http://localhost:8080/health; then
+            echo "✅ Health endpoint working"
+          else
+            echo "❌ Health endpoint failed"
+            docker logs web-test
+            docker rm -f web-test
+            exit 1
+          fi
+
+          # Test index.html
+          echo "Testing index.html..."
+          if curl -f http://localhost:8080/index.html | grep -q "flutter"; then
+            echo "✅ index.html contains Flutter content"
+          else
+            echo "❌ index.html missing or invalid"
+            curl http://localhost:8080/index.html | head -20
+            docker logs web-test
+            docker rm -f web-test
+            exit 1
+          fi
+
+          # Test main.dart.js
+          echo "Testing main.dart.js..."
+          if curl -f http://localhost:8080/main.dart.js > /dev/null 2>&1; then
+            SIZE=$(curl -s http://localhost:8080/main.dart.js | wc -c)
+            echo "✅ main.dart.js exists (size: $SIZE bytes)"
+          else
+            echo "❌ main.dart.js not found"
+            docker logs web-test
+            docker rm -f web-test
+            exit 1
+          fi
+
+          docker rm -f web-test
+          echo "✅ Web image test passed"
+
+          echo "Pushing images to GHCR..."
           docker push ghcr.io/${REPO_LOWER}/web:latest
           docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
           docker push ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG}
@@ -353,7 +398,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
+          REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
           IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${{ github.run_number }}"
           GHCR_USER="${GHCR_USERNAME:-${GITHUB_ACTOR}}"
@@ -372,11 +417,29 @@ jobs:
             export KUBECONFIG=/tmp/kubeconfig
             
             kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true
-            kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true
-            kubectl -n cloudtolocalllm create deployment web --image="${IMAGE}"
-            kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}' || true
-            kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
-            kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
+            
+            if kubectl -n cloudtolocalllm get deployment web &>/dev/null; then
+              echo "Deployment web already exists, updating image..."
+              kubectl -n cloudtolocalllm set image deployment/web web="${IMAGE}"
+            else
+              echo "Deployment web does not exist, creating..."
+              kubectl -n cloudtolocalllm create deployment web --image="${IMAGE}"
+              kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}' || true
+              kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
+            fi
+
+            if ! kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; then
+              echo "❌ Web deployment rollout timed out - checking pod status and logs"
+              kubectl describe deployment web -n cloudtolocalllm || true
+              kubectl get pods -n cloudtolocalllm -l app=web || true
+              WEB_POD=$(kubectl get pods -n cloudtolocalllm -l app=web -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+              if [ -n "$WEB_POD" ]; then
+                echo "Logs for pod $WEB_POD:"
+                kubectl logs "$WEB_POD" -n cloudtolocalllm --tail=100 || true
+              fi
+              return 1
+            fi
+
             kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
             echo "Deployment via kubeconfig succeeded"
             return 0
@@ -396,7 +459,30 @@ jobs:
             local attempt
             for attempt in 1 2 3; do
               echo "Deploy attempt ${attempt}/3 via ${label} (${user}@${host})"
-              REMOTE_CMD="set -euo pipefail; kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true; kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true; kubectl -n cloudtolocalllm create deployment web --image='${IMAGE}'; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}' || true; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web"
+              REMOTE_CMD="set -euo pipefail
+kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true
+if kubectl -n cloudtolocalllm get deployment web &>/dev/null; then
+  echo 'Deployment web already exists, updating image...'
+  kubectl -n cloudtolocalllm set image deployment/web web='${IMAGE}'
+else
+  echo 'Deployment web does not exist, creating...'
+  kubectl -n cloudtolocalllm create deployment web --image='${IMAGE}'
+  kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}}' || true
+  kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
+fi
+if ! kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; then
+  echo '❌ Web deployment rollout timed out - checking pod status and logs'
+  kubectl describe deployment web -n cloudtolocalllm || true
+  kubectl get pods -n cloudtolocalllm -l app=web || true
+  WEB_POD=\$(kubectl get pods -n cloudtolocalllm -l app=web -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+  if [ -n \"\$WEB_POD\" ]; then
+    echo \"Logs for pod \$WEB_POD:\"
+    kubectl logs \"\$WEB_POD\" -n cloudtolocalllm --tail=100 || true
+  fi
+  exit 1
+fi
+kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web"
+
               if ssh -i "$key_file" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=no "$user@$host" "$REMOTE_CMD"
               then
                 echo "Deployment succeeded via ${label}"

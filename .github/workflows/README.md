@@ -4,7 +4,7 @@ This directory contains all CI/CD workflows for CloudToLocalLLM.
 
 ## Current Workflow Overview
 
-### **Build Pipeline** (`build-pipeline.yml`)
+### **Build & Deployment Pipeline** (`deployment.yml`)
 **Unified CI/CD workflow using AI-powered orchestration**
 
 - **Trigger:**
