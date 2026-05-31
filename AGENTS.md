@@ -25,6 +25,56 @@ Core orientation: secure agent channel, avatar/voice companion, desktop control,
 - Before starting or changing substantive work, check for an existing issue, linked discussion, or open PR and align your work to that record.
 - If work is not represented in GitHub issues yet, create or update the relevant issue so the repo state and the agent's actions stay aligned.
 
+## Branch discipline — per-agent branches with PRs to main
+
+**Every agent pushes to its own named branch, never directly to `main`.** This is the single most important rule in this file. Direct pushes to main are forbidden.
+
+### Why
+- Each agent (Antigravity, Codex, Zoidbot, etc.) works on separate concerns — Flutter code vs CI infra vs backend. Direct pushes to main create collisions, broken builds, and race conditions.
+- CI workflows trigger on pushes to **any branch**, so agents still get full CI feedback without poisoning main.
+- `main` stays green. Only passing PRs merge to main.
+
+### Rules
+
+1. **Agent branch naming**: `<agent>/<change-description>` — e.g. `antigravity/web-app-subdomain`, `zoidbot/ci-split-workflows`, `codex/backend-auth-refactor`. The agent prefix is mandatory so blame, CI triggers, and rollback are unambiguous.
+
+2. **Never push to main directly.** All changes land on main via PR. The one exception is a documented emergency rollback (revert a broken PR).
+
+3. **PR to main requires:**
+   - All CI workflows that run on the branch pass
+   - The PR is labeled with the source agent name (e.g. `agent:antigravity`)
+   - The PR body links to the relevant GitHub issue if one exists
+
+4. **Merge strategy**: squash-merge. All commits from the branch become a single commit on main with a conventional-commit message. This keeps main history clean and makes rollbacks atomic.
+
+5. **Keep branches short-lived.** A branch should live hours, not days. If work spans multiple sessions, rebase onto current main and force-push rather than leaving a stale branch.
+
+6. **Branch cleanup**: merged branches are deleted automatically by GitHub after squash-merge.
+
+### Workflows and branch triggers
+
+The CI workflows trigger on push to any branch, not just main. This means:
+
+| Workflow | Trigger paths | Purpose |
+|---|---|---|
+| `deploy-web.yml` 🌐 | `lib/`, `web/`, `pubspec.yaml`, `pubspec.lock` | Build Flutter web → scp to VPS (staging) |
+| `deploy-backend.yml` 🖥️ | `services/api-backend/`, `services/streaming-proxy/`, config/docker | Build Docker images → GHCR |
+| `build-desktop.yml` 💻 | `workflow_dispatch` only | Linux + Windows + macOS + GitHub release |
+| `build-mobile.yml` 📱 | `workflow_dispatch` only | Android APKs + iOS build |
+
+Agents get CI feedback on their branch before the PR hits main. The `deploy-web.yml` runs on branch pushes too but the VPS deploy step only runs if the branch is `main` (so staging deploys from branches are safe without deploying to production).
+
+### Agent coordination
+
+- Agents do not step on each other's branches. Zoidbot works in `zoidbot/*`, Antigravity in `antigravity/*`, Codex in `codex/*`.
+- If two agents need to collaborate (e.g. Antigravity's Flutter fix needs Zoidbot's workflow), Zoidbot opens a PR to main first, then Antigravity rebases onto the new main.
+- If an agent's branch is stale (behind main by several commits), rebase onto main before opening the PR — don't merge main into the branch.
+
+### CI hygiene for agents
+- Do not push incomplete or unverified code to the remote even on your own branch. PRs should be ready for review, not experiments.
+- If you need to test something experimental, use `flutter build` or `flutter analyze` locally first, or use a draft PR.
+- CI failures on a branch are expected during iteration, but the final PR revision must be green so it can merge.
+
 ## Commands
 
 ### Flutter app
