@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 
 import 'package:cloudtolocalllm/bootstrap/bootstrapper.dart';
 import 'package:cloudtolocalllm/config/app_config.dart';
@@ -289,6 +290,10 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       // Add Google Workspace Service
       _addProviderIfAvailable<GoogleWorkspaceService>(
           providersList, 'GoogleWorkspaceService');
+
+      // Add Setup Wizard Service
+      _addProviderIfAvailable<SetupWizardService>(
+          providersList, 'SetupWizardService');
 
       debugPrint(
           '[App] Returning MultiProvider with ${providersList.length} providers');
