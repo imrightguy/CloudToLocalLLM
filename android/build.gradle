@@ -42,10 +42,13 @@ allprojects {
     }
 }
 
-// K2 generates duplicate .class entries in bundled JARs (tesseract_ocr 0.5.0)
-allprojects {
-    tasks.withType(AbstractArchiveTask).configureEach {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+// AGP 8.6+ Kotlin K2 generates duplicate .class in bundle jars (tesseract_ocr 0.5.0)
+// useLegacyPackaging falls back to zip-based packaging that allows overwrite
+subprojects { subproject ->
+    afterEvaluate {
+        subproject.tasks.withType(com.android.build.gradle.tasks.BundleLibraryClasses) {
+            it.useLegacyPackaging = true
+        }
     }
 }
 subprojects {
