@@ -351,7 +351,7 @@ jobs:
           sudo chown -R $(id -u):$(id -g) /tmp/aur-metadata
           cp -f /tmp/aur-metadata/.SRCINFO "$GITHUB_WORKSPACE/dist/aur/.SRCINFO"
 
-  deploy:
+  deploy_simon_vps:
     needs: [ai_change_analysis, build_images]
     if: always() && inputs.release_version == '' && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
     runs-on: ubuntu-latest
@@ -359,107 +359,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy Web to Kubernetes (k3s CT)
+      - name: Deploy Web to Simon VPS
         env:
-          SWARM_HOST: ${{ secrets.SWARM_HOST }}
-          SWARM_USER: ${{ secrets.SWARM_USER }}
-          SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
-          SWARM_CTID: ${{ secrets.SWARM_CTID }}
-          K8S_HOST: ${{ secrets.K8S_HOST }}
-          K8S_USER: ${{ secrets.K8S_USER }}
-          K8S_SSH_KEY: ${{ secrets.K8S_SSH_KEY }}
-          K8S_CTID: ${{ secrets.K8S_CTID }}
-          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          GH_DEFAULT_TOKEN: ${{ github.token }}
+          VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          SIMON_HOST: 31.97.140.7
+          SIMON_USER: zoidbot
         run: |
           set -euo pipefail
+          if [ -z "${VM_SSH_PRIVATE_KEY:-}" ]; then
+            echo "No SSH key available, skipping VPS deploy"
+            exit 0
+          fi
 
-          REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
-          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${{ github.run_number }}"
-          GHCR_USER="${GHCR_USERNAME:-${GITHUB_ACTOR}}"
-          GHCR_PASS="${GHCR_TOKEN:-${GH_DEFAULT_TOKEN}}"
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$VM_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config << CFG
+          Host simon-vps
+            HostName ${SIMON_HOST}
+            User ${SIMON_USER}
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          CFG
+          chmod 600 ~/.ssh/config
 
-          echo "Deploying image: ${IMAGE}"
+          tar -czf /tmp/web_build.tar.gz -C build/web .
+          echo "Upload size: $(wc -c < /tmp/web_build.tar.gz) bytes"
+          scp /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
 
-          deploy_via_kubeconfig() {
-            local kubeconfig_base64="$1"
-            if [ -z "$kubeconfig_base64" ]; then
-              return 1
+          ssh simon-vps "sudo rm -rf /opt/cloudtolocalllm/deploy/simon-vps/../../build/web/* && sudo tar -xzf /tmp/web_build.tar.gz -C /opt/cloudtolocalllm/deploy/simon-vps/../../build/web/ && sudo rm /tmp/web_build.tar.gz && cd /opt/cloudtolocalllm/deploy/simon-vps && sudo docker compose --env-file .env build web && sudo docker compose --env-file .env up -d --no-deps web"
+
+          sleep 3
+          for i in 1 2 3 4 5; do
+            if curl -sf "https://app.cloudtolocalllm.online/healthz" > /dev/null 2>&1; then
+              echo "✅ VPS web service healthy"
+              exit 0
             fi
-            echo "Deploying via kubeconfig..."
-            echo "$kubeconfig_base64" | base64 -d > /tmp/kubeconfig
-            chmod 600 /tmp/kubeconfig
-            export KUBECONFIG=/tmp/kubeconfig
-            
-            kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true
-            kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true
-            kubectl -n cloudtolocalllm create deployment web --image="${IMAGE}"
-            kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}' || true
-            kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
-            kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
-            kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
-            echo "Deployment via kubeconfig succeeded"
-            return 0
-          }
-
-          deploy_via_ssh() {
-            local label="$1"
-            local host="$2"
-            local user="$3"
-            local key_file="$4"
-            local ctid="$5"
-
-            if [ -z "$host" ] || [ -z "$user" ] || [ -z "$key_file" ]; then
-              return 1
-            fi
-
-            local attempt
-            for attempt in 1 2 3; do
-              echo "Deploy attempt ${attempt}/3 via ${label} (${user}@${host})"
-              REMOTE_CMD="set -euo pipefail; kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true; kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true; kubectl -n cloudtolocalllm create deployment web --image='${IMAGE}'; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}' || true; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web"
-              if ssh -i "$key_file" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=no "$user@$host" "$REMOTE_CMD"
-              then
-                echo "Deployment succeeded via ${label}"
-                return 0
-              fi
-              sleep 15
-            done
-            return 1
-          }
-
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          if [ -n "${SWARM_SSH_KEY:-}" ]; then
-            printf '%s\n' "$SWARM_SSH_KEY" > ~/.ssh/swarm_key
-            chmod 600 ~/.ssh/swarm_key
-          fi
-          if [ -n "${K8S_SSH_KEY:-}" ]; then
-            printf '%s\n' "$K8S_SSH_KEY" > ~/.ssh/k8s_key
-            chmod 600 ~/.ssh/k8s_key
-          fi
-
-          if deploy_via_kubeconfig "${KUBECONFIG_BASE64:-}"; then
-            exit 0
-          fi
-
-          if deploy_via_ssh "SWARM" "${SWARM_HOST:-}" "${SWARM_USER:-}" "$HOME/.ssh/swarm_key" "${SWARM_CTID:-201}"; then
-            exit 0
-          fi
-
-          if deploy_via_ssh "K8S" "${K8S_HOST:-}" "${K8S_USER:-}" "$HOME/.ssh/k8s_key" "${K8S_CTID:-201}"; then
-            exit 0
-          fi
-
-          echo "All deployment targets failed"
-          echo ""
-          echo "To configure deployment, add one of the following to GitHub secrets:"
-          echo "  1. KUBECONFIG_BASE64 - Base64-encoded kubeconfig (recommended)"
-          echo "  2. K8S_HOST, K8S_USER, K8S_SSH_KEY - SSH access to k8s cluster"
-          echo "  3. SWARM_HOST, SWARM_USER, SWARM_SSH_KEY - SSH access to Proxmox"
+            echo "Waiting... attempt $i"
+            sleep 3
+          done
+          echo "❌ VPS web service health check failed"
           exit 1
 
       - name: Purge Cloudflare cache
@@ -467,33 +407,14 @@ jobs:
         env:
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
-          CLOUDFLARE_DNS_API_TOKEN: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN }}
-          CLOUDFLARE_TUNNEL_API_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_API_TOKEN }}
         run: |
           set -euo pipefail
-
-          CF_TOKEN="${CLOUDFLARE_CACHE_PURGE_TOKEN:-}"
-          if [ -z "$CF_TOKEN" ]; then
-            CF_TOKEN="${CLOUDFLARE_DNS_API_TOKEN:-}"
+          if [ -z "${CLOUDFLARE_ZONE_ID:-}" ] || [ -z "${CLOUDFLARE_CACHE_PURGE_TOKEN:-}" ]; then
+            echo "Missing Cloudflare secrets, skipping cache purge"
+            exit 0
           fi
-          if [ -z "$CF_TOKEN" ]; then
-            CF_TOKEN="${CLOUDFLARE_TUNNEL_API_TOKEN:-}"
-          fi
-
-          if [ -z "${CLOUDFLARE_ZONE_ID:-}" ]; then
-            echo "CLOUDFLARE_ZONE_ID is required for cache purge"
-            exit 1
-          fi
-
-          if [ -z "$CF_TOKEN" ]; then
-            echo "No Cloudflare API token available for cache purge"
-            exit 1
-          fi
-
-          RESPONSE=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CF_TOKEN}" \
+          curl -sf -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CLOUDFLARE_CACHE_PURGE_TOKEN}" \
             -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}')
-
-          echo "$RESPONSE"
-          python -c 'import json, sys; r=json.loads(sys.argv[1]); ok=r.get("success", False); print("Cloudflare cache purge succeeded" if ok else "Cloudflare cache purge failed: {}".format(r.get("errors", []))); sys.exit(0 if ok else 1)' "$RESPONSE"
+            --data '{"purge_everything":true}'
+          echo "Cloudflare cache purged"
