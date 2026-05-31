@@ -3,74 +3,111 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../services/streaming_chat_service.dart';
+import '../di/locator.dart';
+import '../services/onboarding/setup_wizard_service.dart';
 
+import '../screens/login_screen.dart';
+import '../screens/callback_screen.dart';
+import '../screens/onboarding/setup_wizard_screen.dart';
 import '../screens/home/home_layout.dart';
+import '../widgets/navigation/openclaw_navigation_shell.dart';
 
-/// Application router configuration — simplified for desktop.
-/// Desktop opens straight into chat. No sidebar, no auth gate, no setup wizard.
-class AppRouter {
-  static GoRouter createRouter({
-    GlobalKey<NavigatorState>? navigatorKey,
-    required AuthService authService,
-  }) {
-    debugPrint('[Router] createRouter called');
+// Settings screens are lazy-loaded
+import '../screens/settings/settings_lazy.dart' as settings_lazy;
 
-    final rootNavigatorKey = navigatorKey ?? GlobalKey<NavigatorState>();
+// GUI Automation screen (lazy-loaded)
+import '../screens/gui_automation_lazy.dart' as gui_automation_lazy;
 
-    return GoRouter(
-      navigatorKey: rootNavigatorKey,
-      initialLocation: '/',
-      debugLogDiagnostics: true,
-      refreshListenable: authService,
-      routes: [
-        GoRoute(
-          path: '/',
-          name: 'home',
-          pageBuilder: (context, state) => MaterialPage(
-            key: state.pageKey,
-            child: const _HomeLayoutWrapper(),
-          ),
-        ),
-      ],
-      redirect: (context, state) {
-        // Desktop: no redirect — just let them chat
-        if (!kIsWeb) return null;
+// Admin screens (lazy-loaded)
+import '../screens/admin/admin_lazy.dart' as admin_lazy;
 
-        // Web-only: auth and marketing redirects
-        final isAuthenticated = authService.isAuthenticated.value;
-        final isAuthLoading = authService.isLoading.value;
-        final location = state.matchedLocation;
+// Agent status screen is lazy-loaded
+import '../screens/agent_status_lazy.dart' as agent_status_lazy;
 
-        if (isAuthLoading) return null;
+// Dashboard screens (lazy-loaded)
+import '../screens/dashboard_lazy.dart' as dashboard_lazy;
 
-        if (!isAuthenticated && location != '/') {
-          return '/';
-        }
+// Marketing screens (web-only) are lazy-loaded
+import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
 
-        return null;
-      },
-      errorBuilder: (context, state) => Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text('Page Not Found', style: TextStyle(fontSize: 24)),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => context.go('/'),
-                child: const Text('Go Home'),
-              ),
-            ],
-          ),
+// Construction screen (lazy-loaded)
+import '../screens/construction_lazy.dart' as construction_lazy;
+
+// Overview screen
+import '../screens/dashboard/overview_screen.dart';
+
+// Channels screen
+import '../screens/channels/channels_screen.dart';
+
+// Usage screen
+import '../screens/usage/usage_screen.dart';
+
+// Instances screen
+import '../screens/instances/instances_screen.dart';
+
+// Sessions screen
+import '../screens/sessions/sessions_screen.dart';
+
+// Agents screen
+import '../screens/agents/agents_screen.dart';
+
+// Skills screen
+import '../screens/skills/skills_screen.dart';
+
+// Nodes screen
+import '../screens/nodes/nodes_screen.dart';
+
+// Cron Jobs screen
+import '../screens/cron/cron_jobs_screen.dart';
+
+// Logs screen
+import '../screens/logs/logs_screen.dart';
+
+// Debug screen
+import '../screens/debug/debug_screen.dart';
+
+// Config screen
+import '../screens/config/config_screen.dart';
+
+// Placeholder screens - to be implemented in subsequent tasks
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
+  final String route;
+
+  const PlaceholderScreen(
+      {required this.title, required this.route, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.construction,
+                size: 64, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 16),
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 8),
+            Text('Route: $route', style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 24),
+            Text(
+              'This screen will be implemented in a subsequent task.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6),
+                  ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-/// Wrapper that provides HomeLayout with its required dependencies.
+/// Wrapper widget that provides HomeLayout with its required dependencies
 class _HomeLayoutWrapper extends StatefulWidget {
   const _HomeLayoutWrapper();
 
@@ -538,6 +575,7 @@ class AppRouter {
             ],
           ),
         ),
+      ),
     );
   }
 }
