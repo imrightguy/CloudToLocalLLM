@@ -575,3 +575,5 @@ class AppRouter {
     );
   }
 }
+
+// Trigger build: Force full application build to package and verify the android tesseract_ocr duplicate class build fix.
