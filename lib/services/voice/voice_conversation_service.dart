@@ -80,6 +80,10 @@ class VoiceConversationService extends ChangeNotifier {
     _setMode(VoiceConversationMode.listening);
   }
 
+  void setIdle() {
+    _setMode(VoiceConversationMode.idle);
+  }
+
   void noteWakePhrase(String transcript) {
     _lastUserTranscript = _clean(transcript);
     _extendConversationHold();

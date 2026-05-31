@@ -104,4 +104,88 @@ class CronJob {
     if (lastRun == null) return null;
     return lastRunSuccess ? 'Success' : 'Failed';
   }
+
+  factory CronJob.fromJson(Map<String, dynamic> json) {
+    CronJobStatus parseStatus(String? val) {
+      switch (val?.toLowerCase()) {
+        case 'active':
+          return CronJobStatus.active;
+        case 'inactive':
+          return CronJobStatus.inactive;
+        case 'failed':
+          return CronJobStatus.failed;
+        case 'running':
+          return CronJobStatus.running;
+        default:
+          return CronJobStatus.inactive;
+      }
+    }
+
+    return CronJob(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      schedule: json['schedule'] as String? ?? '',
+      scheduleDescription: json['scheduleDescription'] as String? ?? '',
+      command: json['command'] as String? ?? '',
+      status: parseStatus(json['status'] as String?),
+      nextRun: json['nextRun'] != null ? DateTime.tryParse(json['nextRun'] as String) : null,
+      lastRun: json['lastRun'] != null ? DateTime.tryParse(json['lastRun'] as String) : null,
+      lastRunSuccess: json['lastRunSuccess'] as bool? ?? true,
+      lastRunOutput: json['lastRunOutput'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    String statusString(CronJobStatus val) {
+      switch (val) {
+        case CronJobStatus.active:
+          return 'active';
+        case CronJobStatus.inactive:
+          return 'inactive';
+        case CronJobStatus.failed:
+          return 'failed';
+        case CronJobStatus.running:
+          return 'running';
+      }
+    }
+
+    return {
+      'id': id,
+      'name': name,
+      'schedule': schedule,
+      'scheduleDescription': scheduleDescription,
+      'command': command,
+      'status': statusString(status),
+      'nextRun': nextRun?.toIso8601String(),
+      'lastRun': lastRun?.toIso8601String(),
+      'lastRunSuccess': lastRunSuccess,
+      'lastRunOutput': lastRunOutput,
+    };
+  }
+
+  CronJob copyWith({
+    String? id,
+    String? name,
+    String? schedule,
+    String? scheduleDescription,
+    String? command,
+    CronJobStatus? status,
+    DateTime? nextRun,
+    DateTime? lastRun,
+    bool? lastRunSuccess,
+    String? lastRunOutput,
+  }) {
+    return CronJob(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      schedule: schedule ?? this.schedule,
+      scheduleDescription: scheduleDescription ?? this.scheduleDescription,
+      command: command ?? this.command,
+      status: status ?? this.status,
+      nextRun: nextRun ?? this.nextRun,
+      lastRun: lastRun ?? this.lastRun,
+      lastRunSuccess: lastRunSuccess ?? this.lastRunSuccess,
+      lastRunOutput: lastRunOutput ?? this.lastRunOutput,
+    );
+  }
 }

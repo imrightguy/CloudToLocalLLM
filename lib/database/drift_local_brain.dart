@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
+import 'package:cloudtolocalllm/services/hermes_manager/main_chat_timeline_record.dart';
+import 'package:cloudtolocalllm/models/main_chat_timeline_event.dart';
 import 'connection/connection.dart'
     if (dart.library.io) 'connection/native.dart'
     if (dart.library.js_interop) 'connection/web.dart';
@@ -44,6 +46,37 @@ class Messages extends Table {
   TextColumn get content => text()();
   TextColumn get model => text().nullable()();
   DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Append-only main chat timeline records for the cockpit timeline.
+@DataClassName('MainChatTimelineDbRecord')
+class MainChatTimelineRecords extends Table {
+  TextColumn get recordId => text()();
+  TextColumn get eventId => text()();
+  IntColumn get revision => integer()();
+  TextColumn get sourceDeviceId => text()();
+  IntColumn get sourceSequence => integer()();
+  TextColumn get scope => text()();
+  TextColumn get conversationId => text().nullable()();
+  TextColumn get eventType => text()();
+  TextColumn get sourceKind => text()();
+  TextColumn get sourceId => text().nullable()();
+  DateTimeColumn get timestampUtc => dateTime()();
+  DateTimeColumn get observedAtUtc => dateTime()();
+  TextColumn get title => text()();
+  TextColumn get summary => text().nullable()();
+  TextColumn get bodyRedacted => text().nullable()();
+  TextColumn get artifactName => text().nullable()();
+  TextColumn get localArtifactPath => text().nullable()();
+  TextColumn get safeMetadataJson => text()();
+  TextColumn get localOnlyMetadataJson => text()();
+  TextColumn get syncPolicy => text()();
+  TextColumn get sensitivity => text()();
+  IntColumn get redactionVersion => integer()();
+  IntColumn get payloadVersion => integer()();
+
+  @override
+  Set<Column> get primaryKey => {recordId};
 }
 
 /// Table for logging internal agent activities
@@ -412,6 +445,7 @@ class ConversationMemories extends Table {
   Users,
   Conversations,
   Messages,
+  MainChatTimelineRecords,
   AgentLogs,
   Agents,
   AgentEvents,
@@ -436,9 +470,10 @@ class ConversationMemories extends Table {
 ])
 class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
+  LocalBrain.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -486,6 +521,10 @@ class LocalBrain extends _$LocalBrain {
           if (from < 7) {
             // Add Avatar Memory System with vector embeddings for Phase 3
             await m.createTable(conversationMemories);
+          }
+          if (from < 8) {
+            // Add durable main chat timeline persistence.
+            await m.createTable(mainChatTimelineRecords);
           }
         },
       );
@@ -584,6 +623,228 @@ class LocalBrain extends _$LocalBrain {
           concurrentLimit: 60,
         ),
         mode: InsertMode.insertOrIgnore);
+  }
+
+  // ==========================================================================
+  // COCKPIT TIMELINE DAO
+  // ==========================================================================
+
+  Future<List<MainChatTimelineRecord>> loadMainChatTimelineRecords({
+    String? conversationId,
+  }) async {
+    final rows = await select(mainChatTimelineRecords).get();
+    final records = rows
+        .map(_mainChatTimelineRecordFromRow)
+        .toList(growable: false)
+      ..sort(_compareMainChatTimelineRecords);
+    if (conversationId == null) {
+      return records
+          .where((record) => record.scope != MainChatTimelineScope.conversation)
+          .toList(growable: false);
+    }
+    return records
+        .where((record) => _isVisibleForConversation(record, conversationId))
+        .toList(growable: false);
+  }
+
+  Future<List<MainChatTimelineEvent>> loadMainChatTimelineEvents({
+    String? conversationId,
+  }) async {
+    final records = await loadMainChatTimelineRecords(
+      conversationId: conversationId,
+    );
+    return records
+        .map((record) => record.toTimelineEvent())
+        .toList(growable: false);
+  }
+
+  Future<void> appendMainChatTimelineEvents(
+    Iterable<MainChatTimelineEvent> events, {
+    required String sourceDeviceId,
+    String? conversationId,
+  }) async {
+    final materializedEvents = events.toList(growable: false);
+    if (materializedEvents.isEmpty) {
+      return;
+    }
+
+    await transaction(() async {
+      var nextSequence = await _nextMainChatTimelineSequence();
+      for (final event in materializedEvents) {
+        final record = MainChatTimelineRecord.fromTimelineEvent(
+          event,
+          sourceDeviceId: sourceDeviceId,
+          sourceSequence: nextSequence,
+          revision: 1,
+          scope: _scopeForEvent(event),
+          conversationId: _conversationIdForEvent(
+            event,
+            conversationId,
+          ),
+        );
+        nextSequence += 1;
+        await into(mainChatTimelineRecords).insert(
+          _mainChatTimelineCompanion(record),
+          mode: InsertMode.insertOrIgnore,
+        );
+      }
+    });
+  }
+
+  Future<void> clearMainChatTimelineRecords() async {
+    await delete(mainChatTimelineRecords).go();
+  }
+
+  Future<int> _nextMainChatTimelineSequence() async {
+    final rows = await select(mainChatTimelineRecords).get();
+    var maxSequence = 0;
+    for (final row in rows) {
+      if (row.sourceSequence > maxSequence) {
+        maxSequence = row.sourceSequence;
+      }
+    }
+    return maxSequence + 1;
+  }
+
+  MainChatTimelineScope _scopeForEvent(MainChatTimelineEvent event) {
+    return switch (event.type) {
+      MainChatTimelineEventType.chatUser ||
+      MainChatTimelineEventType.chatAssistant ||
+      MainChatTimelineEventType.chatSystem ||
+      MainChatTimelineEventType.toolStarted ||
+      MainChatTimelineEventType.toolFinished ||
+      MainChatTimelineEventType.artifactCreated =>
+        MainChatTimelineScope.conversation,
+      MainChatTimelineEventType.restartRecovered =>
+        MainChatTimelineScope.device,
+      MainChatTimelineEventType.localThinkQueued ||
+      MainChatTimelineEventType.localThinkRunning ||
+      MainChatTimelineEventType.localThinkCompleted ||
+      MainChatTimelineEventType.localThinkCancelled ||
+      MainChatTimelineEventType.localThinkFailed ||
+      MainChatTimelineEventType.localThinkSkipped =>
+        MainChatTimelineScope.global,
+    };
+  }
+
+  String? _conversationIdForEvent(
+    MainChatTimelineEvent event,
+    String? fallbackConversationId,
+  ) {
+    final trimmed = fallbackConversationId?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return switch (event.type) {
+      MainChatTimelineEventType.chatUser ||
+      MainChatTimelineEventType.chatAssistant ||
+      MainChatTimelineEventType.chatSystem ||
+      MainChatTimelineEventType.toolStarted ||
+      MainChatTimelineEventType.toolFinished ||
+      MainChatTimelineEventType.artifactCreated =>
+        trimmed,
+      _ => null,
+    };
+  }
+
+  bool _isVisibleForConversation(
+    MainChatTimelineRecord record,
+    String conversationId,
+  ) {
+    return switch (record.scope) {
+      MainChatTimelineScope.conversation => record.conversationId == conversationId,
+      MainChatTimelineScope.global => true,
+      MainChatTimelineScope.device => true,
+    };
+  }
+
+  int _compareMainChatTimelineRecords(
+    MainChatTimelineRecord left,
+    MainChatTimelineRecord right,
+  ) {
+    final timestampComparison =
+        left.timestampUtc.compareTo(right.timestampUtc);
+    if (timestampComparison != 0) {
+      return timestampComparison;
+    }
+    final sequenceComparison =
+        left.sourceSequence.compareTo(right.sourceSequence);
+    if (sequenceComparison != 0) {
+      return sequenceComparison;
+    }
+    return left.recordId.compareTo(right.recordId);
+  }
+
+  MainChatTimelineRecord _mainChatTimelineRecordFromRow(
+    MainChatTimelineDbRecord row,
+  ) {
+    return MainChatTimelineRecord.fromJson(<String, Object?>{
+      'recordId': row.recordId,
+      'eventId': row.eventId,
+      'revision': row.revision,
+      'sourceDeviceId': row.sourceDeviceId,
+      'sourceSequence': row.sourceSequence,
+      'scope': row.scope,
+      if (row.conversationId != null) 'conversationId': row.conversationId,
+      'eventType': row.eventType,
+      'sourceKind': row.sourceKind,
+      if (row.sourceId != null) 'sourceId': row.sourceId,
+      'timestampUtc': row.timestampUtc.toUtc().toIso8601String(),
+      'observedAtUtc': row.observedAtUtc.toUtc().toIso8601String(),
+      'title': row.title,
+      if (row.summary != null) 'summary': row.summary,
+      if (row.bodyRedacted != null) 'bodyRedacted': row.bodyRedacted,
+      if (row.artifactName != null) 'artifactName': row.artifactName,
+      if (row.localArtifactPath != null) 'localArtifactPath': row.localArtifactPath,
+      'safeMetadata': _decodeJsonMap(row.safeMetadataJson),
+      'localOnlyMetadata': _decodeJsonMap(row.localOnlyMetadataJson),
+      'syncPolicy': row.syncPolicy,
+      'sensitivity': row.sensitivity,
+      'redactionVersion': row.redactionVersion,
+      'payloadVersion': row.payloadVersion,
+    });
+  }
+
+  MainChatTimelineRecordsCompanion _mainChatTimelineCompanion(
+    MainChatTimelineRecord record,
+  ) {
+    return MainChatTimelineRecordsCompanion.insert(
+      recordId: record.recordId,
+      eventId: record.eventId,
+      revision: record.revision,
+      sourceDeviceId: record.sourceDeviceId,
+      sourceSequence: record.sourceSequence,
+      scope: record.scope.name,
+      conversationId: Value(record.conversationId),
+      eventType: record.eventType.name,
+      sourceKind: record.sourceKind.name,
+      sourceId: Value(record.sourceId),
+      timestampUtc: record.timestampUtc,
+      observedAtUtc: record.observedAtUtc,
+      title: record.title,
+      summary: Value(record.summary),
+      bodyRedacted: Value(record.bodyRedacted),
+      artifactName: Value(record.artifactName),
+      localArtifactPath: Value(record.localArtifactPath),
+      safeMetadataJson: jsonEncode(record.safeMetadata),
+      localOnlyMetadataJson: jsonEncode(record.localOnlyMetadata),
+      syncPolicy: record.syncPolicy.name,
+      sensitivity: record.sensitivity.name,
+      redactionVersion: record.redactionVersion,
+      payloadVersion: record.payloadVersion,
+    );
+  }
+
+  Map<String, Object?> _decodeJsonMap(String jsonText) {
+    final decoded = jsonDecode(jsonText);
+    if (decoded is Map) {
+      final converted = <String, Object?>{};
+      for (final entry in decoded.entries) {
+        converted[entry.key.toString()] = entry.value;
+      }
+      return converted;
+    }
+    return const <String, Object?>{};
   }
 
   // ==========================================================================

@@ -995,6 +995,1108 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   }
 }
 
+class $MainChatTimelineRecordsTable extends MainChatTimelineRecords
+    with TableInfo<$MainChatTimelineRecordsTable, MainChatTimelineDbRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MainChatTimelineRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _recordIdMeta =
+      const VerificationMeta('recordId');
+  @override
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+      'record_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _eventIdMeta =
+      const VerificationMeta('eventId');
+  @override
+  late final GeneratedColumn<String> eventId = GeneratedColumn<String>(
+      'event_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _revisionMeta =
+      const VerificationMeta('revision');
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+      'revision', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sourceDeviceIdMeta =
+      const VerificationMeta('sourceDeviceId');
+  @override
+  late final GeneratedColumn<String> sourceDeviceId = GeneratedColumn<String>(
+      'source_device_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourceSequenceMeta =
+      const VerificationMeta('sourceSequence');
+  @override
+  late final GeneratedColumn<int> sourceSequence = GeneratedColumn<int>(
+      'source_sequence', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _scopeMeta = const VerificationMeta('scope');
+  @override
+  late final GeneratedColumn<String> scope = GeneratedColumn<String>(
+      'scope', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _conversationIdMeta =
+      const VerificationMeta('conversationId');
+  @override
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+      'conversation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _eventTypeMeta =
+      const VerificationMeta('eventType');
+  @override
+  late final GeneratedColumn<String> eventType = GeneratedColumn<String>(
+      'event_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourceKindMeta =
+      const VerificationMeta('sourceKind');
+  @override
+  late final GeneratedColumn<String> sourceKind = GeneratedColumn<String>(
+      'source_kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourceIdMeta =
+      const VerificationMeta('sourceId');
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+      'source_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _timestampUtcMeta =
+      const VerificationMeta('timestampUtc');
+  @override
+  late final GeneratedColumn<DateTime> timestampUtc = GeneratedColumn<DateTime>(
+      'timestamp_utc', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _observedAtUtcMeta =
+      const VerificationMeta('observedAtUtc');
+  @override
+  late final GeneratedColumn<DateTime> observedAtUtc =
+      GeneratedColumn<DateTime>('observed_at_utc', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _summaryMeta =
+      const VerificationMeta('summary');
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+      'summary', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bodyRedactedMeta =
+      const VerificationMeta('bodyRedacted');
+  @override
+  late final GeneratedColumn<String> bodyRedacted = GeneratedColumn<String>(
+      'body_redacted', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _artifactNameMeta =
+      const VerificationMeta('artifactName');
+  @override
+  late final GeneratedColumn<String> artifactName = GeneratedColumn<String>(
+      'artifact_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localArtifactPathMeta =
+      const VerificationMeta('localArtifactPath');
+  @override
+  late final GeneratedColumn<String> localArtifactPath =
+      GeneratedColumn<String>('local_artifact_path', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _safeMetadataJsonMeta =
+      const VerificationMeta('safeMetadataJson');
+  @override
+  late final GeneratedColumn<String> safeMetadataJson = GeneratedColumn<String>(
+      'safe_metadata_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _localOnlyMetadataJsonMeta =
+      const VerificationMeta('localOnlyMetadataJson');
+  @override
+  late final GeneratedColumn<String> localOnlyMetadataJson =
+      GeneratedColumn<String>('local_only_metadata_json', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _syncPolicyMeta =
+      const VerificationMeta('syncPolicy');
+  @override
+  late final GeneratedColumn<String> syncPolicy = GeneratedColumn<String>(
+      'sync_policy', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sensitivityMeta =
+      const VerificationMeta('sensitivity');
+  @override
+  late final GeneratedColumn<String> sensitivity = GeneratedColumn<String>(
+      'sensitivity', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _redactionVersionMeta =
+      const VerificationMeta('redactionVersion');
+  @override
+  late final GeneratedColumn<int> redactionVersion = GeneratedColumn<int>(
+      'redaction_version', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _payloadVersionMeta =
+      const VerificationMeta('payloadVersion');
+  @override
+  late final GeneratedColumn<int> payloadVersion = GeneratedColumn<int>(
+      'payload_version', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        recordId,
+        eventId,
+        revision,
+        sourceDeviceId,
+        sourceSequence,
+        scope,
+        conversationId,
+        eventType,
+        sourceKind,
+        sourceId,
+        timestampUtc,
+        observedAtUtc,
+        title,
+        summary,
+        bodyRedacted,
+        artifactName,
+        localArtifactPath,
+        safeMetadataJson,
+        localOnlyMetadataJson,
+        syncPolicy,
+        sensitivity,
+        redactionVersion,
+        payloadVersion
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'main_chat_timeline_records';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<MainChatTimelineDbRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('record_id')) {
+      context.handle(_recordIdMeta,
+          recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta));
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('event_id')) {
+      context.handle(_eventIdMeta,
+          eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta));
+    } else if (isInserting) {
+      context.missing(_eventIdMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(_revisionMeta,
+          revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta));
+    } else if (isInserting) {
+      context.missing(_revisionMeta);
+    }
+    if (data.containsKey('source_device_id')) {
+      context.handle(
+          _sourceDeviceIdMeta,
+          sourceDeviceId.isAcceptableOrUnknown(
+              data['source_device_id']!, _sourceDeviceIdMeta));
+    } else if (isInserting) {
+      context.missing(_sourceDeviceIdMeta);
+    }
+    if (data.containsKey('source_sequence')) {
+      context.handle(
+          _sourceSequenceMeta,
+          sourceSequence.isAcceptableOrUnknown(
+              data['source_sequence']!, _sourceSequenceMeta));
+    } else if (isInserting) {
+      context.missing(_sourceSequenceMeta);
+    }
+    if (data.containsKey('scope')) {
+      context.handle(
+          _scopeMeta, scope.isAcceptableOrUnknown(data['scope']!, _scopeMeta));
+    } else if (isInserting) {
+      context.missing(_scopeMeta);
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+          _conversationIdMeta,
+          conversationId.isAcceptableOrUnknown(
+              data['conversation_id']!, _conversationIdMeta));
+    }
+    if (data.containsKey('event_type')) {
+      context.handle(_eventTypeMeta,
+          eventType.isAcceptableOrUnknown(data['event_type']!, _eventTypeMeta));
+    } else if (isInserting) {
+      context.missing(_eventTypeMeta);
+    }
+    if (data.containsKey('source_kind')) {
+      context.handle(
+          _sourceKindMeta,
+          sourceKind.isAcceptableOrUnknown(
+              data['source_kind']!, _sourceKindMeta));
+    } else if (isInserting) {
+      context.missing(_sourceKindMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(_sourceIdMeta,
+          sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta));
+    }
+    if (data.containsKey('timestamp_utc')) {
+      context.handle(
+          _timestampUtcMeta,
+          timestampUtc.isAcceptableOrUnknown(
+              data['timestamp_utc']!, _timestampUtcMeta));
+    } else if (isInserting) {
+      context.missing(_timestampUtcMeta);
+    }
+    if (data.containsKey('observed_at_utc')) {
+      context.handle(
+          _observedAtUtcMeta,
+          observedAtUtc.isAcceptableOrUnknown(
+              data['observed_at_utc']!, _observedAtUtcMeta));
+    } else if (isInserting) {
+      context.missing(_observedAtUtcMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('summary')) {
+      context.handle(_summaryMeta,
+          summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta));
+    }
+    if (data.containsKey('body_redacted')) {
+      context.handle(
+          _bodyRedactedMeta,
+          bodyRedacted.isAcceptableOrUnknown(
+              data['body_redacted']!, _bodyRedactedMeta));
+    }
+    if (data.containsKey('artifact_name')) {
+      context.handle(
+          _artifactNameMeta,
+          artifactName.isAcceptableOrUnknown(
+              data['artifact_name']!, _artifactNameMeta));
+    }
+    if (data.containsKey('local_artifact_path')) {
+      context.handle(
+          _localArtifactPathMeta,
+          localArtifactPath.isAcceptableOrUnknown(
+              data['local_artifact_path']!, _localArtifactPathMeta));
+    }
+    if (data.containsKey('safe_metadata_json')) {
+      context.handle(
+          _safeMetadataJsonMeta,
+          safeMetadataJson.isAcceptableOrUnknown(
+              data['safe_metadata_json']!, _safeMetadataJsonMeta));
+    } else if (isInserting) {
+      context.missing(_safeMetadataJsonMeta);
+    }
+    if (data.containsKey('local_only_metadata_json')) {
+      context.handle(
+          _localOnlyMetadataJsonMeta,
+          localOnlyMetadataJson.isAcceptableOrUnknown(
+              data['local_only_metadata_json']!, _localOnlyMetadataJsonMeta));
+    } else if (isInserting) {
+      context.missing(_localOnlyMetadataJsonMeta);
+    }
+    if (data.containsKey('sync_policy')) {
+      context.handle(
+          _syncPolicyMeta,
+          syncPolicy.isAcceptableOrUnknown(
+              data['sync_policy']!, _syncPolicyMeta));
+    } else if (isInserting) {
+      context.missing(_syncPolicyMeta);
+    }
+    if (data.containsKey('sensitivity')) {
+      context.handle(
+          _sensitivityMeta,
+          sensitivity.isAcceptableOrUnknown(
+              data['sensitivity']!, _sensitivityMeta));
+    } else if (isInserting) {
+      context.missing(_sensitivityMeta);
+    }
+    if (data.containsKey('redaction_version')) {
+      context.handle(
+          _redactionVersionMeta,
+          redactionVersion.isAcceptableOrUnknown(
+              data['redaction_version']!, _redactionVersionMeta));
+    } else if (isInserting) {
+      context.missing(_redactionVersionMeta);
+    }
+    if (data.containsKey('payload_version')) {
+      context.handle(
+          _payloadVersionMeta,
+          payloadVersion.isAcceptableOrUnknown(
+              data['payload_version']!, _payloadVersionMeta));
+    } else if (isInserting) {
+      context.missing(_payloadVersionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {recordId};
+  @override
+  MainChatTimelineDbRecord map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MainChatTimelineDbRecord(
+      recordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}record_id'])!,
+      eventId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}event_id'])!,
+      revision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}revision'])!,
+      sourceDeviceId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}source_device_id'])!,
+      sourceSequence: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}source_sequence'])!,
+      scope: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}scope'])!,
+      conversationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}conversation_id']),
+      eventType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}event_type'])!,
+      sourceKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_kind'])!,
+      sourceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_id']),
+      timestampUtc: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}timestamp_utc'])!,
+      observedAtUtc: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}observed_at_utc'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      summary: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}summary']),
+      bodyRedacted: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}body_redacted']),
+      artifactName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}artifact_name']),
+      localArtifactPath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}local_artifact_path']),
+      safeMetadataJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}safe_metadata_json'])!,
+      localOnlyMetadataJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}local_only_metadata_json'])!,
+      syncPolicy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_policy'])!,
+      sensitivity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sensitivity'])!,
+      redactionVersion: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}redaction_version'])!,
+      payloadVersion: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}payload_version'])!,
+    );
+  }
+
+  @override
+  $MainChatTimelineRecordsTable createAlias(String alias) {
+    return $MainChatTimelineRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class MainChatTimelineDbRecord extends DataClass
+    implements Insertable<MainChatTimelineDbRecord> {
+  final String recordId;
+  final String eventId;
+  final int revision;
+  final String sourceDeviceId;
+  final int sourceSequence;
+  final String scope;
+  final String? conversationId;
+  final String eventType;
+  final String sourceKind;
+  final String? sourceId;
+  final DateTime timestampUtc;
+  final DateTime observedAtUtc;
+  final String title;
+  final String? summary;
+  final String? bodyRedacted;
+  final String? artifactName;
+  final String? localArtifactPath;
+  final String safeMetadataJson;
+  final String localOnlyMetadataJson;
+  final String syncPolicy;
+  final String sensitivity;
+  final int redactionVersion;
+  final int payloadVersion;
+  const MainChatTimelineDbRecord(
+      {required this.recordId,
+      required this.eventId,
+      required this.revision,
+      required this.sourceDeviceId,
+      required this.sourceSequence,
+      required this.scope,
+      this.conversationId,
+      required this.eventType,
+      required this.sourceKind,
+      this.sourceId,
+      required this.timestampUtc,
+      required this.observedAtUtc,
+      required this.title,
+      this.summary,
+      this.bodyRedacted,
+      this.artifactName,
+      this.localArtifactPath,
+      required this.safeMetadataJson,
+      required this.localOnlyMetadataJson,
+      required this.syncPolicy,
+      required this.sensitivity,
+      required this.redactionVersion,
+      required this.payloadVersion});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['record_id'] = Variable<String>(recordId);
+    map['event_id'] = Variable<String>(eventId);
+    map['revision'] = Variable<int>(revision);
+    map['source_device_id'] = Variable<String>(sourceDeviceId);
+    map['source_sequence'] = Variable<int>(sourceSequence);
+    map['scope'] = Variable<String>(scope);
+    if (!nullToAbsent || conversationId != null) {
+      map['conversation_id'] = Variable<String>(conversationId);
+    }
+    map['event_type'] = Variable<String>(eventType);
+    map['source_kind'] = Variable<String>(sourceKind);
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
+    map['timestamp_utc'] = Variable<DateTime>(timestampUtc);
+    map['observed_at_utc'] = Variable<DateTime>(observedAtUtc);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || summary != null) {
+      map['summary'] = Variable<String>(summary);
+    }
+    if (!nullToAbsent || bodyRedacted != null) {
+      map['body_redacted'] = Variable<String>(bodyRedacted);
+    }
+    if (!nullToAbsent || artifactName != null) {
+      map['artifact_name'] = Variable<String>(artifactName);
+    }
+    if (!nullToAbsent || localArtifactPath != null) {
+      map['local_artifact_path'] = Variable<String>(localArtifactPath);
+    }
+    map['safe_metadata_json'] = Variable<String>(safeMetadataJson);
+    map['local_only_metadata_json'] = Variable<String>(localOnlyMetadataJson);
+    map['sync_policy'] = Variable<String>(syncPolicy);
+    map['sensitivity'] = Variable<String>(sensitivity);
+    map['redaction_version'] = Variable<int>(redactionVersion);
+    map['payload_version'] = Variable<int>(payloadVersion);
+    return map;
+  }
+
+  MainChatTimelineRecordsCompanion toCompanion(bool nullToAbsent) {
+    return MainChatTimelineRecordsCompanion(
+      recordId: Value(recordId),
+      eventId: Value(eventId),
+      revision: Value(revision),
+      sourceDeviceId: Value(sourceDeviceId),
+      sourceSequence: Value(sourceSequence),
+      scope: Value(scope),
+      conversationId: conversationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conversationId),
+      eventType: Value(eventType),
+      sourceKind: Value(sourceKind),
+      sourceId: sourceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceId),
+      timestampUtc: Value(timestampUtc),
+      observedAtUtc: Value(observedAtUtc),
+      title: Value(title),
+      summary: summary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(summary),
+      bodyRedacted: bodyRedacted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bodyRedacted),
+      artifactName: artifactName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(artifactName),
+      localArtifactPath: localArtifactPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localArtifactPath),
+      safeMetadataJson: Value(safeMetadataJson),
+      localOnlyMetadataJson: Value(localOnlyMetadataJson),
+      syncPolicy: Value(syncPolicy),
+      sensitivity: Value(sensitivity),
+      redactionVersion: Value(redactionVersion),
+      payloadVersion: Value(payloadVersion),
+    );
+  }
+
+  factory MainChatTimelineDbRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MainChatTimelineDbRecord(
+      recordId: serializer.fromJson<String>(json['recordId']),
+      eventId: serializer.fromJson<String>(json['eventId']),
+      revision: serializer.fromJson<int>(json['revision']),
+      sourceDeviceId: serializer.fromJson<String>(json['sourceDeviceId']),
+      sourceSequence: serializer.fromJson<int>(json['sourceSequence']),
+      scope: serializer.fromJson<String>(json['scope']),
+      conversationId: serializer.fromJson<String?>(json['conversationId']),
+      eventType: serializer.fromJson<String>(json['eventType']),
+      sourceKind: serializer.fromJson<String>(json['sourceKind']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
+      timestampUtc: serializer.fromJson<DateTime>(json['timestampUtc']),
+      observedAtUtc: serializer.fromJson<DateTime>(json['observedAtUtc']),
+      title: serializer.fromJson<String>(json['title']),
+      summary: serializer.fromJson<String?>(json['summary']),
+      bodyRedacted: serializer.fromJson<String?>(json['bodyRedacted']),
+      artifactName: serializer.fromJson<String?>(json['artifactName']),
+      localArtifactPath:
+          serializer.fromJson<String?>(json['localArtifactPath']),
+      safeMetadataJson: serializer.fromJson<String>(json['safeMetadataJson']),
+      localOnlyMetadataJson:
+          serializer.fromJson<String>(json['localOnlyMetadataJson']),
+      syncPolicy: serializer.fromJson<String>(json['syncPolicy']),
+      sensitivity: serializer.fromJson<String>(json['sensitivity']),
+      redactionVersion: serializer.fromJson<int>(json['redactionVersion']),
+      payloadVersion: serializer.fromJson<int>(json['payloadVersion']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'recordId': serializer.toJson<String>(recordId),
+      'eventId': serializer.toJson<String>(eventId),
+      'revision': serializer.toJson<int>(revision),
+      'sourceDeviceId': serializer.toJson<String>(sourceDeviceId),
+      'sourceSequence': serializer.toJson<int>(sourceSequence),
+      'scope': serializer.toJson<String>(scope),
+      'conversationId': serializer.toJson<String?>(conversationId),
+      'eventType': serializer.toJson<String>(eventType),
+      'sourceKind': serializer.toJson<String>(sourceKind),
+      'sourceId': serializer.toJson<String?>(sourceId),
+      'timestampUtc': serializer.toJson<DateTime>(timestampUtc),
+      'observedAtUtc': serializer.toJson<DateTime>(observedAtUtc),
+      'title': serializer.toJson<String>(title),
+      'summary': serializer.toJson<String?>(summary),
+      'bodyRedacted': serializer.toJson<String?>(bodyRedacted),
+      'artifactName': serializer.toJson<String?>(artifactName),
+      'localArtifactPath': serializer.toJson<String?>(localArtifactPath),
+      'safeMetadataJson': serializer.toJson<String>(safeMetadataJson),
+      'localOnlyMetadataJson': serializer.toJson<String>(localOnlyMetadataJson),
+      'syncPolicy': serializer.toJson<String>(syncPolicy),
+      'sensitivity': serializer.toJson<String>(sensitivity),
+      'redactionVersion': serializer.toJson<int>(redactionVersion),
+      'payloadVersion': serializer.toJson<int>(payloadVersion),
+    };
+  }
+
+  MainChatTimelineDbRecord copyWith(
+          {String? recordId,
+          String? eventId,
+          int? revision,
+          String? sourceDeviceId,
+          int? sourceSequence,
+          String? scope,
+          Value<String?> conversationId = const Value.absent(),
+          String? eventType,
+          String? sourceKind,
+          Value<String?> sourceId = const Value.absent(),
+          DateTime? timestampUtc,
+          DateTime? observedAtUtc,
+          String? title,
+          Value<String?> summary = const Value.absent(),
+          Value<String?> bodyRedacted = const Value.absent(),
+          Value<String?> artifactName = const Value.absent(),
+          Value<String?> localArtifactPath = const Value.absent(),
+          String? safeMetadataJson,
+          String? localOnlyMetadataJson,
+          String? syncPolicy,
+          String? sensitivity,
+          int? redactionVersion,
+          int? payloadVersion}) =>
+      MainChatTimelineDbRecord(
+        recordId: recordId ?? this.recordId,
+        eventId: eventId ?? this.eventId,
+        revision: revision ?? this.revision,
+        sourceDeviceId: sourceDeviceId ?? this.sourceDeviceId,
+        sourceSequence: sourceSequence ?? this.sourceSequence,
+        scope: scope ?? this.scope,
+        conversationId:
+            conversationId.present ? conversationId.value : this.conversationId,
+        eventType: eventType ?? this.eventType,
+        sourceKind: sourceKind ?? this.sourceKind,
+        sourceId: sourceId.present ? sourceId.value : this.sourceId,
+        timestampUtc: timestampUtc ?? this.timestampUtc,
+        observedAtUtc: observedAtUtc ?? this.observedAtUtc,
+        title: title ?? this.title,
+        summary: summary.present ? summary.value : this.summary,
+        bodyRedacted:
+            bodyRedacted.present ? bodyRedacted.value : this.bodyRedacted,
+        artifactName:
+            artifactName.present ? artifactName.value : this.artifactName,
+        localArtifactPath: localArtifactPath.present
+            ? localArtifactPath.value
+            : this.localArtifactPath,
+        safeMetadataJson: safeMetadataJson ?? this.safeMetadataJson,
+        localOnlyMetadataJson:
+            localOnlyMetadataJson ?? this.localOnlyMetadataJson,
+        syncPolicy: syncPolicy ?? this.syncPolicy,
+        sensitivity: sensitivity ?? this.sensitivity,
+        redactionVersion: redactionVersion ?? this.redactionVersion,
+        payloadVersion: payloadVersion ?? this.payloadVersion,
+      );
+  MainChatTimelineDbRecord copyWithCompanion(
+      MainChatTimelineRecordsCompanion data) {
+    return MainChatTimelineDbRecord(
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      eventId: data.eventId.present ? data.eventId.value : this.eventId,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      sourceDeviceId: data.sourceDeviceId.present
+          ? data.sourceDeviceId.value
+          : this.sourceDeviceId,
+      sourceSequence: data.sourceSequence.present
+          ? data.sourceSequence.value
+          : this.sourceSequence,
+      scope: data.scope.present ? data.scope.value : this.scope,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      eventType: data.eventType.present ? data.eventType.value : this.eventType,
+      sourceKind:
+          data.sourceKind.present ? data.sourceKind.value : this.sourceKind,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      timestampUtc: data.timestampUtc.present
+          ? data.timestampUtc.value
+          : this.timestampUtc,
+      observedAtUtc: data.observedAtUtc.present
+          ? data.observedAtUtc.value
+          : this.observedAtUtc,
+      title: data.title.present ? data.title.value : this.title,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      bodyRedacted: data.bodyRedacted.present
+          ? data.bodyRedacted.value
+          : this.bodyRedacted,
+      artifactName: data.artifactName.present
+          ? data.artifactName.value
+          : this.artifactName,
+      localArtifactPath: data.localArtifactPath.present
+          ? data.localArtifactPath.value
+          : this.localArtifactPath,
+      safeMetadataJson: data.safeMetadataJson.present
+          ? data.safeMetadataJson.value
+          : this.safeMetadataJson,
+      localOnlyMetadataJson: data.localOnlyMetadataJson.present
+          ? data.localOnlyMetadataJson.value
+          : this.localOnlyMetadataJson,
+      syncPolicy:
+          data.syncPolicy.present ? data.syncPolicy.value : this.syncPolicy,
+      sensitivity:
+          data.sensitivity.present ? data.sensitivity.value : this.sensitivity,
+      redactionVersion: data.redactionVersion.present
+          ? data.redactionVersion.value
+          : this.redactionVersion,
+      payloadVersion: data.payloadVersion.present
+          ? data.payloadVersion.value
+          : this.payloadVersion,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MainChatTimelineDbRecord(')
+          ..write('recordId: $recordId, ')
+          ..write('eventId: $eventId, ')
+          ..write('revision: $revision, ')
+          ..write('sourceDeviceId: $sourceDeviceId, ')
+          ..write('sourceSequence: $sourceSequence, ')
+          ..write('scope: $scope, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('eventType: $eventType, ')
+          ..write('sourceKind: $sourceKind, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('timestampUtc: $timestampUtc, ')
+          ..write('observedAtUtc: $observedAtUtc, ')
+          ..write('title: $title, ')
+          ..write('summary: $summary, ')
+          ..write('bodyRedacted: $bodyRedacted, ')
+          ..write('artifactName: $artifactName, ')
+          ..write('localArtifactPath: $localArtifactPath, ')
+          ..write('safeMetadataJson: $safeMetadataJson, ')
+          ..write('localOnlyMetadataJson: $localOnlyMetadataJson, ')
+          ..write('syncPolicy: $syncPolicy, ')
+          ..write('sensitivity: $sensitivity, ')
+          ..write('redactionVersion: $redactionVersion, ')
+          ..write('payloadVersion: $payloadVersion')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        recordId,
+        eventId,
+        revision,
+        sourceDeviceId,
+        sourceSequence,
+        scope,
+        conversationId,
+        eventType,
+        sourceKind,
+        sourceId,
+        timestampUtc,
+        observedAtUtc,
+        title,
+        summary,
+        bodyRedacted,
+        artifactName,
+        localArtifactPath,
+        safeMetadataJson,
+        localOnlyMetadataJson,
+        syncPolicy,
+        sensitivity,
+        redactionVersion,
+        payloadVersion
+      ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MainChatTimelineDbRecord &&
+          other.recordId == this.recordId &&
+          other.eventId == this.eventId &&
+          other.revision == this.revision &&
+          other.sourceDeviceId == this.sourceDeviceId &&
+          other.sourceSequence == this.sourceSequence &&
+          other.scope == this.scope &&
+          other.conversationId == this.conversationId &&
+          other.eventType == this.eventType &&
+          other.sourceKind == this.sourceKind &&
+          other.sourceId == this.sourceId &&
+          other.timestampUtc == this.timestampUtc &&
+          other.observedAtUtc == this.observedAtUtc &&
+          other.title == this.title &&
+          other.summary == this.summary &&
+          other.bodyRedacted == this.bodyRedacted &&
+          other.artifactName == this.artifactName &&
+          other.localArtifactPath == this.localArtifactPath &&
+          other.safeMetadataJson == this.safeMetadataJson &&
+          other.localOnlyMetadataJson == this.localOnlyMetadataJson &&
+          other.syncPolicy == this.syncPolicy &&
+          other.sensitivity == this.sensitivity &&
+          other.redactionVersion == this.redactionVersion &&
+          other.payloadVersion == this.payloadVersion);
+}
+
+class MainChatTimelineRecordsCompanion
+    extends UpdateCompanion<MainChatTimelineDbRecord> {
+  final Value<String> recordId;
+  final Value<String> eventId;
+  final Value<int> revision;
+  final Value<String> sourceDeviceId;
+  final Value<int> sourceSequence;
+  final Value<String> scope;
+  final Value<String?> conversationId;
+  final Value<String> eventType;
+  final Value<String> sourceKind;
+  final Value<String?> sourceId;
+  final Value<DateTime> timestampUtc;
+  final Value<DateTime> observedAtUtc;
+  final Value<String> title;
+  final Value<String?> summary;
+  final Value<String?> bodyRedacted;
+  final Value<String?> artifactName;
+  final Value<String?> localArtifactPath;
+  final Value<String> safeMetadataJson;
+  final Value<String> localOnlyMetadataJson;
+  final Value<String> syncPolicy;
+  final Value<String> sensitivity;
+  final Value<int> redactionVersion;
+  final Value<int> payloadVersion;
+  final Value<int> rowid;
+  const MainChatTimelineRecordsCompanion({
+    this.recordId = const Value.absent(),
+    this.eventId = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.sourceDeviceId = const Value.absent(),
+    this.sourceSequence = const Value.absent(),
+    this.scope = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.eventType = const Value.absent(),
+    this.sourceKind = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.timestampUtc = const Value.absent(),
+    this.observedAtUtc = const Value.absent(),
+    this.title = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.bodyRedacted = const Value.absent(),
+    this.artifactName = const Value.absent(),
+    this.localArtifactPath = const Value.absent(),
+    this.safeMetadataJson = const Value.absent(),
+    this.localOnlyMetadataJson = const Value.absent(),
+    this.syncPolicy = const Value.absent(),
+    this.sensitivity = const Value.absent(),
+    this.redactionVersion = const Value.absent(),
+    this.payloadVersion = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MainChatTimelineRecordsCompanion.insert({
+    required String recordId,
+    required String eventId,
+    required int revision,
+    required String sourceDeviceId,
+    required int sourceSequence,
+    required String scope,
+    this.conversationId = const Value.absent(),
+    required String eventType,
+    required String sourceKind,
+    this.sourceId = const Value.absent(),
+    required DateTime timestampUtc,
+    required DateTime observedAtUtc,
+    required String title,
+    this.summary = const Value.absent(),
+    this.bodyRedacted = const Value.absent(),
+    this.artifactName = const Value.absent(),
+    this.localArtifactPath = const Value.absent(),
+    required String safeMetadataJson,
+    required String localOnlyMetadataJson,
+    required String syncPolicy,
+    required String sensitivity,
+    required int redactionVersion,
+    required int payloadVersion,
+    this.rowid = const Value.absent(),
+  })  : recordId = Value(recordId),
+        eventId = Value(eventId),
+        revision = Value(revision),
+        sourceDeviceId = Value(sourceDeviceId),
+        sourceSequence = Value(sourceSequence),
+        scope = Value(scope),
+        eventType = Value(eventType),
+        sourceKind = Value(sourceKind),
+        timestampUtc = Value(timestampUtc),
+        observedAtUtc = Value(observedAtUtc),
+        title = Value(title),
+        safeMetadataJson = Value(safeMetadataJson),
+        localOnlyMetadataJson = Value(localOnlyMetadataJson),
+        syncPolicy = Value(syncPolicy),
+        sensitivity = Value(sensitivity),
+        redactionVersion = Value(redactionVersion),
+        payloadVersion = Value(payloadVersion);
+  static Insertable<MainChatTimelineDbRecord> custom({
+    Expression<String>? recordId,
+    Expression<String>? eventId,
+    Expression<int>? revision,
+    Expression<String>? sourceDeviceId,
+    Expression<int>? sourceSequence,
+    Expression<String>? scope,
+    Expression<String>? conversationId,
+    Expression<String>? eventType,
+    Expression<String>? sourceKind,
+    Expression<String>? sourceId,
+    Expression<DateTime>? timestampUtc,
+    Expression<DateTime>? observedAtUtc,
+    Expression<String>? title,
+    Expression<String>? summary,
+    Expression<String>? bodyRedacted,
+    Expression<String>? artifactName,
+    Expression<String>? localArtifactPath,
+    Expression<String>? safeMetadataJson,
+    Expression<String>? localOnlyMetadataJson,
+    Expression<String>? syncPolicy,
+    Expression<String>? sensitivity,
+    Expression<int>? redactionVersion,
+    Expression<int>? payloadVersion,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (recordId != null) 'record_id': recordId,
+      if (eventId != null) 'event_id': eventId,
+      if (revision != null) 'revision': revision,
+      if (sourceDeviceId != null) 'source_device_id': sourceDeviceId,
+      if (sourceSequence != null) 'source_sequence': sourceSequence,
+      if (scope != null) 'scope': scope,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (eventType != null) 'event_type': eventType,
+      if (sourceKind != null) 'source_kind': sourceKind,
+      if (sourceId != null) 'source_id': sourceId,
+      if (timestampUtc != null) 'timestamp_utc': timestampUtc,
+      if (observedAtUtc != null) 'observed_at_utc': observedAtUtc,
+      if (title != null) 'title': title,
+      if (summary != null) 'summary': summary,
+      if (bodyRedacted != null) 'body_redacted': bodyRedacted,
+      if (artifactName != null) 'artifact_name': artifactName,
+      if (localArtifactPath != null) 'local_artifact_path': localArtifactPath,
+      if (safeMetadataJson != null) 'safe_metadata_json': safeMetadataJson,
+      if (localOnlyMetadataJson != null)
+        'local_only_metadata_json': localOnlyMetadataJson,
+      if (syncPolicy != null) 'sync_policy': syncPolicy,
+      if (sensitivity != null) 'sensitivity': sensitivity,
+      if (redactionVersion != null) 'redaction_version': redactionVersion,
+      if (payloadVersion != null) 'payload_version': payloadVersion,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MainChatTimelineRecordsCompanion copyWith(
+      {Value<String>? recordId,
+      Value<String>? eventId,
+      Value<int>? revision,
+      Value<String>? sourceDeviceId,
+      Value<int>? sourceSequence,
+      Value<String>? scope,
+      Value<String?>? conversationId,
+      Value<String>? eventType,
+      Value<String>? sourceKind,
+      Value<String?>? sourceId,
+      Value<DateTime>? timestampUtc,
+      Value<DateTime>? observedAtUtc,
+      Value<String>? title,
+      Value<String?>? summary,
+      Value<String?>? bodyRedacted,
+      Value<String?>? artifactName,
+      Value<String?>? localArtifactPath,
+      Value<String>? safeMetadataJson,
+      Value<String>? localOnlyMetadataJson,
+      Value<String>? syncPolicy,
+      Value<String>? sensitivity,
+      Value<int>? redactionVersion,
+      Value<int>? payloadVersion,
+      Value<int>? rowid}) {
+    return MainChatTimelineRecordsCompanion(
+      recordId: recordId ?? this.recordId,
+      eventId: eventId ?? this.eventId,
+      revision: revision ?? this.revision,
+      sourceDeviceId: sourceDeviceId ?? this.sourceDeviceId,
+      sourceSequence: sourceSequence ?? this.sourceSequence,
+      scope: scope ?? this.scope,
+      conversationId: conversationId ?? this.conversationId,
+      eventType: eventType ?? this.eventType,
+      sourceKind: sourceKind ?? this.sourceKind,
+      sourceId: sourceId ?? this.sourceId,
+      timestampUtc: timestampUtc ?? this.timestampUtc,
+      observedAtUtc: observedAtUtc ?? this.observedAtUtc,
+      title: title ?? this.title,
+      summary: summary ?? this.summary,
+      bodyRedacted: bodyRedacted ?? this.bodyRedacted,
+      artifactName: artifactName ?? this.artifactName,
+      localArtifactPath: localArtifactPath ?? this.localArtifactPath,
+      safeMetadataJson: safeMetadataJson ?? this.safeMetadataJson,
+      localOnlyMetadataJson:
+          localOnlyMetadataJson ?? this.localOnlyMetadataJson,
+      syncPolicy: syncPolicy ?? this.syncPolicy,
+      sensitivity: sensitivity ?? this.sensitivity,
+      redactionVersion: redactionVersion ?? this.redactionVersion,
+      payloadVersion: payloadVersion ?? this.payloadVersion,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (eventId.present) {
+      map['event_id'] = Variable<String>(eventId.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (sourceDeviceId.present) {
+      map['source_device_id'] = Variable<String>(sourceDeviceId.value);
+    }
+    if (sourceSequence.present) {
+      map['source_sequence'] = Variable<int>(sourceSequence.value);
+    }
+    if (scope.present) {
+      map['scope'] = Variable<String>(scope.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (eventType.present) {
+      map['event_type'] = Variable<String>(eventType.value);
+    }
+    if (sourceKind.present) {
+      map['source_kind'] = Variable<String>(sourceKind.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (timestampUtc.present) {
+      map['timestamp_utc'] = Variable<DateTime>(timestampUtc.value);
+    }
+    if (observedAtUtc.present) {
+      map['observed_at_utc'] = Variable<DateTime>(observedAtUtc.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (bodyRedacted.present) {
+      map['body_redacted'] = Variable<String>(bodyRedacted.value);
+    }
+    if (artifactName.present) {
+      map['artifact_name'] = Variable<String>(artifactName.value);
+    }
+    if (localArtifactPath.present) {
+      map['local_artifact_path'] = Variable<String>(localArtifactPath.value);
+    }
+    if (safeMetadataJson.present) {
+      map['safe_metadata_json'] = Variable<String>(safeMetadataJson.value);
+    }
+    if (localOnlyMetadataJson.present) {
+      map['local_only_metadata_json'] =
+          Variable<String>(localOnlyMetadataJson.value);
+    }
+    if (syncPolicy.present) {
+      map['sync_policy'] = Variable<String>(syncPolicy.value);
+    }
+    if (sensitivity.present) {
+      map['sensitivity'] = Variable<String>(sensitivity.value);
+    }
+    if (redactionVersion.present) {
+      map['redaction_version'] = Variable<int>(redactionVersion.value);
+    }
+    if (payloadVersion.present) {
+      map['payload_version'] = Variable<int>(payloadVersion.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MainChatTimelineRecordsCompanion(')
+          ..write('recordId: $recordId, ')
+          ..write('eventId: $eventId, ')
+          ..write('revision: $revision, ')
+          ..write('sourceDeviceId: $sourceDeviceId, ')
+          ..write('sourceSequence: $sourceSequence, ')
+          ..write('scope: $scope, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('eventType: $eventType, ')
+          ..write('sourceKind: $sourceKind, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('timestampUtc: $timestampUtc, ')
+          ..write('observedAtUtc: $observedAtUtc, ')
+          ..write('title: $title, ')
+          ..write('summary: $summary, ')
+          ..write('bodyRedacted: $bodyRedacted, ')
+          ..write('artifactName: $artifactName, ')
+          ..write('localArtifactPath: $localArtifactPath, ')
+          ..write('safeMetadataJson: $safeMetadataJson, ')
+          ..write('localOnlyMetadataJson: $localOnlyMetadataJson, ')
+          ..write('syncPolicy: $syncPolicy, ')
+          ..write('sensitivity: $sensitivity, ')
+          ..write('redactionVersion: $redactionVersion, ')
+          ..write('payloadVersion: $payloadVersion, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AgentLogsTable extends AgentLogs
     with TableInfo<$AgentLogsTable, AgentLog> {
   @override
@@ -9994,6 +11096,8 @@ abstract class _$LocalBrain extends GeneratedDatabase {
   late final $UsersTable users = $UsersTable(this);
   late final $ConversationsTable conversations = $ConversationsTable(this);
   late final $MessagesTable messages = $MessagesTable(this);
+  late final $MainChatTimelineRecordsTable mainChatTimelineRecords =
+      $MainChatTimelineRecordsTable(this);
   late final $AgentLogsTable agentLogs = $AgentLogsTable(this);
   late final $AgentsTable agents = $AgentsTable(this);
   late final $AgentEventsTable agentEvents = $AgentEventsTable(this);
@@ -10032,6 +11136,7 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         users,
         conversations,
         messages,
+        mainChatTimelineRecords,
         agentLogs,
         agents,
         agentEvents,
@@ -11121,6 +12226,476 @@ typedef $$MessagesTableProcessedTableManager = ProcessedTableManager<
     (Message, $$MessagesTableReferences),
     Message,
     PrefetchHooks Function({bool conversationId})>;
+typedef $$MainChatTimelineRecordsTableCreateCompanionBuilder
+    = MainChatTimelineRecordsCompanion Function({
+  required String recordId,
+  required String eventId,
+  required int revision,
+  required String sourceDeviceId,
+  required int sourceSequence,
+  required String scope,
+  Value<String?> conversationId,
+  required String eventType,
+  required String sourceKind,
+  Value<String?> sourceId,
+  required DateTime timestampUtc,
+  required DateTime observedAtUtc,
+  required String title,
+  Value<String?> summary,
+  Value<String?> bodyRedacted,
+  Value<String?> artifactName,
+  Value<String?> localArtifactPath,
+  required String safeMetadataJson,
+  required String localOnlyMetadataJson,
+  required String syncPolicy,
+  required String sensitivity,
+  required int redactionVersion,
+  required int payloadVersion,
+  Value<int> rowid,
+});
+typedef $$MainChatTimelineRecordsTableUpdateCompanionBuilder
+    = MainChatTimelineRecordsCompanion Function({
+  Value<String> recordId,
+  Value<String> eventId,
+  Value<int> revision,
+  Value<String> sourceDeviceId,
+  Value<int> sourceSequence,
+  Value<String> scope,
+  Value<String?> conversationId,
+  Value<String> eventType,
+  Value<String> sourceKind,
+  Value<String?> sourceId,
+  Value<DateTime> timestampUtc,
+  Value<DateTime> observedAtUtc,
+  Value<String> title,
+  Value<String?> summary,
+  Value<String?> bodyRedacted,
+  Value<String?> artifactName,
+  Value<String?> localArtifactPath,
+  Value<String> safeMetadataJson,
+  Value<String> localOnlyMetadataJson,
+  Value<String> syncPolicy,
+  Value<String> sensitivity,
+  Value<int> redactionVersion,
+  Value<int> payloadVersion,
+  Value<int> rowid,
+});
+
+class $$MainChatTimelineRecordsTableFilterComposer
+    extends Composer<_$LocalBrain, $MainChatTimelineRecordsTable> {
+  $$MainChatTimelineRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get recordId => $composableBuilder(
+      column: $table.recordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get eventId => $composableBuilder(
+      column: $table.eventId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get revision => $composableBuilder(
+      column: $table.revision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sourceSequence => $composableBuilder(
+      column: $table.sourceSequence,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get scope => $composableBuilder(
+      column: $table.scope, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get conversationId => $composableBuilder(
+      column: $table.conversationId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get eventType => $composableBuilder(
+      column: $table.eventType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceKind => $composableBuilder(
+      column: $table.sourceKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestampUtc => $composableBuilder(
+      column: $table.timestampUtc, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get observedAtUtc => $composableBuilder(
+      column: $table.observedAtUtc, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bodyRedacted => $composableBuilder(
+      column: $table.bodyRedacted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get artifactName => $composableBuilder(
+      column: $table.artifactName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localArtifactPath => $composableBuilder(
+      column: $table.localArtifactPath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get safeMetadataJson => $composableBuilder(
+      column: $table.safeMetadataJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localOnlyMetadataJson => $composableBuilder(
+      column: $table.localOnlyMetadataJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncPolicy => $composableBuilder(
+      column: $table.syncPolicy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sensitivity => $composableBuilder(
+      column: $table.sensitivity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get redactionVersion => $composableBuilder(
+      column: $table.redactionVersion,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get payloadVersion => $composableBuilder(
+      column: $table.payloadVersion,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$MainChatTimelineRecordsTableOrderingComposer
+    extends Composer<_$LocalBrain, $MainChatTimelineRecordsTable> {
+  $$MainChatTimelineRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get recordId => $composableBuilder(
+      column: $table.recordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get eventId => $composableBuilder(
+      column: $table.eventId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+      column: $table.revision, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sourceSequence => $composableBuilder(
+      column: $table.sourceSequence,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get scope => $composableBuilder(
+      column: $table.scope, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get conversationId => $composableBuilder(
+      column: $table.conversationId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get eventType => $composableBuilder(
+      column: $table.eventType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceKind => $composableBuilder(
+      column: $table.sourceKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestampUtc => $composableBuilder(
+      column: $table.timestampUtc,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get observedAtUtc => $composableBuilder(
+      column: $table.observedAtUtc,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bodyRedacted => $composableBuilder(
+      column: $table.bodyRedacted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get artifactName => $composableBuilder(
+      column: $table.artifactName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localArtifactPath => $composableBuilder(
+      column: $table.localArtifactPath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get safeMetadataJson => $composableBuilder(
+      column: $table.safeMetadataJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localOnlyMetadataJson => $composableBuilder(
+      column: $table.localOnlyMetadataJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncPolicy => $composableBuilder(
+      column: $table.syncPolicy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sensitivity => $composableBuilder(
+      column: $table.sensitivity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get redactionVersion => $composableBuilder(
+      column: $table.redactionVersion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get payloadVersion => $composableBuilder(
+      column: $table.payloadVersion,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$MainChatTimelineRecordsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $MainChatTimelineRecordsTable> {
+  $$MainChatTimelineRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<String> get eventId =>
+      $composableBuilder(column: $table.eventId, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId, builder: (column) => column);
+
+  GeneratedColumn<int> get sourceSequence => $composableBuilder(
+      column: $table.sourceSequence, builder: (column) => column);
+
+  GeneratedColumn<String> get scope =>
+      $composableBuilder(column: $table.scope, builder: (column) => column);
+
+  GeneratedColumn<String> get conversationId => $composableBuilder(
+      column: $table.conversationId, builder: (column) => column);
+
+  GeneratedColumn<String> get eventType =>
+      $composableBuilder(column: $table.eventType, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceKind => $composableBuilder(
+      column: $table.sourceKind, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestampUtc => $composableBuilder(
+      column: $table.timestampUtc, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get observedAtUtc => $composableBuilder(
+      column: $table.observedAtUtc, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get bodyRedacted => $composableBuilder(
+      column: $table.bodyRedacted, builder: (column) => column);
+
+  GeneratedColumn<String> get artifactName => $composableBuilder(
+      column: $table.artifactName, builder: (column) => column);
+
+  GeneratedColumn<String> get localArtifactPath => $composableBuilder(
+      column: $table.localArtifactPath, builder: (column) => column);
+
+  GeneratedColumn<String> get safeMetadataJson => $composableBuilder(
+      column: $table.safeMetadataJson, builder: (column) => column);
+
+  GeneratedColumn<String> get localOnlyMetadataJson => $composableBuilder(
+      column: $table.localOnlyMetadataJson, builder: (column) => column);
+
+  GeneratedColumn<String> get syncPolicy => $composableBuilder(
+      column: $table.syncPolicy, builder: (column) => column);
+
+  GeneratedColumn<String> get sensitivity => $composableBuilder(
+      column: $table.sensitivity, builder: (column) => column);
+
+  GeneratedColumn<int> get redactionVersion => $composableBuilder(
+      column: $table.redactionVersion, builder: (column) => column);
+
+  GeneratedColumn<int> get payloadVersion => $composableBuilder(
+      column: $table.payloadVersion, builder: (column) => column);
+}
+
+class $$MainChatTimelineRecordsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $MainChatTimelineRecordsTable,
+    MainChatTimelineDbRecord,
+    $$MainChatTimelineRecordsTableFilterComposer,
+    $$MainChatTimelineRecordsTableOrderingComposer,
+    $$MainChatTimelineRecordsTableAnnotationComposer,
+    $$MainChatTimelineRecordsTableCreateCompanionBuilder,
+    $$MainChatTimelineRecordsTableUpdateCompanionBuilder,
+    (
+      MainChatTimelineDbRecord,
+      BaseReferences<_$LocalBrain, $MainChatTimelineRecordsTable,
+          MainChatTimelineDbRecord>
+    ),
+    MainChatTimelineDbRecord,
+    PrefetchHooks Function()> {
+  $$MainChatTimelineRecordsTableTableManager(
+      _$LocalBrain db, $MainChatTimelineRecordsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MainChatTimelineRecordsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MainChatTimelineRecordsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MainChatTimelineRecordsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> recordId = const Value.absent(),
+            Value<String> eventId = const Value.absent(),
+            Value<int> revision = const Value.absent(),
+            Value<String> sourceDeviceId = const Value.absent(),
+            Value<int> sourceSequence = const Value.absent(),
+            Value<String> scope = const Value.absent(),
+            Value<String?> conversationId = const Value.absent(),
+            Value<String> eventType = const Value.absent(),
+            Value<String> sourceKind = const Value.absent(),
+            Value<String?> sourceId = const Value.absent(),
+            Value<DateTime> timestampUtc = const Value.absent(),
+            Value<DateTime> observedAtUtc = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> summary = const Value.absent(),
+            Value<String?> bodyRedacted = const Value.absent(),
+            Value<String?> artifactName = const Value.absent(),
+            Value<String?> localArtifactPath = const Value.absent(),
+            Value<String> safeMetadataJson = const Value.absent(),
+            Value<String> localOnlyMetadataJson = const Value.absent(),
+            Value<String> syncPolicy = const Value.absent(),
+            Value<String> sensitivity = const Value.absent(),
+            Value<int> redactionVersion = const Value.absent(),
+            Value<int> payloadVersion = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MainChatTimelineRecordsCompanion(
+            recordId: recordId,
+            eventId: eventId,
+            revision: revision,
+            sourceDeviceId: sourceDeviceId,
+            sourceSequence: sourceSequence,
+            scope: scope,
+            conversationId: conversationId,
+            eventType: eventType,
+            sourceKind: sourceKind,
+            sourceId: sourceId,
+            timestampUtc: timestampUtc,
+            observedAtUtc: observedAtUtc,
+            title: title,
+            summary: summary,
+            bodyRedacted: bodyRedacted,
+            artifactName: artifactName,
+            localArtifactPath: localArtifactPath,
+            safeMetadataJson: safeMetadataJson,
+            localOnlyMetadataJson: localOnlyMetadataJson,
+            syncPolicy: syncPolicy,
+            sensitivity: sensitivity,
+            redactionVersion: redactionVersion,
+            payloadVersion: payloadVersion,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String recordId,
+            required String eventId,
+            required int revision,
+            required String sourceDeviceId,
+            required int sourceSequence,
+            required String scope,
+            Value<String?> conversationId = const Value.absent(),
+            required String eventType,
+            required String sourceKind,
+            Value<String?> sourceId = const Value.absent(),
+            required DateTime timestampUtc,
+            required DateTime observedAtUtc,
+            required String title,
+            Value<String?> summary = const Value.absent(),
+            Value<String?> bodyRedacted = const Value.absent(),
+            Value<String?> artifactName = const Value.absent(),
+            Value<String?> localArtifactPath = const Value.absent(),
+            required String safeMetadataJson,
+            required String localOnlyMetadataJson,
+            required String syncPolicy,
+            required String sensitivity,
+            required int redactionVersion,
+            required int payloadVersion,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MainChatTimelineRecordsCompanion.insert(
+            recordId: recordId,
+            eventId: eventId,
+            revision: revision,
+            sourceDeviceId: sourceDeviceId,
+            sourceSequence: sourceSequence,
+            scope: scope,
+            conversationId: conversationId,
+            eventType: eventType,
+            sourceKind: sourceKind,
+            sourceId: sourceId,
+            timestampUtc: timestampUtc,
+            observedAtUtc: observedAtUtc,
+            title: title,
+            summary: summary,
+            bodyRedacted: bodyRedacted,
+            artifactName: artifactName,
+            localArtifactPath: localArtifactPath,
+            safeMetadataJson: safeMetadataJson,
+            localOnlyMetadataJson: localOnlyMetadataJson,
+            syncPolicy: syncPolicy,
+            sensitivity: sensitivity,
+            redactionVersion: redactionVersion,
+            payloadVersion: payloadVersion,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MainChatTimelineRecordsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalBrain,
+        $MainChatTimelineRecordsTable,
+        MainChatTimelineDbRecord,
+        $$MainChatTimelineRecordsTableFilterComposer,
+        $$MainChatTimelineRecordsTableOrderingComposer,
+        $$MainChatTimelineRecordsTableAnnotationComposer,
+        $$MainChatTimelineRecordsTableCreateCompanionBuilder,
+        $$MainChatTimelineRecordsTableUpdateCompanionBuilder,
+        (
+          MainChatTimelineDbRecord,
+          BaseReferences<_$LocalBrain, $MainChatTimelineRecordsTable,
+              MainChatTimelineDbRecord>
+        ),
+        MainChatTimelineDbRecord,
+        PrefetchHooks Function()>;
 typedef $$AgentLogsTableCreateCompanionBuilder = AgentLogsCompanion Function({
   Value<int> id,
   required String level,
@@ -16812,6 +18387,9 @@ class $LocalBrainManager {
       $$ConversationsTableTableManager(_db, _db.conversations);
   $$MessagesTableTableManager get messages =>
       $$MessagesTableTableManager(_db, _db.messages);
+  $$MainChatTimelineRecordsTableTableManager get mainChatTimelineRecords =>
+      $$MainChatTimelineRecordsTableTableManager(
+          _db, _db.mainChatTimelineRecords);
   $$AgentLogsTableTableManager get agentLogs =>
       $$AgentLogsTableTableManager(_db, _db.agentLogs);
   $$AgentsTableTableManager get agents =>
