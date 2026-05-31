@@ -168,12 +168,14 @@ Future<void> setupCoreServices() async {
       );
     }
 
+    // LocalBrain is registered on all platforms (web uses WASM/IndexedDB, native uses SQLite)
+    final localBrain = LocalBrain();
+    serviceLocator.registerSingleton<LocalBrain>(localBrain);
+
     if (!kIsWeb) {
-      // Desktop-only core graph: LocalBrain, avatar persistence and embedded router.
+      // Desktop-only core graph: avatar persistence and embedded router.
       // On web these services rely on native filesystem/runtime assumptions and can
       // fail bootstrap before auth services are registered.
-      final localBrain = LocalBrain();
-      serviceLocator.registerSingleton<LocalBrain>(localBrain);
 
       final personalityEngine = PersonalityEngine(
         database: localBrain,
@@ -501,6 +503,18 @@ Future<void> setupCoreServices() async {
 }
 
 Future<void> _registerWebFallbackCoreServices() async {
+  if (!serviceLocator.isRegistered<LocalBrain>()) {
+    serviceLocator.registerSingleton<LocalBrain>(LocalBrain());
+  }
+
+  if (!serviceLocator.isRegistered<TokenStorageService>()) {
+    final tokenStorageService = TokenStorageService();
+    try {
+      await tokenStorageService.init();
+    } catch (_) {}
+    serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
+  }
+
   if (!serviceLocator.isRegistered<SettingsPreferenceService>()) {
     serviceLocator.registerSingleton<SettingsPreferenceService>(
       SettingsPreferenceService(),
