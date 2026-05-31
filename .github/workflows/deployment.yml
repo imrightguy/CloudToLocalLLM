@@ -323,7 +323,7 @@ jobs:
           name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
           artifactErrorsFailBuild: true
           allowUpdates: true
-          removeAritifacts: true
+          removeArtifacts: true
           immutableCreate: true
           makeLatest: true
           body: |
@@ -392,14 +392,14 @@ jobs:
 
           mkdir -p /tmp/aur-metadata
           cp -f "$GITHUB_WORKSPACE/dist/aur/PKGBUILD" /tmp/aur-metadata/PKGBUILD
-          docker run --rm -v /tmp/aur-metadata:/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-defer && useradd -m builduser && chown -r builduser /pkg && sudo -u builduser makepkg --printsrci > .SRCINFO"
-          sudo chown -r $(id -u):$(id -g) /tmp/aur-metadata
+          docker run --rm -v /tmp/aur-metadata:/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
+          sudo chown -R $(id -u):$(id -g) /tmp/aur-metadata
           cp -f /tmp/aur-metadata/.SRCINFO "$GITHUB_WORKSPACE/dist/aur/.SRCINFO"
 
   deploy_simon_vps:
     needs: [ai_change_analysis, build_images]
     if: always() && inputs.release_version == '' && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
-    runs-on: ubuntu-linux
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
