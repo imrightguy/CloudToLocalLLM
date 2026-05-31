@@ -1,0 +1,105 @@
+name: "🌐 Web Deploy"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "web/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - "config/docker/Dockerfile.web"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: web-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Build Flutter Web
+        run: |
+          flutter pub get
+          flutter build web --release --no-tree-shake-icons
+
+      - name: Upload web build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
+          retention-days: 1
+
+      - name: Deploy to Simon VPS
+        env:
+          VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          SIMON_HOST: 31.97.140.7
+          SIMON_USER: zoidbot
+        run: |
+          set -euo pipefail
+          if [ -z "${VM_SSH_PRIVATE_KEY:-}" ]; then
+            echo "No SSH key available, skipping VPS deploy"
+            exit 0
+          fi
+
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$VM_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config <<EOF
+          Host simon-vps
+            HostName ${SIMON_HOST}
+            User ${SIMON_USER}
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          EOF
+          chmod 600 ~/.ssh/config
+
+          tar -czf /tmp/web_build.tar.gz -C build/web .
+          echo "Upload size: $(wc -c < /tmp/web_build.tar.gz) bytes"
+          scp /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
+
+          ssh simon-vps "sudo rm -rf /opt/cloudtolocalllm/build/web/* && sudo tar -xzf /tmp/web_build.tar.gz -C /opt/cloudtolocalllm/build/web/ && sudo rm /tmp/web_build.tar.gz && cd /opt/cloudtolocalllm/deploy/simon-vps && sudo docker compose --env-file .env build web && sudo docker compose --env-file .env up -d --no-deps web"
+
+          sleep 3
+          for i in 1 2 3 4 5; do
+            if curl -sf "https://app.cloudtolocalllm.online/healthz" > /dev/null 2>&1; then
+              echo "✅ VPS web service healthy"
+              exit 0
+            fi
+            echo "Waiting... attempt $i"
+            sleep 3
+          done
+          echo "❌ VPS web service health check failed"
+          exit 1
+
+      - name: Purge Cloudflare cache
+        if: always()
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_ZONE_ID:-}" ] || [ -z "${CLOUDFLARE_CACHE_PURGE_TOKEN:-}" ]; then
+            echo "Missing Cloudflare secrets, skipping cache purge"
+            exit 0
+          fi
+          curl -sf -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CLOUDFLARE_CACHE_PURGE_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' \
+            || echo "Cloudflare cache purge failed"
+          echo "Cloudflare cache purged"

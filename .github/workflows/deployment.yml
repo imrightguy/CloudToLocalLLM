@@ -72,11 +72,11 @@ jobs:
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/"; then COMPONENTS="$COMPONENTS,web,linux,windows,android"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/"; then COMPONENTS="$COMPONENTS,web"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
 
-          if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/|docker-stack.yml|assets/|package.json"; then 
+          if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/|docker-stack.yml|assets/|package.json"; then
             COMPONENTS="api,web,postgres,streaming,linux,windows"
           fi
 
@@ -314,13 +314,6 @@ jobs:
           chmod +x scripts/packaging/build_installer.sh
           ./scripts/packaging/build_installer.sh
 
-      - name: Package Windows Distribution
-        run: |
-          mkdir -p dist/windows
-          cd build/windows/x64/runner/Release
-          zip -r ../../../../../dist/windows/CloudToLocalLLM-Windows-x64.zip .
-          cd ../../../../../
-
       - name: Create GitHub Release
         id: create_release
         uses: ncipollo/release-action@v1
@@ -330,7 +323,7 @@ jobs:
           name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
           artifactErrorsFailBuild: true
           allowUpdates: true
-          removeArtifacts: true
+          removeAritifacts: true
           immutableCreate: true
           makeLatest: true
           body: |
@@ -399,14 +392,14 @@ jobs:
 
           mkdir -p /tmp/aur-metadata
           cp -f "$GITHUB_WORKSPACE/dist/aur/PKGBUILD" /tmp/aur-metadata/PKGBUILD
-          docker run --rm -v /tmp/aur-metadata:/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
-          sudo chown -R $(id -u):$(id -g) /tmp/aur-metadata
+          docker run --rm -v /tmp/aur-metadata:/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-defer && useradd -m builduser && chown -r builduser /pkg && sudo -u builduser makepkg --printsrci > .SRCINFO"
+          sudo chown -r $(id -u):$(id -g) /tmp/aur-metadata
           cp -f /tmp/aur-metadata/.SRCINFO "$GITHUB_WORKSPACE/dist/aur/.SRCINFO"
 
   deploy_simon_vps:
     needs: [ai_change_analysis, build_images]
     if: always() && inputs.release_version == '' && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-linux
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -432,14 +425,14 @@ jobs:
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "$VM_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          cat > ~/.ssh/config << CFG
+          cat > ~/.ssh/config <<EOF
           Host simon-vps
             HostName ${SIMON_HOST}
             User ${SIMON_USER}
             IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
-          CFG
+          EOF
           chmod 600 ~/.ssh/config
 
           tar -czf /tmp/web_build.tar.gz -C build/web .
@@ -474,5 +467,6 @@ jobs:
           curl -sf -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
             -H "Authorization: Bearer ${CLOUDFLARE_CACHE_PURGE_TOKEN}" \
             -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}'
+            --data '{"purge_everything":true}' \
+            || echo "Cloudflare cache purge failed"
           echo "Cloudflare cache purged"
