@@ -528,6 +528,7 @@ class AppRouter {
         if (location == '/') {
           // If authenticated, on native desktop, or on the app subdomain web landing page,
           // redirect to '/chat' (which will trigger standard Auth0 login if unauthenticated).
+          // This ensures that accessing https://app.cloudtolocalllm.online/ correctly redirects to Auth0 login.
           if (isAuthenticated || !kIsWeb || isAppSubdomain) {
             return '/chat';
           }
