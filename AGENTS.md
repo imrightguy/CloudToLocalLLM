@@ -300,7 +300,7 @@ import 'thing.dart'
 - Jest tests use `*.test.js`, `*.unit.test.js`, or TypeScript equivalents inside service-specific test roots.
 - Backend services under `services/` are ESM unless a package says otherwise.
 - `backend/auth/` is CommonJS.
-- Automated commits should use conventional commits with an agent prefix, for example `ai(Codex): update agent guide`.
+- Automated commits should use conventional commits with an agent prefix containing its name, for example `ai(Antigravity): update agent guide`.
 - Do not add code comments unless specifically asked or the code is not self-explanatory.
 
 ## Key gotchas
