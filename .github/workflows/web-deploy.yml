@@ -114,7 +114,7 @@ jobs:
             exit 0
           fi
           curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CLOU...N}" \
+            -H "Authorization: Bearer ${CLOUDFLARE_CACHE_PURGE_TOKEN}" \
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}'
           echo "Cloudflare cache purged"
