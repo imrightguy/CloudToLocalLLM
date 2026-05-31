@@ -2,7 +2,11 @@ name: "🖥️ Backend Deploy"
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "antigravity/**"
+      - "zoidbot/**"
+      - "codex/**"
     paths:
       - "services/api-backend/**"
       - "services/streaming-proxy/**"
@@ -50,6 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           REPO_LOWER=${GITHUB_REPOSITORY,,}
+          TAG_SUFFIX="${GITHUB_RUN_NUMBER}-${GITHUB_SHA:0:7}"
 
           if [ "${{ github.event_name }}" == "push" ]; then
             DIFF_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} || git diff --name-only HEAD^ HEAD)
@@ -57,25 +62,31 @@ jobs:
             DIFF_FILES=$(git diff --name-only HEAD^ HEAD || echo "api")
           fi
 
+          build_and_push() {
+            local name=$1 dockerfile=$2
+            echo "=== Building $name ==="
+            docker build -t ghcr.io/${REPO_LOWER}/${name}:build-${TAG_SUFFIX} -f $dockerfile .
+            # Only push to permanent tags on main
+            if [ "${{ github.ref_name }}" == "main" ]; then
+              docker tag ghcr.io/${REPO_LOWER}/${name}:build-${TAG_SUFFIX} ghcr.io/${REPO_LOWER}/${name}:latest
+              docker push ghcr.io/${REPO_LOWER}/${name}:latest
+              docker push ghcr.io/${REPO_LOWER}/${name}:build-${TAG_SUFFIX}
+            fi
+          }
+
           # API backend
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend" || [ "${{ inputs.force_build }}" == "true" ]; then
-            echo "=== Building API Backend ==="
-            docker build -t ghcr.io/${REPO_LOWER}/api-backend:latest -f config/docker/Dockerfile.api-backend .
-            docker push ghcr.io/${REPO_LOWER}/api-backend:latest
+            build_and_push api-backend config/docker/Dockerfile.api-backend
           fi
 
           # Streaming proxy
           if echo "$DIFF_FILES" | grep -qE "services/streaming-proxy/|config/docker/Dockerfile.streaming-proxy" || [ "${{ inputs.force_build }}" == "true" ]; then
-            echo "=== Building Streaming Proxy ==="
-            docker build -t ghcr.io/${REPO_LOWER}/streaming-proxy:latest -f config/docker/Dockerfile.streaming-proxy .
-            docker push ghcr.io/${REPO_LOWER}/streaming-proxy:latest
+            build_and_push streaming-proxy config/docker/Dockerfile.streaming-proxy
           fi
 
           # Postgres
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/" || [ "${{ inputs.force_build }}" == "true" ]; then
-            echo "=== Building Postgres ==="
-            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -f config/docker/Dockerfile.postgres .
-            docker push ghcr.io/${REPO_LOWER}/postgres:latest
+            build_and_push postgres config/docker/Dockerfile.postgres
           fi
 
-          echo "✅ Backend images built and pushed"
+          echo "✅ Backend images built"

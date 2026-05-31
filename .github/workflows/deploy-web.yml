@@ -2,7 +2,11 @@ name: "🌐 Web Deploy"
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "antigravity/**"
+      - "zoidbot/**"
+      - "codex/**"
     paths:
       - "lib/**"
       - "web/**"
@@ -21,7 +25,22 @@ permissions:
   packages: write
 
 jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: flutter analyze
+        run: |
+          flutter pub get
+          flutter analyze
+          echo "✅ Analysis passed"
+
   build_and_deploy:
+    needs: analyze
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -44,6 +63,7 @@ jobs:
           retention-days: 1
 
       - name: Deploy to Simon VPS
+        if: github.ref_name == 'main'
         env:
           VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           SIMON_HOST: 31.97.140.7

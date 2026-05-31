@@ -23,14 +23,30 @@ permissions:
   packages: read
 
 jobs:
-  build_linux:
-    name: Linux Build
-    if: contains(inputs.platforms, 'linux')
+  analyze:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: flutter analyze
+        run: |
+          flutter pub get
+          flutter analyze
+          echo "✅ Analysis passed"
 
-      - name: Set Version
+  set_version:
+    name: Set Version
+    needs: analyze
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute version
+        id: version
         run: |
           if [ -n "${{ inputs.version }}" ]; then
             VERSION=${{ inputs.version }}
@@ -40,6 +56,19 @@ jobs:
             v[2]=$((v[2] + 1))
             VERSION="${v[0]}.${v[1]}.${v[2]}"
           fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  build_linux:
+    name: Linux Build
+    needs: set_version
+    if: contains(inputs.platforms, 'linux')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set Version
+        run: |
+          VERSION=${{ needs.set_version.outputs.version }}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
           jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
@@ -92,6 +121,7 @@ jobs:
 
   build_windows:
     name: Windows Build
+    needs: set_version
     if: contains(inputs.platforms, 'windows')
     runs-on: windows-latest
     steps:
@@ -100,14 +130,7 @@ jobs:
       - name: Set Version
         shell: bash
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            VERSION=${{ inputs.version }}
-          else
-            VERSION=$(jq -r '.version' assets/version.json)
-            IFS='.' read -r -a v <<< "$VERSION"
-            v[2]=$((v[2] + 1))
-            VERSION="${v[0]}.${v[1]}.${v[2]}"
-          fi
+          VERSION=${{ needs.set_version.outputs.version }}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
           jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
@@ -137,6 +160,7 @@ jobs:
 
   build_macos:
     name: macOS Build
+    needs: set_version
     if: contains(inputs.platforms, 'macos')
     runs-on: macos-latest
     steps:
@@ -144,14 +168,7 @@ jobs:
 
       - name: Set Version
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            VERSION=${{ inputs.version }}
-          else
-            VERSION=$(jq -r '.version' assets/version.json)
-            IFS='.' read -r -a v <<< "$VERSION"
-            v[2]=$((v[2] + 1))
-            VERSION="${v[0]}.${v[1]}.${v[2]}"
-          fi
+          VERSION=${{ needs.set_version.outputs.version }}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           sed -i "" "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
           jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
@@ -191,7 +208,7 @@ jobs:
           retention-days: 7
 
   create_release:
-    needs: [build_linux, build_windows, build_macos]
+    needs: [set_version, build_linux, build_windows, build_macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
