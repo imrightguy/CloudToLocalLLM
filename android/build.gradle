@@ -32,9 +32,13 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
+// Force K2 to produce 1.9-compatible bytecode for old plugins (tesseract_ocr 0.5.0)
 allprojects {
-    tasks.withType(AbstractArchiveTask) {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            languageVersion = "1.9"
+            apiVersion = "1.9"
+        }
     }
 }
 subprojects {
