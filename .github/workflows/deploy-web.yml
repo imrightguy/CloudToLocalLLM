@@ -72,19 +72,20 @@ jobs:
           echo "Upload size: $(wc -c < /tmp/web_build.tar.gz) bytes"
           scp /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
 
-          ssh simon-vps "sudo rm -rf /opt/cloudtolocalllm/build/web/* && sudo tar -xzf /tmp/web_build.tar.gz -C /opt/cloudtolocalllm/build/web/ && sudo rm /tmp/web_build.tar.gz && cd /opt/cloudtolocalllm/deploy/simon-vps && sudo docker compose --env-file .env build web && sudo docker compose --env-file .env up -d --no-deps web"
+          ssh simon-vps "sudo mkdir -p /opt/cloudtolocalllm/build/web && sudo rm -rf /opt/cloudtolocalllm/build/web/* && sudo tar -xzf /tmp/web_build.tar.gz -C /opt/cloudtolocalllm/build/web/ && sudo rm /tmp/web_build.tar.gz && cd /opt/cloudtolocalllm/deploy/simon-vps && sudo docker compose --env-file .env build web && sudo docker compose --env-file .env up -d --no-deps web"
 
-          sleep 3
-          for i in 1 2 3 4 5; do
+          sleep 5
+          for i in {1..20}; do
             if curl -sf "https://app.cloudtolocalllm.online/healthz" > /dev/null 2>&1; then
               echo "✅ VPS web service healthy"
               exit 0
             fi
-            echo "Waiting... attempt $i"
+            echo "Waiting for container start and health check to propagate... attempt $i/20"
             sleep 3
           done
           echo "❌ VPS web service health check failed"
           exit 1
+
 
       - name: Purge Cloudflare cache
         if: always()
