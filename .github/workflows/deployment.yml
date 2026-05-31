@@ -145,7 +145,7 @@ jobs:
           npm ci
           npm run lint || echo "Lint warnings"
           # Run tests with timeout to prevent CI hangs from open handles
-          timeout 180 npm run test:unit || { echo "Tests failed or timed out"; exit 0; }
+          timeout 180 npm run test:unit
 
   build_images:
     needs: [ai_change_analysis, run_tests]
@@ -164,7 +164,7 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Build Kubernetes Web Image
+      - name: Build and Test Kubernetes Web Image
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
@@ -175,7 +175,52 @@ jobs:
           flutter build web --release --no-tree-shake-icons
 
           echo "Building Kubernetes Web Image..."
-          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG} -f config/docker/Dockerfile.web .
+          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG} -t web-test:latest -f config/docker/Dockerfile.web .
+
+          echo "Testing Web image locally..."
+          # Start container
+          docker run -d --name web-test -p 8080:8080 web-test:latest
+          sleep 3
+
+          # Test health endpoint
+          echo "Testing health endpoint..."
+          if curl -f http://localhost:8080/health; then
+            echo "✅ Health endpoint working"
+          else
+            echo "❌ Health endpoint failed"
+            docker logs web-test
+            docker rm -f web-test
+            exit 1
+          fi
+
+          # Test index.html
+          echo "Testing index.html..."
+          if curl -f http://localhost:8080/index.html | grep -q "flutter"; then
+            echo "✅ index.html contains Flutter content"
+          else
+            echo "❌ index.html missing or invalid"
+            curl http://localhost:8080/index.html | head -20
+            docker logs web-test
+            docker rm -f web-test
+            exit 1
+          fi
+
+          # Test main.dart.js
+          echo "Testing main.dart.js..."
+          if curl -f http://localhost:8080/main.dart.js > /dev/null 2>&1; then
+            SIZE=$(curl -s http://localhost:8080/main.dart.js | wc -c)
+            echo "✅ main.dart.js exists (size: $SIZE bytes)"
+          else
+            echo "❌ main.dart.js not found"
+            docker logs web-test
+            docker rm -f web-test
+            exit 1
+          fi
+
+          docker rm -f web-test
+          echo "✅ Web image test passed"
+
+          echo "Pushing images to GHCR..."
           docker push ghcr.io/${REPO_LOWER}/web:latest
           docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
           docker push ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG}

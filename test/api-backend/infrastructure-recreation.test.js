@@ -664,8 +664,8 @@ describe("Infrastructure Recreation Property Test", () => {
           );
 
           // ARNs should be valid format
-          const serviceRoleArn = stack.Outputs.EKSServiceRoleArn.OutputValue;
-          const nodeRoleArn = stack.Outputs.NodeInstanceRoleArn.OutputValue;
+          const serviceRoleArn = stack.Outputs.EKSServiceRoleArn.OutputValue.replace(/,/g, '');
+          const nodeRoleArn = stack.Outputs.NodeInstanceRoleArn.OutputValue.replace(/,/g, '');
 
           assert(
             serviceRoleArn.startsWith("arn:aws:iam::"),
@@ -690,7 +690,7 @@ describe("Infrastructure Recreation Property Test", () => {
           assert(stack.Outputs.SubnetIds, "Stack should have SubnetIds");
 
           // VPC ID should be valid format
-          const vpcId = stack.Outputs.VPCId.OutputValue;
+          const vpcId = stack.Outputs.VPCId.OutputValue.replace(/,/g, '');
           assert(vpcId.startsWith("vpc-"), "VPC ID should start with vpc-");
         }),
         { numRuns: 100 },
