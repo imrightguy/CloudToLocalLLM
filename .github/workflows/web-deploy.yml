@@ -87,8 +87,8 @@ jobs:
           echo "Upload size: $(wc -c < /tmp/web_build.tar.gz) bytes"
           scp -o StrictHostKeyChecking=no /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
 
-          # SCP deploy script and run it on VPS
-          ssh simon-vps "cd /opt/cloudtolocalllm/deploy/simon-vps && rm -rf ../../build/web/* && tar -xzf /tmp/web_build.tar.gz -C ../../build/web/ && rm /tmp/web_build.tar.gz && docker compose --env-file .env build web && docker compose --env-file .env up -d --no-deps web"
+          # Deploy via sudo on VPS (zoidbot has passwordless sudo)
+          ssh simon-vps "sudo rm -rf /opt/cloudtolocalllm/deploy/simon-vps/../../build/web/* && sudo tar -xzf /tmp/web_build.tar.gz -C /opt/cloudtolocalllm/deploy/simon-vps/../../build/web/ && sudo rm /tmp/web_build.tar.gz && cd /opt/cloudtolocalllm/deploy/simon-vps && sudo docker compose --env-file .env build web && sudo docker compose --env-file .env up -d --no-deps web"
 
           # Health check
           sleep 3
