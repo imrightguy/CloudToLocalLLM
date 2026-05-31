@@ -46,8 +46,10 @@ allprojects {
 // useLegacyPackaging falls back to zip-based packaging that allows overwrite
 subprojects { subproject ->
     afterEvaluate {
-        subproject.tasks.withType(com.android.build.gradle.tasks.BundleLibraryClasses) {
-            it.useLegacyPackaging = true
+        subproject.tasks.configureEach { task ->
+            if (task.class.name.contains("BundleLibraryClasses")) {
+                task.setProperty("useLegacyPackaging", true)
+            }
         }
     }
 }
