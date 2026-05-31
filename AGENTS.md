@@ -27,7 +27,7 @@ Core orientation: secure agent channel, avatar/voice companion, desktop control,
 
 ## Branch discipline — per-agent branches with PRs to main
 
-**Every agent pushes to its own named branch, never directly to `main`.** This is the single most important rule in this file. Direct pushes to main are forbidden.
+**Every agent pushes to its own named branch, never directly to `main`.** This includes Zoidbot, Antigravity, Codex, Paperclip, and any future agent. Direct pushes to main are forbidden.
 
 ### Why
 - Each agent (Antigravity, Codex, Zoidbot, etc.) works on separate concerns — Flutter code vs CI infra vs backend. Direct pushes to main create collisions, broken builds, and race conditions.
