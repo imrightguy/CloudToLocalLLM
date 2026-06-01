@@ -3,38 +3,8 @@ import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('DevVoiceInputAdapter', () {
-    test('emits final transcript events only while running', () async {
-      final adapter = DevVoiceInputAdapter();
-      final events = <VoiceInputTranscriptEvent>[];
-      final subscription = adapter.transcripts.listen(events.add);
-
-      adapter.submitFinalTranscript('ignored before start');
-      await Future<void>.delayed(Duration.zero);
-      expect(events, isEmpty);
-
-      await adapter.start();
-      adapter.submitFinalTranscript('  hello   voice  ');
-      await Future<void>.delayed(Duration.zero);
-
-      expect(events, hasLength(1));
-      expect(events.single.text, 'hello voice');
-      expect(events.single.isFinal, isTrue);
-      expect(events.single.source, VoiceInputSource.dev);
-
-      await adapter.stop();
-      adapter.submitFinalTranscript('ignored after stop');
-      await Future<void>.delayed(Duration.zero);
-      expect(events, hasLength(1));
-
-      await subscription.cancel();
-      await adapter.dispose();
-    });
-  });
-
   group('LocalVoiceInputService', () {
     late VoiceConversationService voiceConversationService;
-    late DevVoiceInputAdapter devAdapter;
 
     setUp(() {
       voiceConversationService = VoiceConversationService(
@@ -42,163 +12,112 @@ void main() {
           engagedHold: Duration(milliseconds: 200),
         ),
       );
-      devAdapter = DevVoiceInputAdapter();
     });
 
-    tearDown(() async {
-      await devAdapter.dispose();
+    tearDown(() {
       voiceConversationService.dispose();
     });
 
-    test('starts adapter and moves conversation into listening mode', () async {
+    test('starts in a stopped state with correct defaults', () {
       final service = LocalVoiceInputService(
         voiceConversationService: voiceConversationService,
-        adapter: devAdapter,
-        isWeb: false,
       );
 
-      await service.start();
+      expect(service.isCapturing, isFalse);
+      expect(service.sttStatus, 'unconfigured');
 
-      expect(service.isRunning, isTrue);
-      expect(devAdapter.isRunning, isTrue);
-      expect(voiceConversationService.snapshot.mode,
-          VoiceConversationMode.listening);
+      final snap = service.snapshot;
+      expect(snap.isCapturing, isFalse);
+      expect(snap.lastFullTranscript, isEmpty);
+      expect(snap.lastError, isNull);
+      expect(snap.sttStatus, 'unconfigured');
 
-      await service.dispose();
+      service.dispose();
     });
 
-    test('routes final dev transcripts into a fast conversational turn',
-        () async {
+    test('startCapture returns false when capture command is not available', () async {
+      // Use a command that won't exist to guarantee failure
       final service = LocalVoiceInputService(
         voiceConversationService: voiceConversationService,
-        adapter: devAdapter,
-        isWeb: false,
+        captureCommand: '__nonexistent_cmd_12345__',
       );
+      addTearDown(service.dispose);
 
-      await service.start();
-      devAdapter.submitFinalTranscript('Zoidbot can you hear me properly?');
-      await Future<void>.delayed(Duration.zero);
+      final started = await service.startCapture();
+      expect(started, isFalse);
+      expect(service.isCapturing, isFalse);
+      expect(service.sttStatus, 'unavailable');
 
-      final snapshot = voiceConversationService.snapshot;
-      expect(snapshot.lastUserTranscript, 'Zoidbot can you hear me properly?');
-      expect(snapshot.lastAssistantReply, 'Yeah, I hear you.');
-      expect(snapshot.mode, VoiceConversationMode.speaking);
-      expect(snapshot.isEngaged, isTrue);
-
-      await Future<void>.delayed(const Duration(milliseconds: 900));
-
-      final afterAckSnapshot = voiceConversationService.snapshot;
-      expect(afterAckSnapshot.mode, VoiceConversationMode.engaged);
-      expect(afterAckSnapshot.isEngaged, isTrue);
-
-      await service.dispose();
+      final snap = service.snapshot;
+      expect(snap.isCapturing, isFalse);
+      expect(snap.lastError, contains('missing capture command'));
+      expect(snap.sttStatus, 'unavailable');
     });
 
-    test('uses a provided native adapter when no explicit adapter is given',
-        () async {
-      final nativeAdapter = DevVoiceInputAdapter();
-      addTearDown(nativeAdapter.dispose);
-
+    test('stopCapture is a no-op when not capturing', () async {
       final service = LocalVoiceInputService(
         voiceConversationService: voiceConversationService,
-        adapter: nativeAdapter,
-        isWeb: false,
       );
+      addTearDown(service.dispose);
 
-      await service.start();
-      nativeAdapter.submitFinalTranscript('Can you hear the native path?');
-      await Future<void>.delayed(Duration.zero);
+      // Should not throw
+      await service.stopCapture();
+      expect(service.isCapturing, isFalse);
+    });
 
-      expect(service.isRunning, isTrue);
-      expect(nativeAdapter.isRunning, isTrue);
-      expect(
-        voiceConversationService.snapshot.lastUserTranscript,
-        'Can you hear the native path?',
+    test('dispose prevents further capture', () async {
+      final service = LocalVoiceInputService(
+        voiceConversationService: voiceConversationService,
       );
 
       await service.dispose();
+      // After dispose, startCapture should return false
+      final started = await service.startCapture();
+      expect(started, isFalse);
     });
 
-    test('submitDevTranscript forwards through the dev adapter', () async {
+    test('accepts custom configuration', () {
       final service = LocalVoiceInputService(
         voiceConversationService: voiceConversationService,
-        adapter: devAdapter,
-        isWeb: false,
+        sttUrl: 'http://custom:9999/v1/audio/transcriptions',
+        captureCommand: 'arecord',
+        sampleRate: 44100,
       );
 
-      await service.start();
-      service.submitDevTranscript('Can you hear the dev path?');
-      await Future<void>.delayed(Duration.zero);
+      expect(service.sttStatus, 'unconfigured');
+      expect(service.isCapturing, isFalse);
 
-      expect(
-        voiceConversationService.snapshot.lastUserTranscript,
-        'Can you hear the dev path?',
-      );
+      final snap = service.snapshot;
+      expect(snap.sttStatus, 'unconfigured');
 
-      await service.dispose();
+      service.dispose();
     });
 
-    test('ignores partial and empty transcript events for now', () async {
+    test('snapshot values reflect internal state changes', () async {
       final service = LocalVoiceInputService(
         voiceConversationService: voiceConversationService,
-        adapter: devAdapter,
-        isWeb: false,
+        captureCommand: '__nonexistent_cmd_12345__',
       );
+      addTearDown(service.dispose);
 
-      await service.start();
-      devAdapter.submitPartialTranscript('partial words');
-      devAdapter.submitFinalTranscript('   ');
-      await Future<void>.delayed(Duration.zero);
+      // Before start
+      var snap = service.snapshot;
+      expect(snap.isCapturing, isFalse);
+      expect(snap.sttStatus, 'unconfigured');
 
-      final snapshot = voiceConversationService.snapshot;
-      expect(snapshot.lastUserTranscript, isEmpty);
-      expect(snapshot.mode, VoiceConversationMode.listening);
+      // After failed start — sttStatus and lastError should update
+      await service.startCapture();
+      snap = service.snapshot;
+      expect(snap.isCapturing, isFalse);
+      expect(snap.sttStatus, 'unavailable');
+      expect(snap.lastError, isNotNull);
 
-      await service.dispose();
-    });
-
-    test('stop returns the conversation state to idle', () async {
-      final service = LocalVoiceInputService(
-        voiceConversationService: voiceConversationService,
-        adapter: devAdapter,
-        isWeb: false,
-      );
-
-      await service.start();
-      devAdapter.submitFinalTranscript('Zoidbot can you hear me?');
-      await Future<void>.delayed(Duration.zero);
-
-      expect(
-        voiceConversationService.snapshot.mode,
-        VoiceConversationMode.speaking,
-      );
-      expect(voiceConversationService.snapshot.isEngaged, isTrue);
-
-      await service.stop();
-
-      final snapshot = voiceConversationService.snapshot;
-      expect(snapshot.mode, VoiceConversationMode.idle);
-      expect(snapshot.isEngaged, isFalse);
-      expect(snapshot.lastUserTranscript, 'Zoidbot can you hear me?');
-    });
-
-    test('web guard is a no-op and does not start adapter', () async {
-      final service = LocalVoiceInputService(
-        voiceConversationService: voiceConversationService,
-        adapter: devAdapter,
-        isWeb: true,
-      );
-
-      await service.start();
-      devAdapter.submitFinalTranscript('should not be heard');
-      await Future<void>.delayed(Duration.zero);
-
-      expect(service.isSupported, isFalse);
-      expect(service.isRunning, isFalse);
-      expect(devAdapter.isRunning, isFalse);
-      expect(voiceConversationService.snapshot.lastUserTranscript, isEmpty);
-
-      await service.dispose();
+      // After stopCapture — sttStatus becomes 'stopped'
+      await service.stopCapture();
+      snap = service.snapshot;
+      expect(snap.isCapturing, isFalse);
+      // stopCapture sets sttStatus to 'stopped' only if was capturing;
+      // since startCapture never succeeded, this is a no-op
     });
   });
 }

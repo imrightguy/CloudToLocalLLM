@@ -84,13 +84,10 @@ class TestableAuthService extends ChangeNotifier implements AuthService {
       await _mockSessionStorage.invalidateSession(_sessionToken!);
     }
     _isAuthenticated = false;
-    _currentUser = null;
     _sessionToken = null;
+    _currentUser = null;
     notifyListeners();
   }
-
-  @override
-  Future<void> init() async {}
 
   @override
   Future<bool> handleCallback({String? callbackUrl, String? code}) async =>
@@ -122,6 +119,12 @@ class TestableAuthService extends ChangeNotifier implements AuthService {
 
   @override
   ValueNotifier<bool> get areAuthenticatedServicesLoaded => ValueNotifier(true);
+
+  @override
+  Future<void> loginMockDeveloper() async {}
+
+  @override
+  Future<void> init() async {}
 
   @override
   UserModel? get currentUser => _currentUser;

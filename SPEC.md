@@ -4,6 +4,8 @@
 
 **CloudToLocalLLM** is a local-first companion and desktop capability layer for user-selected agent runtimes. It gives Hermes, OpenClaw, and compatible agent gateways a secure channel to the user and permissioned hands and eyes on the user's desktops.
 
+The primary audience is personal users — individuals who want a private, capable AI companion on their own hardware. Business and team usage is a secondary path that follows the personal foundation.
+
 The main app does not connect directly to raw local model providers as its primary experience. Ollama, LM Studio, and similar endpoints are support model providers for app-owned features such as memory, embeddings, summarization, classification, OCR cleanup, and speech helpers.
 
 Hermes is the current first test path. OpenClaw remains a supported agent runtime and original integration, but it is not the universal default.

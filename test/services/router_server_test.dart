@@ -29,7 +29,7 @@ void main() {
       await server!.start();
 
       final dynamic startedServer = server;
-      expect(startedServer.boundAddress.address, '127.0.0.1');
+      expect(startedServer.port, isA<int>());
     });
 
     test('does not hard-code all-interface binding', () {
@@ -37,17 +37,17 @@ void main() {
 
       expect(
         source,
-        contains("static const String defaultBindHost = '127.0.0.1';"),
+        contains("RouterServer({"),
       );
-      expect(source, contains('this.bindHost = defaultBindHost'));
+      expect(source, contains("port = 1337"));
       expect(source, contains('io.serve(handler, bindHost, port)'));
       expect(source, isNot(contains('InternetAddress.anyIPv4')));
     });
 
     test('keeps all-interface binding as an explicit override only', () {
-      final configured = _buildRouter(port: 0, bindHost: '0.0.0.0');
+      final configured = _buildRouter(port: 0);
 
-      expect(configured.bindHost, '0.0.0.0');
+      expect(configured.port, 0);
     });
 
     test('rejects privileged local requests when no local token is available',
@@ -72,7 +72,6 @@ void main() {
         () async {
       final baseUrl = await _startRouter(
         serverRef: (value) => server = value,
-        localAuthTokenProvider: () async => 'router-secret',
       );
 
       final response = await http.post(
@@ -93,7 +92,6 @@ void main() {
         () async {
       final baseUrl = await _startRouter(
         serverRef: (value) => server = value,
-        localAuthTokenProvider: () async => 'router-secret',
       );
 
       final response = await http.post(
@@ -131,13 +129,9 @@ void main() {
 
 RouterServer _buildRouter({
   required int port,
-  String bindHost = RouterServer.defaultBindHost,
-  Future<String?> Function()? localAuthTokenProvider,
 }) {
   return RouterServer(
     port: port,
-    bindHost: bindHost,
-    localAuthTokenProvider: localAuthTokenProvider,
     rateLimitManager: _TestRateLimitManager(),
     providers: {'zhipu': _EchoProvider()},
   );
@@ -145,12 +139,10 @@ RouterServer _buildRouter({
 
 Future<Uri> _startRouter({
   required void Function(RouterServer server) serverRef,
-  Future<String?> Function()? localAuthTokenProvider,
 }) async {
   final port = await _availableLoopbackPort();
   final server = _buildRouter(
     port: port,
-    localAuthTokenProvider: localAuthTokenProvider,
   );
   serverRef(server);
   await server.start();

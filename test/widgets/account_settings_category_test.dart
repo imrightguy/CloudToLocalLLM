@@ -61,6 +61,9 @@ class MockAuthService extends ChangeNotifier implements AuthService {
   }
 
   @override
+  Future<void> loginMockDeveloper() async {}
+
+  @override
   Future<void> init() async {}
 
   @override

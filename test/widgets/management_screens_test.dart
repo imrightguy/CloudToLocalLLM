@@ -143,7 +143,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: AgentsScreen(subagentRegistryService: fakeService),
+        home: const AgentsScreen(),
       ),
     );
     await tester.pumpAndSettle();
@@ -171,7 +171,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: SkillsScreen(skillCatalogService: service),
+        home: const SkillsScreen(),
       ),
     );
     await tester.pumpAndSettle();
@@ -196,7 +196,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CronJobsScreen(cronManagementService: loadingService),
+        home: const CronJobsScreen(),
       ),
     );
 
@@ -214,7 +214,7 @@ void main() {
     final emptyService = FakeCronManagementService();
     await tester.pumpWidget(
       MaterialApp(
-        home: CronJobsScreen(cronManagementService: emptyService),
+        home: const CronJobsScreen(),
       ),
     );
     await tester.pumpAndSettle();
@@ -224,7 +224,7 @@ void main() {
     final errorService = FakeCronManagementService(throwOnList: true);
     await tester.pumpWidget(
       MaterialApp(
-        home: CronJobsScreen(cronManagementService: errorService),
+        home: const CronJobsScreen(),
       ),
     );
     await tester.pumpAndSettle();
@@ -249,7 +249,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: CronJobsScreen(cronManagementService: actionService),
+        home: const CronJobsScreen(),
       ),
     );
     await tester.pumpAndSettle();
