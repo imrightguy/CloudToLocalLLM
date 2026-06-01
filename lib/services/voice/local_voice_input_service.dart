@@ -98,7 +98,7 @@ class LocalVoiceInputService {
       _lastError = null;
       _sttStatus = 'capturing';
 
-      _captureProcess?.stdout!.listen(
+      _captureProcess!.stdout.listen(
         _onPcm,
         onError: _onPcmError,
         onDone: _onPcmDone,
