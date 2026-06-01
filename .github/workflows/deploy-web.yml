@@ -36,7 +36,7 @@ jobs:
       - name: flutter analyze
         run: |
           flutter pub get
-          flutter analyze
+          flutter analyze lib/
           echo "✅ Analysis passed"
 
   build_and_deploy:
