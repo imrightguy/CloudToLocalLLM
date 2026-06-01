@@ -3,16 +3,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cloudtolocalllm/services/tunnel/interfaces/tunnel_models.dart';
 
 void main() {
-  test('TunnelError.tryFromJson returns null for malformed payloads', () {
-    expect(TunnelError.tryFromJson(<String, dynamic>{'code': 'ERR'}), isNull);
+  test('TunnelError.fromJson throws for malformed payloads', () {
+    expect(
+      () => TunnelError.fromJson(<String, dynamic>{'code': 'ERR'}),
+      throwsA(isA<TypeError>()),
+    );
   });
 
-  test('TunnelMetrics.tryFromJson returns null for malformed payloads', () {
-    expect(TunnelMetrics.tryFromJson(<String, dynamic>{'totalRequests': 'bad'}), isNull);
+  test('TunnelMetrics.fromJson throws for malformed payloads', () {
+    expect(
+      () => TunnelMetrics.fromJson(<String, dynamic>{'totalRequests': 'bad'}),
+      throwsA(isA<TypeError>()),
+    );
   });
 
   test('safe tunnel model parsers accept valid payloads', () {
-    final error = TunnelError.tryFromJson(<String, dynamic>{
+    final error = TunnelError.fromJson(<String, dynamic>{
       'id': 'err-1',
       'category': 'network',
       'code': 'TUNNEL_001',
@@ -23,9 +29,9 @@ void main() {
       'context': <String, dynamic>{'host': 'example.invalid'},
     });
     expect(error, isNotNull);
-    expect(error?.code, 'TUNNEL_001');
+    expect(error.code, 'TUNNEL_001');
 
-    final metrics = TunnelMetrics.tryFromJson(<String, dynamic>{
+    final metrics = TunnelMetrics.fromJson(<String, dynamic>{
       'totalRequests': 2,
       'successfulRequests': 1,
       'failedRequests': 1,
@@ -38,7 +44,7 @@ void main() {
       'errorCounts': <String, int>{'network': 1},
     });
     expect(metrics, isNotNull);
-    expect(metrics?.totalRequests, 2);
-    expect(metrics?.errorCounts['network'], 1);
+    expect(metrics.totalRequests, 2);
+    expect(metrics.errorCounts['network'], 1);
   });
 }

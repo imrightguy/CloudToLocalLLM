@@ -47,6 +47,10 @@ class _MockAuthService extends ChangeNotifier implements AuthService {
   Future<void> logout() => Future.value();
 
   @override
+  Future<void> loginMockDeveloper() async {}
+
+
+  @override
   Future<String?> getAccessToken() => Future.value(null);
 
   @override

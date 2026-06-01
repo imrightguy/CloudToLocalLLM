@@ -89,9 +89,6 @@ void main() {
           service = GatewayControlService(
             SettingsPreferenceService(),
             null,
-            (executable, arguments, {runInShell = false}) async {
-              return ProcessResult(0, 0, '', '');
-            },
           );
         },
         returnsNormally,
@@ -282,10 +279,6 @@ void main() {
         () => GatewayControlService(
           SettingsPreferenceService(),
           null,
-          (executable, arguments, {runInShell = false}) async {
-            return ProcessResult(0, 0, '', '');
-          },
-          'openclaw',
         ),
         throwsA(isA<StateError>()),
       );

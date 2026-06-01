@@ -224,6 +224,10 @@ class _MinimalAuthService extends ChangeNotifier implements AuthService {
   Future<void> logout() async {}
 
   @override
+  Future<void> loginMockDeveloper() async {}
+
+
+  @override
   Future<void> get sessionBootstrapFuture async {}
 
   @override

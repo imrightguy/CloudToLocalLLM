@@ -22,7 +22,6 @@ void main() {
 
     testWidgets('Test exact setup mimic', (tester) async {
       final themeProvider = ThemeProvider();
-      await themeProvider.waitForInitialization();
 
       print('Step 1: Setting theme mode');
       await themeProvider.setThemeMode(ThemeMode.light);
