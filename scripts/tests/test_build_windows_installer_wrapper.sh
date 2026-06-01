@@ -11,16 +11,14 @@ import sys
 
 script = Path(sys.argv[1]).read_text()
 checks = [
-    'Build-GitHubReleaseAssets.ps1',
-    "'-InstallInnoSetup'",
-    "'-SkipBuild'",
-    "'-Force'",
-    "'-Version'",
+    'iscc.exe',
+    'ISCC.exe',
+    'CloudToLocalLLM.iss',
+    'MyAppVersion',
+    'MyAppSourceDir',
 ]
 for needle in checks:
     if needle not in script:
-        raise SystemExit(f'missing installer wrapper string: {needle}')
-if "'-SkipInstaller'" in script:
-    raise SystemExit('installer wrapper should not skip installer creation')
+        raise SystemExit(f'missing installer script string: {needle}')
 print('[test_build_windows_installer_wrapper] Passed')
 PY
