@@ -193,6 +193,8 @@ class _HomeWithSetupCheck extends StatefulWidget {
 }
 
 class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
+  bool _checking = true;
+
   @override
   void initState() {
     super.initState();
@@ -202,26 +204,38 @@ class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
   Future<void> _checkSetupNeeded() async {
     if (kIsWeb) {
       // Setup wizard is desktop-only, skip check on web
+      if (mounted) setState(() => _checking = false);
       return;
     }
     try {
       final setupWizardService = serviceLocator<SetupWizardService>();
       final shouldShow = await setupWizardService.shouldShowWizard();
 
-      if (shouldShow && mounted) {
+      if (!mounted) return;
+
+      if (shouldShow) {
         debugPrint(
             '[Router] No providers configured, redirecting to setup wizard');
-        if (mounted) {
-          context.go('/setup');
-        }
+        context.go('/setup');
+      } else {
+        setState(() => _checking = false);
       }
     } catch (e) {
       debugPrint('[Router] Error checking setup status: $e');
+      if (mounted) setState(() => _checking = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Block rendering the child until the setup check completes.
+    // Prevents flash of "No Agent Connected" home screen while the async
+    // check determines the wizard redirect is needed.
+    if (_checking) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return widget.child;
   }
 }
