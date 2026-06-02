@@ -17,7 +17,7 @@ class HermesProcessBackedRuntimeClient implements AgentRuntimeClient {
   RuntimeCapabilityManifest _capabilityManifest =
       const RuntimeCapabilityManifest(
     chatStreaming: true,
-    agentEvents: false,
+    agentEvents: true,  // Now supports agent events via the process client
     toolRequests: false,
     desktopActionRequests: false,
     voice: false,
@@ -43,7 +43,7 @@ class HermesProcessBackedRuntimeClient implements AgentRuntimeClient {
   RuntimeConnectionState get connectionState => _connectionState;
 
   @override
-  Stream<AgentEvent> get agentEventStream => const Stream.empty();
+  Stream<AgentEvent> get agentEventStream => _processClient.agentEventStream;
 
   @override
   StreamingService? get streamingService => _processClient;

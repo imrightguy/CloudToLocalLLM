@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '../../models/agent_event.dart';
 import '../../models/streaming_message.dart';
 import '../streaming_service.dart';
 
@@ -17,6 +18,9 @@ import '../streaming_service.dart';
 /// This mirrors the Hermes TUI's architecture which uses JSON-RPC over
 /// stdin/stdout (via `tui_gateway.entry`). For simplicity, the desktop app
 /// uses `hermes chat -q` which is equally resilient and easier to manage.
+///
+/// Auto-restart: if the process exits with a non-zero code before completing
+/// the response, the client retries once transparently.
 class HermesProcessClient extends StreamingService {
   /// Path to the hermes-agent binary (resolved at first use).
   String? _agentPath;
@@ -28,11 +32,23 @@ class HermesProcessClient extends StreamingService {
   final StreamController<StreamingMessage> _messageController =
       StreamController<StreamingMessage>.broadcast();
 
+  /// Stream controller for agent events.
+  /// Consumers who want structured tool/run lifecycle events listen here.
+  final StreamController<AgentEvent> _agentEventController =
+      StreamController<AgentEvent>.broadcast();
+
   /// Cached connection state.
   StreamingConnection _connection = StreamingConnection.disconnected();
 
   /// Whether this client has been disposed.
   bool _disposed = false;
+
+  /// Max auto-restart attempts per stream call.
+  int _restartAttempts = 0;
+
+  /// Stream of structured agent events for consumers who want
+  /// tool call and run lifecycle awareness.
+  Stream<AgentEvent> get agentEventStream => _agentEventController.stream;
 
   @override
   Stream<StreamingMessage> get messageStream => _messageController.stream;
@@ -183,95 +199,118 @@ class HermesProcessClient extends StreamingService {
     final messageId = DateTime.now().millisecondsSinceEpoch.toString();
     final output = StringBuffer();
     int sequence = 0;
+    _restartAttempts = 0;
 
-    try {
-      // Spawn hermes-agent chat -q for a single non-interactive query
-      _activeProcess = await Process.start(
-        agentPath,
-        ['chat', '-q', prompt],
-        runInShell: true,
-      );
+    while (_restartAttempts < 2) {
+      try {
+        // Spawn hermes-agent chat -q for a single non-interactive query
+        _activeProcess = await Process.start(
+          agentPath,
+          ['chat', '-q', prompt],
+          runInShell: true,
+        );
 
-      // Read stdout line by line
-      _activeProcess!.stdout
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen(output.writeln);
+        // Read stdout line by line
+        _activeProcess!.stdout
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())
+            .listen(output.writeln);
 
-      // Read stderr for diagnostics
-      final stderrLines = <String>[];
-      _activeProcess!.stderr
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen(stderrLines.add);
+        // Read stderr for diagnostics
+        final stderrLines = <String>[];
+        _activeProcess!.stderr
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())
+            .listen(stderrLines.add);
 
-      final exitCode = await _activeProcess!.exitCode;
-      _activeProcess = null;
+        final exitCode = await _activeProcess!.exitCode;
+        _activeProcess = null;
 
-      if (exitCode != 0 && output.isEmpty) {
-        final errorDetail = stderrLines.isNotEmpty
-            ? stderrLines.join('; ')
-            : 'exit code $exitCode';
+        if (exitCode != 0 && output.isEmpty) {
+          _restartAttempts++;
+          if (_restartAttempts < 2) {
+            debugPrint('[HermesProcess] Process exited with code $exitCode, '
+                'restarting (attempt $_restartAttempts)...');
+            output.clear();
+            continue;
+          }
+          final errorDetail = stderrLines.isNotEmpty
+              ? stderrLines.join('; ')
+              : 'exit code $exitCode';
+          final errorMsg = StreamingMessage.error(
+            id: messageId,
+            conversationId: conversationId,
+            error: 'hermes-agent failed after $_restartAttempts retries: $errorDetail',
+            sequence: sequence,
+          );
+          _messageController.add(errorMsg);
+          yield errorMsg;
+          return;
+        }
+
+        // Yield the complete response as a single chunk
+        if (output.isNotEmpty) {
+          yield StreamingMessage.chunk(
+            id: messageId,
+            conversationId: conversationId,
+            chunk: output.toString().trim(),
+            sequence: sequence,
+          );
+        }
+
+        // Signal completion
+        final completeMsg = StreamingMessage.complete(
+          id: messageId,
+          conversationId: conversationId,
+          sequence: sequence,
+        );
+        _messageController.add(completeMsg);
+        yield completeMsg;
+
+        _connection = StreamingConnection.connected('process:hermes-agent');
+        notifyListeners();
+        return;
+      } on ProcessException catch (e) {
+        _restartAttempts++;
+        if (_restartAttempts < 2) {
+          debugPrint('[HermesProcess] ProcessException, restarting: $e');
+          continue;
+        }
+        _connection = StreamingConnection.error(
+          'Process error after $_restartAttempts retries: $e',
+          endpoint: 'process:hermes-agent',
+        );
+        notifyListeners();
         final errorMsg = StreamingMessage.error(
           id: messageId,
           conversationId: conversationId,
-          error: 'hermes-agent failed: $errorDetail',
+          error: 'Process error: $e',
+          sequence: sequence,
+        );
+        _messageController.add(errorMsg);
+        yield errorMsg;
+        return;
+      } on Exception catch (e) {
+        _restartAttempts++;
+        if (_restartAttempts < 2) {
+          debugPrint('[HermesProcess] Stream error, restarting: $e');
+          continue;
+        }
+        _connection = StreamingConnection.error(
+          'Stream error after $_restartAttempts retries: $e',
+          endpoint: 'process:hermes-agent',
+        );
+        notifyListeners();
+        final errorMsg = StreamingMessage.error(
+          id: messageId,
+          conversationId: conversationId,
+          error: 'Stream error: $e',
           sequence: sequence,
         );
         _messageController.add(errorMsg);
         yield errorMsg;
         return;
       }
-
-      // Yield the complete response as a single chunk
-      if (output.isNotEmpty) {
-        yield StreamingMessage.chunk(
-          id: messageId,
-          conversationId: conversationId,
-          chunk: output.toString().trim(),
-          sequence: sequence,
-        );
-      }
-
-      // Signal completion
-      final completeMsg = StreamingMessage.complete(
-        id: messageId,
-        conversationId: conversationId,
-        sequence: sequence,
-      );
-      _messageController.add(completeMsg);
-      yield completeMsg;
-
-      _connection = StreamingConnection.connected('process:hermes-agent');
-      notifyListeners();
-    } on ProcessException catch (e) {
-      _connection = StreamingConnection.error(
-        'Process error: $e',
-        endpoint: 'process:hermes-agent',
-      );
-      notifyListeners();
-      final errorMsg = StreamingMessage.error(
-        id: messageId,
-        conversationId: conversationId,
-        error: 'Process error: $e',
-        sequence: sequence,
-      );
-      _messageController.add(errorMsg);
-      yield errorMsg;
-    } on Exception catch (e) {
-      _connection = StreamingConnection.error(
-        'Stream error: $e',
-        endpoint: 'process:hermes-agent',
-      );
-      notifyListeners();
-      final errorMsg = StreamingMessage.error(
-        id: messageId,
-        conversationId: conversationId,
-        error: 'Stream error: $e',
-        sequence: sequence,
-      );
-      _messageController.add(errorMsg);
-      yield errorMsg;
     }
   }
 
