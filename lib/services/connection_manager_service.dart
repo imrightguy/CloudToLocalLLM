@@ -7,8 +7,11 @@ import 'package:logging/logging.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'agent_runtime/agent_runtime_client.dart';
+import 'agent_runtime/hermes_process_backed_runtime_client.dart';
 import 'agent_runtime/hermes_runtime_client.dart';
 import 'cloud_streaming_service.dart';
+import 'hermes/hermes_process_client.dart';
+import 'hermes/hermes_streaming_service.dart';
 import 'hermes_manager/hermes_gateway_control_service.dart';
 import 'openclaw_manager/gateway_control_service.dart';
 import 'settings_preference_service.dart' as preferences;
@@ -234,6 +237,10 @@ class ConnectionManagerService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---------------------------------------------------------------------------
+  // Initialization with auto-detection
+  // ---------------------------------------------------------------------------
+
   Future<void> initialize() async {
     _log.info('Initializing ConnectionManagerService');
     await _loadConfiguredRuntime();
@@ -242,6 +249,68 @@ class ConnectionManagerService extends ChangeNotifier {
     _selectedModel = null;
     _lastError = null;
     notifyListeners();
+
+    // Auto-detect: if no backend configured, probe for available runtimes
+    if (_currentBackend == null) {
+      await _autoDetectRuntime();
+    }
+  }
+
+  /// Probe for available agent runtimes in order of preference.
+  Future<void> _autoDetectRuntime() async {
+    _log.info('Auto-detecting local agent runtimes...');
+
+    // 1. Try Hermes Process Client (hermes-agent on PATH, survives gateway restarts)
+    try {
+      final processClient = HermesProcessClient();
+      await processClient.establishConnection();
+      if (processClient.connection.isActive) {
+        _log.info('Auto-detected hermes-agent on PATH (process mode)');
+        _currentBackend = BackendType.hermes;
+        // Use process-based client
+        final runtimeClient = HermesProcessBackedRuntimeClient(
+          processClient,
+          baseUrl: 'process:hermes-agent',
+        );
+        _activeRuntimeClient = runtimeClient;
+        notifyListeners();
+        return;
+      }
+    } catch (e) {
+      _log.info('hermes-agent process detection: $e');
+    }
+
+    // 2. Try Hermes HTTP gateway
+    try {
+      final httpClient = HermesStreamingService();
+      await httpClient.establishConnection();
+      if (httpClient.connection.isActive) {
+        _log.info('Auto-detected Hermes HTTP gateway at :8642');
+        _currentBackend = BackendType.hermes;
+        _activeRuntimeClient = _createHermesRuntimeClient();
+        notifyListeners();
+        return;
+      }
+    } catch (e) {
+      _log.info('Hermes HTTP gateway detection: $e');
+    }
+
+    // 3. Try OpenClaw gateway
+    try {
+      await openclawGatewayService.checkStatus();
+      if (openclawGatewayService.isRunning) {
+        _log.info('Auto-detected OpenClaw gateway');
+        _currentBackend = BackendType.openclaw;
+        _activeRuntimeClient = null;
+        notifyListeners();
+        return;
+      }
+    } catch (e) {
+      _log.info('OpenClaw gateway detection: $e');
+    }
+
+    // No runtime detected — UI will show the setup wizard
+    _log.info('No local agent runtime detected');
   }
 
   // ---------------------------------------------------------------------------
