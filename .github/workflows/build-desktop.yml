@@ -11,7 +11,7 @@ on:
       platforms:
         description: "Platforms to build (comma-separated)"
         required: false
-        default: "linux,windows,macos"
+        default: "linux,windows"
         type: string
 
 concurrency:
@@ -158,57 +158,8 @@ jobs:
             dist/windows/*.exe
           retention-days: 7
 
-  build_macos:
-    name: macOS Build
-    needs: set_version
-    if: contains(inputs.platforms, 'macos')
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set Version
-        run: |
-          VERSION=${{ needs.set_version.outputs.version }}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          sed -i "" "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
-          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
-
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          cache: true
-
-      - name: Flutter Build macOS
-        run: |
-          flutter pub get
-          flutter build macos --release
-
-      - name: Package macOS DMG
-        run: |
-          mkdir -p dist/macos
-          if command -v create-dmg &>/dev/null; then
-            create-dmg --volname "CloudToLocalLLM" \
-              --window-pos 200 120 \
-              --window-size 800 400 \
-              --icon-size 100 \
-              --app-drop-link 600 185 \
-              dist/macos/CloudToLocalLLM-macOS-x64.dmg \
-              build/macos/Build/Products/Release/CloudToLocalLLM.app
-          else
-            echo "create-dmg not available, bundling .app as zip"
-            cd build/macos/Build/Products/Release
-            zip -r ../../../../dist/macos/CloudToLocalLLM-macOS-x64.zip CloudToLocalLLM.app
-          fi
-
-      - name: Upload macOS Bundles
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-bundles
-          path: dist/macos/*
-          retention-days: 7
-
   create_release:
-    needs: [set_version, build_linux, build_windows, build_macos]
+    needs: [set_version, build_linux, build_windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -245,8 +196,7 @@ jobs:
         with:
           artifacts: |
             linux-bundles/*,
-            windows-bundles/*,
-            macos-bundles/*
+            windows-bundles/*
           tag: "v${{ env.VERSION }}"
           name: "Release v${{ env.VERSION }}"
           artifactErrorsFailBuild: false
@@ -268,6 +218,5 @@ jobs:
             - **Portable ZIP**: CloudToLocalLLM-Windows-x64.zip
 
             ### macOS
-            - **DMG**: CloudToLocalLLM-macOS-x64.dmg
-            - **ZIP**: CloudToLocalLLM-macOS-x64.zip
+            - **Coming soon**
           token: ${{ secrets.GITHUB_TOKEN }}
