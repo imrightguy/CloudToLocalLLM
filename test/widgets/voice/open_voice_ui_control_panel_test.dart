@@ -6,6 +6,7 @@ import 'package:cloudtolocalllm/services/connection_manager_service.dart';
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/hermes_manager/hermes_gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
 import 'package:cloudtolocalllm/widgets/voice/open_voice_ui_control_panel.dart';
 
 Widget buildWidget() {
@@ -17,6 +18,9 @@ Widget buildWidget() {
     hermesGatewayService: hermesGateway,
   );
   final voiceService = VoiceConversationService();
+  final localVoice = LocalVoiceInputService(
+    voiceConversationService: voiceService,
+  );
 
   return MaterialApp(
     home: Scaffold(
@@ -28,6 +32,9 @@ Widget buildWidget() {
             ),
             ChangeNotifierProvider<VoiceConversationService>.value(
               value: voiceService,
+            ),
+            Provider<LocalVoiceInputService>.value(
+              value: localVoice,
             ),
           ],
           child: const OpenVoiceUIControlPanel(),
