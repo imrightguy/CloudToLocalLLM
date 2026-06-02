@@ -222,8 +222,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to AUR
-        if: ${{ secrets.AUR_SSH_KEY != '' }}
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
+          if [ -z "$AUR_SSH_KEY" ]; then
+            echo "AUR_SSH_KEY not set — skipping AUR publish"
+            exit 0
+          fi
           set -euo pipefail
           VERSION="${{ env.VERSION }}"
           mkdir -p ~/.ssh
