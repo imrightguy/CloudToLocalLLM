@@ -82,7 +82,9 @@ void main() {
         );
       }
 
-      expect(collector.totalRequests, 17);
+      // maxHistorySize=17 caps the concrete implementation at 17 entries
+      final c = collector as metrics_impl.MetricsCollector;
+      expect(c.totalRequests, 17);
     });
 
     test('createTunnelService returns a concrete TunnelServiceImpl', () {

@@ -247,6 +247,55 @@ class _AccountSettingsCategoryContentState
     return false;
   }
 
+  Widget _buildBenefitRow(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: colors.primary,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                description,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurface.withValues(alpha: 0.6),
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -254,13 +303,133 @@ class _AccountSettingsCategoryContentState
     }
 
     if (_currentUser == null) {
-      return Center(
+      final theme = Theme.of(context);
+      final colors = theme.colorScheme;
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red.shade600),
-            const SizedBox(height: 16),
-            const Text('Failed to load account information'),
+            SettingsGroup(
+              title: 'Sync to All Devices',
+              description: 'Connect to Cloud Relay for multi-device sync',
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colors.primary.withValues(alpha: 0.3),
+                              width: 3,
+                            ),
+                          ),
+                          child: const Text(
+                            '🦞',
+                            style: TextStyle(fontSize: 48),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: Text(
+                          'Sync to All Devices',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Text(
+                          'Connect your local companion app to Cloud Relay to securely sync your chats, custom agent personalities, and model configurations across all your devices using our Tailscale-first secure mesh.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withValues(alpha: 0.7),
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      Text(
+                        'Benefits of Cloud Sync',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildBenefitRow(
+                        context,
+                        icon: Icons.vpn_lock,
+                        title: 'Tailscale-First Secure Mesh',
+                        description:
+                            'Secure peer-to-peer transport that keeps your local keys on your device.',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildBenefitRow(
+                        context,
+                        icon: Icons.sync,
+                        title: 'Seamless Synchronization',
+                        description:
+                            'Access your conversation history and preferences from web, mobile, or other PCs.',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildBenefitRow(
+                        context,
+                        icon: Icons.memory,
+                        title: 'Avatar Memory Backup',
+                        description:
+                            'Preserve your companion\'s memory, custom skills, and evolutionary history safely.',
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: FilledButton.icon(
+                          onPressed: () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              await _authService.login();
+                              if (mounted) {
+                                await _loadAccountInfo();
+                              }
+                            } catch (e) {
+                              debugPrint('[AccountSettings] Login failed: $e');
+                              if (mounted) {
+                                setState(() {
+                                  _errorMessage = 'Failed to connect to Cloud Relay: $e';
+                                });
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.cloud_queue, size: 20),
+                          label: const Text(
+                            'Connect to Cloud Relay',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       );

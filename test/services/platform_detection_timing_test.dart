@@ -215,6 +215,9 @@ class _MinimalAuthService extends ChangeNotifier implements AuthService {
       true;
 
   @override
+  Future<void> loginMockDeveloper() async {}
+
+  @override
   bool get isWeb => kIsWeb;
 
   @override

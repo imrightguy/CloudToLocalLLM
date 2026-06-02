@@ -74,6 +74,9 @@ class MockAuthService extends ChangeNotifier implements AuthService {
   Future<void> login({String? tenantId}) async {}
 
   @override
+  Future<void> loginMockDeveloper() async {}
+
+  @override
   Future<String?> getAccessToken() async => 'test-token';
 
   @override
@@ -241,6 +244,29 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(AccountSettingsCategory), findsOneWidget);
+    });
+
+    testWidgets('renders Sync to All Devices card when unauthenticated',
+        (WidgetTester tester) async {
+      mockAuthService.currentUser = null;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ChangeNotifierProvider<AuthService>.value(
+              value: mockAuthService,
+              child: AccountSettingsCategory(
+                categoryId: SettingsCategoryIds.account,
+                sessionStorageService: mockSessionStorage,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Sync to All Devices'), findsAtLeastNWidgets(1));
+      expect(find.text('Connect to Cloud Relay'), findsOneWidget);
     });
   });
 }

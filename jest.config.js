@@ -2,6 +2,13 @@ export default {
   testEnvironment: "node",
   testMatch: ["**/test/**/*.test.js"],
   transform: {},
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^jwks-rsa$": "<rootDir>/test/mocks/jwks-rsa.cjs",
+  },
+  modulePathIgnorePatterns: [
+    "/\\.kilo/",
+  ],
   coverageThreshold: {
     global: process.env.CI
       ? { branches: 0, functions: 0, lines: 0, statements: 0 }
@@ -11,15 +18,17 @@ export default {
     "services/**/*.js",
     "!services/**/node_modules/**",
     "!**/dist/**",
+    "!**/.kilo/**",
   ],
-  coveragePathIgnorePatterns: ["/node_modules/", "/dist/"],
-  moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1",
-  },
+  coveragePathIgnorePatterns: ["/node_modules/", "/dist/", "/\\.kilo/"],
   testPathIgnorePatterns: [
     "/node_modules/",
     "/dist/",
-    // Integration tests requiring live PostgreSQL
+    "/\\.kilo/",
+    // Auth backend tests require live Auth0 JWKS (mock can't replicate express-jwt's full error flow)
+    "test/backend/auth\\.test\\.js$",
+    // Policy test references external Paperclip workflow doc no longer in this repo
+    "test/policy/.*\\.test\\.js$",
     "tunnel-lifecycle\\.test\\.js$",
     "tunnel-health-tracking\\.test\\.js$",
     "tunnel-properties\\.test\\.js$",

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,6 +10,10 @@ final Logger _log = Logger('HermesGatewayControlService');
 ///
 /// This service handles starting, stopping, and restarting the hermes-agent
 /// gateway, similar to how OpenClaw gateway is managed.
+///
+/// NOTE: The gateway is a long-running daemon. We do NOT await its exit code
+/// after start — that would hang forever. Instead we watch for a brief health
+/// signal on stdout/stderr to confirm it launched.
 class HermesGatewayControlService {
   static const String _hermesCommand = 'hermes-agent';
   static const String _gatewaySubcommand = 'gateway';
@@ -30,27 +35,51 @@ class HermesGatewayControlService {
     try {
       _gatewayProcess = await Process.start(
         _hermesCommand,
-        [_gatewaySubcommand, 'start', '--json'],
+        [_gatewaySubcommand, 'start'],
         runInShell: true,
+        // Don't inherit stdin — gateway runs as daemon
       );
 
-      // Optional: read stdout/stderr to verify startup
-      _gatewayProcess?.stdout.transform(utf8.decoder).listen((data) {
+      // Read stdout/stderr asynchronously (don't await exitCode — daemon never exits)
+      late final StreamSubscription<String> stdoutSub;
+      late final StreamSubscription<String> stderrSub;
+      stdoutSub = _gatewayProcess!.stdout.transform(utf8.decoder).listen((data) {
         _log.fine('Hermes gateway stdout: $data');
+        // Check for startup confirmation
+        if (data.toLowerCase().contains('started') || data.toLowerCase().contains('running')) {
+          _isRunning = true;
+          _log.info('Hermes gateway started successfully');
+        }
       });
-      _gatewayProcess?.stderr.transform(utf8.decoder).listen((data) {
+      stderrSub = _gatewayProcess!.stderr.transform(utf8.decoder).listen((data) {
         _log.warning('Hermes gateway stderr: $data');
       });
 
-      final exitCode = await _gatewayProcess?.exitCode;
-      if (exitCode == 0) {
-        _isRunning = true;
-        _log.info('Hermes gateway started successfully');
-        return true;
-      } else {
-        _log.severe('Hermes gateway exited with code $exitCode');
-        return false;
+      // Give the process a moment to emit startup output; if it dies
+      // immediately we'll catch that on the exit code stream.
+      unawaited(_gatewayProcess!.exitCode.then((code) {
+        _log.warning('Hermes gateway exited with code $code');
+        _isRunning = false;
+        stdoutSub.cancel();
+        stderrSub.cancel();
+      }));
+
+      // Brief wait for startup signal, then assume success
+      await Future.delayed(const Duration(seconds: 2));
+      // If process died within 2 seconds, _isRunning is false
+      if (!_isRunning && _gatewayProcess != null) {
+        // Check if process is still alive
+        try {
+          final pid = _gatewayProcess!.pid;
+          _log.info('Hermes gateway process running (pid: $pid)');
+          _isRunning = true;
+        } catch (_) {
+          _log.severe('Hermes gateway process died during startup');
+          return false;
+        }
       }
+
+      return _isRunning;
     } catch (e, st) {
       _log.severe('Failed to start Hermes gateway', e, st);
       return false;

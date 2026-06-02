@@ -11,7 +11,7 @@ provides=('cloudtolocalllm')
 conflicts=('cloudtolocalllm-git' 'cloudtolocalllm-bin')
 options=(!strip)
 _appimage="cloudtolocalllm-${pkgver}-x86_64.AppImage"
-source=("${_appimage}::${url}/releases/download/v${pkgver}/${_appimage}")
+source=("${_appimage}")
 sha256sums=('SKIP')
 
 package() {

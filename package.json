@@ -34,17 +34,22 @@
     "pg": "^8.20.0",
     "prom-client": "^15.1.3",
     "rate-limit-redis": "^4.3.1",
+    "stripe": "^22.2.0",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.29.7",
+    "babel-jest": "^30.4.1",
+    "dockerode": "^5.0.0",
     "fast-check": "^4.7.0",
     "jest": "30.3.0",
     "jsonwebtoken": "^9.0.3",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
     "supertest": "^7.2.2",
+    "validator": "^13.15.35",
     "ws": "^8.20.0"
   }
 }

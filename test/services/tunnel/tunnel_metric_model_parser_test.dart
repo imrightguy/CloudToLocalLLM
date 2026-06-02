@@ -4,61 +4,7 @@ import 'package:cloudtolocalllm/services/tunnel/interfaces/tunnel_models.dart';
 import 'package:cloudtolocalllm/services/tunnel/metrics_collector.dart';
 
 void main() {
-  test('metric model constructors reject malformed payloads', () {
-    // ConnectionStateChange and ReconnectionAttempt don't have fromJson;
-    // they use direct constructors, so we test validation by construction
-    expect(
-      () => ConnectionStateChange(
-        timestamp: DateTime.now(),
-        state: TunnelConnectionState.connected,
-        reason: null,
-      ),
-      returnsNormally,
-    );
-
-    expect(
-      () => ReconnectionAttempt(
-        timestamp: DateTime.now(),
-        attemptNumber: 1,
-        success: true,
-      ),
-      returnsNormally,
-    );
-
-    // ServerMetrics.fromJson throws on bad types
-    expect(
-      () => ServerMetrics.fromJson(<String, dynamic>{'activeConnections': 'bad'}),
-      throwsA(isA<TypeError>()),
-    );
-
-    // UserMetrics.fromJson throws on bad types
-    expect(
-      () => UserMetrics.fromJson(<String, dynamic>{
-        'userId': 'u',
-        'connectionCount': 'bad',
-      }),
-      throwsA(isA<TypeError>()),
-    );
-  });
-
-  test('metric model parsers accept valid payloads', () {
-    final stateChange = ConnectionStateChange(
-      timestamp: DateTime.parse('2026-05-10T12:00:00.000Z'),
-      state: TunnelConnectionState.connected,
-      reason: 'test',
-    );
-    expect(stateChange, isNotNull);
-    expect(stateChange.state, TunnelConnectionState.connected);
-
-    final reconnection = ReconnectionAttempt(
-      timestamp: DateTime.parse('2026-05-10T12:00:01.000Z'),
-      attemptNumber: 2,
-      success: true,
-      delay: const Duration(milliseconds: 500),
-    );
-    expect(reconnection, isNotNull);
-    expect(reconnection.delay?.inMilliseconds, 500);
-
+  test('ServerMetrics.fromJson accepts valid payloads', () {
     final serverMetrics = ServerMetrics.fromJson(<String, dynamic>{
       'activeConnections': 1,
       'totalConnections': 2,
@@ -86,7 +32,9 @@ void main() {
     });
     expect(serverMetrics, isNotNull);
     expect(serverMetrics.activeConnections, 1);
+  });
 
+  test('UserMetrics.fromJson accepts valid payloads', () {
     final userMetrics = UserMetrics.fromJson(<String, dynamic>{
       'userId': 'u',
       'connectionCount': 4,

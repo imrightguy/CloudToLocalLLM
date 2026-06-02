@@ -11,7 +11,7 @@ const logFileName = process.env.CLIENT_LOG_FILE || 'client-web.log';
 let logFilePath = path.join(logDir, logFileName);
 
 const logEntrySchema = z.object({
-  timestamp: z.string().isoDateTime().optional(),
+  timestamp: z.string().datetime().optional(),
   level: z.string().optional(),
   message: z.any(),
   url: z.string().url().nullable().optional(),

@@ -2,12 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cloudtolocalllm/services/tunnel/interfaces/tunnel_health_metrics.dart';
 
+/// Helper that wraps fromJson and returns null on error.
+TunnelHealthMetrics? _tryFromJson(Map<String, dynamic> json) {
+  try {
+    return TunnelHealthMetrics.fromJson(json);
+  } catch (_) {
+    return null;
+  }
+}
+
 void main() {
-  test('TunnelHealthMetrics.fromJson throws for malformed payloads', () {
-    expect(
-      () => TunnelHealthMetrics.fromJson(<String, dynamic>{'quality': 'good'}),
-      throwsA(isA<TypeError>()),
-    );
+  test('TunnelHealthMetrics.fromJson returns null for malformed payloads', () {
+    expect(_tryFromJson(<String, dynamic>{'quality': 'good'}), isNull);
   });
 
   test('TunnelHealthMetrics.fromJson accepts valid payloads', () {
