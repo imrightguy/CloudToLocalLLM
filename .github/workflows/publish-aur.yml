@@ -1,0 +1,74 @@
+name: "📦 Publish AUR Package"
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 10.1.200). Leave empty for latest release."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download AppImage from release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Linux-x86_64.AppImage"
+          curl -fsSL -o CloudToLocalLLM-x86_64.AppImage "$URL" || \
+            curl -fsSL -o CloudToLocalLLM-x86_64.AppImage "${URL%.AppImage}.AppImage" || \
+            { echo "Failed to download AppImage"; exit 1; }
+          echo "SHA256=$(sha256sum CloudToLocalLLM-x86_64.AppImage | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Generate PKGBUILD and .SRCINFO
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA256="${{ steps.version.outputs.SHA256 }}"
+          AUR_VERSION_OVERRIDE="$VERSION" AUR_APPIMAGE_SHA256="$SHA256" bash ./scripts/packaging/update_aur_pkgbuild.sh
+
+      - name: Setup SSH key for AUR
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur_key
+          chmod 600 ~/.ssh/aur_key
+          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+          echo "Host aur.archlinux.org" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/aur_key" >> ~/.ssh/config
+          echo "  User aur" >> ~/.ssh/config
+
+      - name: Push to AUR
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Clone the AUR package repo
+          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git aur-pkg
+          # Copy generated files
+          cp dist/aur/PKGBUILD dist/aur/.SRCINFO aur-pkg/
+          # Commit and push
+          cd aur-pkg
+          git config user.name "CloudToLocalLLM CI"
+          git config user.email "ci@cloudtolocalllm.online"
+          git add PKGBUILD .SRCINFO
+          if git diff --cached --quiet; then
+            echo "No changes to AUR package — skipping push"
+            exit 0
+          fi
+          git commit -m "Update to v${VERSION}"
+          git push origin master
