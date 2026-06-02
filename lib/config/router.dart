@@ -248,6 +248,10 @@ class AppRouter {
           initialLocation += '?${currentUri.query}';
         }
       }
+    } else {
+      // On desktop, always start at /setup so the wizard renders immediately
+      // (no async flash of "No Agent Connected" before the redirect fires).
+      initialLocation = '/setup';
     }
     debugPrint('[Router] Initial location: $initialLocation');
 
