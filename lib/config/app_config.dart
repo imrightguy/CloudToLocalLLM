@@ -48,9 +48,9 @@ class AppConfig {
   static const Duration apiTimeout = Duration(seconds: 30);
   // Tunnel Configuration (SSH over WebSocket)
   static const String tunnelSshUrl =
-      'wss://api.cloudtolocalllm.online:8080/ssh';
+      'wss://api.cloudtolocalllm.online/ssh';
   static const String tunnelSshUrlDev =
-      'wss://api.cloudtolocalllm.online:8080/ssh';
+      'wss://api.cloudtolocalllm.online/ssh';
   // UI Configuration
   static const double maxContentWidth = 1200.0;
   static const double mobileBreakpoint = 768.0;
