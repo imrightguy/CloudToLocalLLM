@@ -149,7 +149,7 @@ void main() async {
       title: 'CloudToLocalLLM — Streamer Co-Pilot',
       center: true,
     ),
-    (_) async {},
+    () async {},
   );
 
   runApp(
