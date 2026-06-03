@@ -42,7 +42,7 @@ class AppConfig {
       false; // Set to true only for testing new setup flow
   // Gateway Connection Options
   static const bool skipDeviceIdentity =
-      true; // Use token-only auth, skip device pairing
+      false; // Use paired-device auth, reject token-only
   // API Configuration
   static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';
   static const Duration apiTimeout = Duration(seconds: 30);
