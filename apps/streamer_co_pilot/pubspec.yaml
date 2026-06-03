@@ -1,5 +1,5 @@
-name: twitch_co_pilot
-description: "A new Flutter project."
+name: streamer_co_pilot
+description: "CloudToLocalLLM - Streamer Co-Pilot desktop app"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -35,7 +35,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   http: ^1.6.0
-  web_socket_channel: ^3.0.3
   provider: ^6.1.5+1
   window_manager: ^0.5.1
 

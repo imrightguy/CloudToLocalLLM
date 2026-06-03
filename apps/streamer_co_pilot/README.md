@@ -1,4 +1,4 @@
-# twitch_co_pilot
+# streamer_co_pilot
 
 A new Flutter project.
 

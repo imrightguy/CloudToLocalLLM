@@ -7,7 +7,7 @@ import 'package:window_manager/window_manager.dart';
 
 // ── Provider ───────────────────────────────────────────────────────────
 
-class TwitchBotProvider extends ChangeNotifier {
+class StreamerBotProvider extends ChangeNotifier {
   // Config
   String _botUrl = 'http://localhost:8510';
   String get botUrl => _botUrl;
@@ -154,7 +154,7 @@ void main() async {
     const WindowOptions(
       size: Size(1000, 700),
       minimumSize: Size(600, 400),
-      title: 'CloudToLocalLLM — Twitch Co-Pilot',
+      title: 'CloudToLocalLLM — Streamer Co-Pilot',
       center: true,
     ),
     () async {},
@@ -162,19 +162,19 @@ void main() async {
 
   runApp(
     ChangeNotifierProvider(
-      create: (_) => TwitchBotProvider(),
-      child: const TwitchCoPilotApp(),
+      create: (_) => StreamerBotProvider(),
+      child: const StreamerCoPilotApp(),
     ),
   );
 }
 
-class TwitchCoPilotApp extends StatelessWidget {
-  const TwitchCoPilotApp({super.key});
+class StreamerCoPilotApp extends StatelessWidget {
+  const StreamerCoPilotApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Twitch Co-Pilot',
+      title: 'Streamer Co-Pilot',
       theme: botTheme,
       home: const MainScreen(),
       debugShowCheckedModeBanner: false,
@@ -214,7 +214,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           children: [
             Text('🎮', style: TextStyle(fontSize: 24)),
             SizedBox(width: 8),
-            Text('Twitch Co-Pilot'),
+            Text('Streamer Co-Pilot'),
             SizedBox(width: 12),
             _ConnectionIndicator(),
           ],
@@ -247,7 +247,7 @@ class _ConnectionIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TwitchBotProvider>(
+    return Consumer<StreamerBotProvider>(
       builder: (_, provider, __) {
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -289,7 +289,7 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TwitchBotProvider>(
+    return Consumer<StreamerBotProvider>(
       builder: (_, provider, __) {
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -546,7 +546,7 @@ class _ChatTabState extends State<ChatTab> {
     final text = _controller.text.trim();
     if (text.isEmpty || _sending) return;
     setState(() => _sending = true);
-    final ok = await context.read<TwitchBotProvider>().sendMessage(text);
+    final ok = await context.read<StreamerBotProvider>().sendMessage(text);
     if (ok) {
       _controller.clear();
       // Scroll to bottom to see the response
@@ -570,7 +570,7 @@ class _ChatTabState extends State<ChatTab> {
       child: Column(
         children: [
           Expanded(
-            child: Consumer<TwitchBotProvider>(
+            child: Consumer<StreamerBotProvider>(
               builder: (_, provider, __) {
                 final chat = provider.chat;
                 if (chat.isEmpty) {
@@ -684,7 +684,7 @@ class _SettingsTabState extends State<SettingsTab> {
   @override
   void initState() {
     super.initState();
-    final provider = context.read<TwitchBotProvider>();
+    final provider = context.read<StreamerBotProvider>();
     _urlController.text = provider.botUrl;
   }
 
@@ -707,7 +707,7 @@ class _SettingsTabState extends State<SettingsTab> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Connect to your Twitch bot service. Run the bot first, then point this app to it.',
+            'Connect to your Streamer bot service. Run the bot first, then point this app to it.',
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
@@ -721,7 +721,7 @@ class _SettingsTabState extends State<SettingsTab> {
               prefixIcon: Icon(Icons.link),
             ),
             onChanged: (val) {
-              context.read<TwitchBotProvider>().setBotUrl(val);
+              context.read<StreamerBotProvider>().setBotUrl(val);
             },
           ),
           const SizedBox(height: 16),
@@ -730,7 +730,7 @@ class _SettingsTabState extends State<SettingsTab> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () async {
-                final provider = context.read<TwitchBotProvider>();
+                final provider = context.read<StreamerBotProvider>();
                 final ok = await provider.checkHealth();
                 if (ok) {
                   provider.startPolling();
@@ -776,7 +776,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '1. Get your credentials from dev.twitch.tv',
+                    '1. Get your credentials from dev.streamer.tv',
                     style: TextStyle(fontSize: 13),
                   ),
                   const SizedBox(height: 4),
@@ -793,7 +793,7 @@ class _SettingsTabState extends State<SettingsTab> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
-                      'cd services/twitch-bot\n'
+                      'cd services/streamer-bot\n'
                       'TWITCH_CLIENT_ID=xxx \\\n'
                       'TWITCH_CLIENT_SECRET=*** \\\n'
                       'BOT_ID=123456 \\\n'

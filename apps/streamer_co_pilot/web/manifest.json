@@ -1,6 +1,6 @@
 {
-    "name": "twitch_co_pilot",
-    "short_name": "twitch_co_pilot",
+    "name": "streamer_co_pilot",
+    "short_name": "streamer_co_pilot",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
