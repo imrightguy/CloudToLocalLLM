@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -11,10 +10,7 @@ class LocalTtsService {
   final http.Client _client = http.Client();
 
   bool _available = false;
-  bool get isAvailable {
-    debugPrint('[LocalTTS] isAvailable=$_available');
-    return _available;
-  }
+  bool get isAvailable => _available;
 
   /// Check if local TTS server is reachable.
   Future<bool> checkAvailability() async {
@@ -33,7 +29,8 @@ class LocalTtsService {
 
   /// Synthesize text to a WAV file.
   Future<String?> synthesize(String text, {String? outputPath}) async {
-    if (!await isAvailable) return null;
+    await checkAvailability();
+    if (!_available) return null;
 
     outputPath ??= '${Directory.systemTemp.path}/tts_${DateTime.now().millisecondsSinceEpoch}.wav';
 
@@ -52,7 +49,6 @@ class LocalTtsService {
       final file = File(outputPath);
       await file.writeAsBytes(response.bodyBytes);
 
-      // Clean up old temp files
       _cleanupOldFiles();
 
       final size = await file.length();
@@ -72,7 +68,8 @@ class LocalTtsService {
 
   /// Synthesize to WAV bytes in memory (for streaming).
   Future<Uint8List?> synthesizeRaw(String text) async {
-    if (!await isAvailable) return null;
+    await checkAvailability();
+    if (!_available) return null;
 
     try {
       final uri = Uri.parse(
@@ -95,7 +92,6 @@ class LocalTtsService {
   }
 
   void _cleanupOldFiles() {
-    // Keep only last 50 temp files
     final dir = Directory.systemTemp;
     try {
       final files = dir
