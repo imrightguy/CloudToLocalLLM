@@ -33,7 +33,7 @@ Widget buildWidget() {
             ChangeNotifierProvider<VoiceConversationService>.value(
               value: voiceService,
             ),
-            Provider<LocalVoiceInputService>.value(
+            ChangeNotifierProvider<LocalVoiceInputService>.value(
               value: localVoice,
             ),
           ],

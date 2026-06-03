@@ -1,4 +1,9 @@
 #!/bin/bash
+# DEPRECATED — moved to archive 2026-06-03
+# This script had hardcoded /mnt/data/... paths from a previous dev environment.
+# Superseded by scripts/tests/test_run_virtual_*.sh for testing and
+# the build-desktop.yml workflow for production runs.
+# Do not use — keep for reference only.
 
 # Configuration
 DISPLAY_NUM=99
