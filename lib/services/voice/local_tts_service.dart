@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -66,7 +65,6 @@ class LocalTtsService {
     }
   }
 
-  /// Synthesize to WAV bytes in memory (for streaming).
   Future<Uint8List?> synthesizeRaw(String text) async {
     await checkAvailability();
     if (!_available) return null;
