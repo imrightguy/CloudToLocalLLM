@@ -139,7 +139,7 @@ build_flutter_linux() {
         log_success "Flutter Linux build completed"
 
         # Verify build artifacts
-        if [[ -f "$PROJECT_ROOT/build/linux/x64/release/bundle/CloudToLocalLLM" ]]; then
+        if [[ -f "$PROJECT_ROOT/build/linux/x64/release/bundle/cloudtolocalllm" ]]; then
             log_success "Flutter Linux build artifacts verified"
         else
             log_error "Flutter Linux build artifacts not found"

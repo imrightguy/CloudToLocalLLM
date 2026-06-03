@@ -19,7 +19,6 @@ on:
       - "config/swarm/**"
       - "k8s/**"
       - "infra/**"
-      - "docker-stack.yml"
       - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
     inputs:

@@ -96,7 +96,7 @@ jobs:
 
           sleep 5
           for i in {1..20}; do
-            if curl -sf "http://${SIMON_HOST}:3100/healthz" > /dev/null 2>&1 || curl -sf "https://app.cloudtolocalllm.online/healthz" > /dev/null 2>&1; then
+            if curl -sf "http://${SIMON_HOST}:3100/health" > /dev/null 2>&1 || curl -sf "https://app.cloudtolocalllm.online/health" > /dev/null 2>&1; then
               echo "✅ VPS web service healthy"
               exit 0
             fi

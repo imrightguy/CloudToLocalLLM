@@ -154,7 +154,7 @@ jobs:
         with:
           name: windows-bundles
           path: |
-            build/windows/x64/runner/Release/*.zip
+            build/windows/x64/runner/Release/*.msix
             dist/windows/*.exe
           retention-days: 7
 
