@@ -363,7 +363,6 @@ Future<void> setupCoreServices() async {
     // App initialization service - manages initialization order
     final appInitializationService = AppInitializationService(
       authService: authService,
-      connectionManager: () => serviceLocator.get<ConnectionManagerService>(),
     );
     serviceLocator.registerSingleton<AppInitializationService>(
       appInitializationService,
@@ -575,7 +574,6 @@ Future<void> _registerWebFallbackCoreServices() async {
     serviceLocator.registerSingleton<AppInitializationService>(
       AppInitializationService(
         authService: serviceLocator.get<AuthService>(),
-        connectionManager: () => serviceLocator.get<ConnectionManagerService>(),
       ),
     );
   }
