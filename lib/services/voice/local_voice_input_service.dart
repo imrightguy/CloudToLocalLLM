@@ -31,7 +31,7 @@ class LocalVoiceInputSnapshot {
 class LocalVoiceInputService {
   LocalVoiceInputService({
     required VoiceConversationService voiceConversationService,
-    this.sttUrl = 'http://127.0.0.1:8643/v1/audio/transcriptions',
+    this.sttUrl = 'http://127.0.0.1:8646/v1/audio/transcriptions',
     this.captureCommand = 'parec',
     this.sampleRate = 16000,
     this.flushInterval = const Duration(seconds: 3),
