@@ -656,7 +656,7 @@ class _SettingsTabState extends State<SettingsTab> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Connect to your twitch-co-pilot bot service. Run the bot first, then point this app to it.',
+            'Connect to the streamer-co-pilot-service. Run the service first, then point this app to it.',
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
@@ -721,7 +721,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '1. Get credentials from dev.twitch.tv',
+                    '1. Get credentials from your streaming platform (dev.twitch.tv)',
                     style: TextStyle(fontSize: 13),
                   ),
                   const SizedBox(height: 4),
