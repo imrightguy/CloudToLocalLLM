@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 
 import 'package:cloudtolocalllm/bootstrap/bootstrapper.dart';
