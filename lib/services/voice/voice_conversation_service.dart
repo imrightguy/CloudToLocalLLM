@@ -31,6 +31,7 @@ class VoiceConversationSnapshot {
     required this.lastAssistantReply,
     required this.liveBridgeConnected,
     required this.liveBridgeStatus,
+    required this.transcriptInProgress,
   });
 
   final VoiceConversationMode mode;
@@ -40,6 +41,7 @@ class VoiceConversationSnapshot {
   final String lastAssistantReply;
   final bool liveBridgeConnected;
   final String liveBridgeStatus;
+  final String transcriptInProgress;
 }
 
 class VoiceConversationService extends ChangeNotifier {
@@ -53,6 +55,7 @@ class VoiceConversationService extends ChangeNotifier {
   DateTime? _engagedUntil;
   String _lastUserTranscript = '';
   String _lastAssistantReply = '';
+  String _transcriptInProgress = '';
   bool _liveBridgeConnected = false;
   String _liveBridgeStatus = 'local demo only';
   Timer? _engagementTimer;
@@ -63,6 +66,7 @@ class VoiceConversationService extends ChangeNotifier {
   String get lastAssistantReply => _lastAssistantReply;
   bool get liveBridgeConnected => _liveBridgeConnected;
   String get liveBridgeStatus => _liveBridgeStatus;
+  String get transcriptInProgress => _transcriptInProgress;
   bool get isEngaged =>
       _engagedUntil != null && DateTime.now().isBefore(_engagedUntil!);
 
@@ -74,6 +78,7 @@ class VoiceConversationService extends ChangeNotifier {
         lastAssistantReply: _lastAssistantReply,
         liveBridgeConnected: _liveBridgeConnected,
         liveBridgeStatus: _liveBridgeStatus,
+        transcriptInProgress: _transcriptInProgress,
       );
 
   void setListening() {
@@ -157,6 +162,13 @@ class VoiceConversationService extends ChangeNotifier {
     _setMode(VoiceConversationMode.engaged);
   }
 
+  /// Push an intermediate transcript (e.g. "Processing...") during an
+  /// STT round-trip.  Does NOT change mode or extend the engagement hold.
+  void noteTranscriptInProgress(String value) {
+    _transcriptInProgress = value;
+    notifyListeners();
+  }
+
   void coolDown() {
     _setMode(VoiceConversationMode.coolingDown);
   }
@@ -181,6 +193,7 @@ class VoiceConversationService extends ChangeNotifier {
     }
     _liveBridgeConnected = liveBridgeConnected;
     _liveBridgeStatus = liveBridgeStatus;
+    _transcriptInProgress = '';
     notifyListeners();
   }
 
@@ -190,6 +203,7 @@ class VoiceConversationService extends ChangeNotifier {
     _engagedUntil = null;
     _lastUserTranscript = '';
     _lastAssistantReply = '';
+    _transcriptInProgress = '';
     _liveBridgeConnected = false;
     _liveBridgeStatus = 'local demo only';
     _setMode(VoiceConversationMode.idle);
