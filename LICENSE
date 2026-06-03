@@ -1,21 +1,67 @@
-MIT License
+Business Source License 1.1
 
-Copyright (c) 2025 Christopher Maltais
+Licensor:             Christopher Maltais
+Licensed Work:        CloudToLocalLLM
+Additional Use Grant: You may make use of the Licensed Work for your
+                      own internal business purposes, including hosting
+                      the software for your own use, provided that you
+                      do not sell, license, or otherwise commercially
+                      offer access to the Licensed Work as a hosted
+                      or managed service to third parties.
+Change Date:          2030-06-03
+Change License:       Apache License, Version 2.0
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+--- Business Source License 1.1 ---
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Terms
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work. The
+Licensor may make additional usage grants as set forth in the Additional
+Use Grant section above.
+
+The Licensor hereby grants you the right to use the Licensed Work in
+production solely as permitted by the Additional Use Grant set forth above.
+The Additional Use Grant may be changed by the Licensor at any time, but
+such changes will not affect copies of the Licensed Work already in use.
+
+You may make use of the Licensed Work for the purposes set forth in the
+Additional Use Grant. If you exercise a right granted under this license
+for the Licensed Work in a way that exceeds the Additional Use Grant, this
+license terminates automatically.
+
+You may make copies of the Licensed Work for yourself and others, subject
+to the terms of this license. If you distribute copies of the Licensed
+Work to others, you must include a copy of this license with each copy
+you distribute.
+
+You may modify the Licensed Work and create derivative works based upon
+the Licensed Work, and distribute those modifications and derivative works,
+subject to the terms of this license. Modified or derivative works must
+include a prominent notice stating that the work has been modified and the
+date of the modification.
+
+The Licensor may publish revised and/or new versions of this license from
+time to time. Each version will be given a distinguishing version number.
+Once published, you must comply with the terms of the version of this
+license under which you received the Licensed Work, and you may not
+later use a different version.
+
+If you institute patent litigation against any entity (including a
+cross-claim or counterclaim in a lawsuit) alleging that the Licensed Work
+or a contribution incorporated within the Licensed Work constitutes direct
+or contributory patent infringement, then any patent rights granted to you
+under this license for the Licensed Work shall terminate as of the date
+such litigation is filed.
+
+THIS LICENSED WORK IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
+NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+

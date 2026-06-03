@@ -242,7 +242,23 @@ In addition to MCP servers, I will leverage powerful command-line interface (CLI
   * Use compression middleware (e.g., `compression` package).
   * Cache static assets when appropriate.
 
-### G. User Preferences & Communication Style
+### G. Paperclip Execution Lane Closure Discipline (#322 Fix)
+
+* **Reference**: GitHub issue #322 — "Stop Paperclip execution lanes from self-closing as done"
+* **Problem**: Paperclip executor agents were self-closing execution lanes to `done` prematurely, bypassing the review gate.
+* **Root cause**: No repo-local guard prevented executors from writing a terminal `done` status to their own lanes when a canonical GitHub issue still required review or the lane only seeded child work.
+* **Fix**: The following rules are now enforced repo-local:
+
+1. **GitHub is the source of truth.** Executor-created Paperclip issues must not be self-closed to `done` unless the lane is explicitly designed for self-closure.
+2. **Review-bound lanes stay non-terminal.** If a Paperclip execution lane is backed by a canonical GitHub issue, the executor-side issue must stay in an evidence-ready review state (`in_review`, `blocked`, or `cancelled`) until the review-authorized lane closes the canonical issue.
+3. **Executor-created follow-on issues must remain non-terminal.** For GitHub issue #322, executor-created follow-on issues must remain non-terminal. Executors must not self-close such lanes as `done`.
+4. **The live executor write path is the Paperclip issue-status update call.** It must not emit `done` on any lane without explicit review-authorization confirmation.
+5. **Seeding-only lanes exit as `cancelled`, not `done`.** If a lane only seeds child work or emits handoff evidence but has no work of its own to complete, it must retire as `cancelled` or `blocked` rather than `done`.
+6. **while GitHub issue #322 remains open, that write path must reject any attempt to set a follow-on lane to `done`.**
+7. **Every new execution lane must link to its canonical GitHub issue** before any status change can be recorded as terminal.
+8. **Verification before closure:** Operator-ready verification evidence must include: canonical GitHub issue link, current GitHub issue state, current Paperclip issue state, and the explicit review lane authorized to close the work.
+
+### H. User Preferences & Communication Style
 
 * **Terminal Output Formatting**:
   * Do NOT add decorative formatting to terminal commands (no colored text, emojis, or special formatting)
