@@ -45,7 +45,7 @@ check_command() {
     fi
 }
 
-REPO_ROOT="/mnt/data/projects/CloudToLocalLLM"
+REPO_ROOT="/home/rightguy/CloudToLocalLLM"
 log_info "Starting CloudToLocalLLM development environment setup..."
 log_info "Target directory: $REPO_ROOT"
 

@@ -188,9 +188,9 @@ validate_packages() {
     local validation_errors=0
 
     # Check Debian package
-    if [[ -f "$dist_dir/cloudtolocalllm-${version}-amd64.deb" ]]; then
-        log_success "Debian package found: CloudToLocalLLM-${version}-amd64.deb"
-        if [[ -f "$dist_dir/cloudtolocalllm-${version}-amd64.deb.sha256" ]]; then
+    if [[ -f "$dist_dir/CloudToLocalLLM_${version}_amd64.deb" ]]; then
+        log_success "Debian package found: CloudToLocalLLM_${version}_amd64.deb"
+        if [[ -f "$dist_dir/CloudToLocalLLM_${version}_amd64.deb.sha256" ]]; then
             log_success "Debian package checksum found"
         else
             log_error "Debian package checksum missing"
@@ -241,9 +241,9 @@ generate_summary() {
     echo "Generated Packages:"
 
     # List all generated packages with sizes
-    if [[ -f "$dist_dir/cloudtolocalllm-${version}-amd64.deb" ]]; then
-        local size=$(du -h "$dist_dir/cloudtolocalllm-${version}-amd64.deb" | cut -f1)
-        echo "  Debian: CloudToLocalLLM-${version}-amd64.deb ($size)"
+    if [[ -f "$dist_dir/CloudToLocalLLM_${version}_amd64.deb" ]]; then
+        local size=$(du -h "$dist_dir/CloudToLocalLLM_${version}_amd64.deb" | cut -f1)
+        echo "  Debian: CloudToLocalLLM_${version}_amd64.deb ($size)"
     fi
 
     if [[ -f "$dist_dir/cloudtolocalllm-${version}-x86_64.AppImage" ]]; then
