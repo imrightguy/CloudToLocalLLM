@@ -24,7 +24,7 @@ dependencies:
   # Authentication
   provider: ^6.1.2
   jwt_decoder: ^2.0.1
-  auth0_flutter: ^2.0.0
+  auth0_flutter: ^2.0.1
   shared_preferences: ^2.5.4
 
   # Database - Local Brain
