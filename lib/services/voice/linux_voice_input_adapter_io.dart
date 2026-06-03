@@ -381,18 +381,18 @@ class LinuxVoiceInputAdapter implements VoiceInputAdapter {
   }
 
   Future<void> _runCommandCaptureLoop() async {
-    try {
-      while (_isRunning && !_disposed) {
+    while (_isRunning && !_disposed) {
+      try {
         await _captureAndTranscribeOnce();
-        if (!_isRunning || _disposed) {
-          break;
+      } catch (error, stackTrace) {
+        if (!_disposed) {
+          _transcriptsController.addError(error, stackTrace);
         }
-        await Future<void>.delayed(_captureWindow);
       }
-    } catch (error, stackTrace) {
-      if (!_disposed) {
-        _transcriptsController.addError(error, stackTrace);
+      if (!_isRunning || _disposed) {
+        break;
       }
+      await Future<void>.delayed(_captureWindow);
     }
   }
 

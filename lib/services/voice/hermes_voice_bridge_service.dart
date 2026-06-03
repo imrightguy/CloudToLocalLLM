@@ -142,6 +142,7 @@ class HermesVoiceBridgeService {
       final decoded = jsonDecode(body);
       return decoded is Map && decoded['status'] == 'ok';
     } catch (_) {
+      client.close(force: true);
       return false;
     }
   }
