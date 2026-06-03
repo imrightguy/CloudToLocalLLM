@@ -282,6 +282,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
           providersList, 'ConnectionManagerService');
       _addProviderIfAvailable<VoiceConversationService>(
           providersList, 'VoiceConversationService');
+      _addProviderIfAvailable<LocalVoiceInputService>(
+          providersList, 'LocalVoiceInputService');
       _addValueProviderIfAvailable<LangChainPromptService>(
           providersList, 'LangChainPromptService');
       _addProviderIfAvailable<PlatformDetectionService>(

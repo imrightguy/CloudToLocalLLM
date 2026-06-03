@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
 import 'package:cloudtolocalllm/widgets/voice/voice_conversation_status_card.dart';
 
-Widget buildWidget(VoiceConversationService service, {bool showDemoControls = true}) {
+Widget buildWidget(VoiceConversationService service, {bool showDemoControls = false}) {
   return MaterialApp(
     home: Scaffold(
-      body: ChangeNotifierProvider<VoiceConversationService>.value(
-        value: service,
+      body: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<VoiceConversationService>.value(
+            value: service,
+          ),
+          ChangeNotifierProvider<LocalVoiceInputService>.value(
+            value: LocalVoiceInputService(
+              voiceConversationService: service,
+            ),
+          ),
+        ],
         child: VoiceConversationStatusCard(
           showDemoControls: showDemoControls,
         ),
@@ -32,22 +42,7 @@ void main() {
     expect(find.text('no'), findsOneWidget);
   });
 
-  testWidgets('shows demo controls by default', (tester) async {
-    final service = VoiceConversationService();
-    addTearDown(service.dispose);
-
-    await tester.pumpWidget(buildWidget(service));
-
-    expect(find.text('Demo controls'), findsOneWidget);
-    expect(find.text('Listening'), findsWidgets);
-    expect(find.text('Wake'), findsOneWidget);
-    expect(find.text('User line'), findsOneWidget);
-    expect(find.text('Assistant reply'), findsOneWidget);
-    expect(find.text('Done speaking'), findsOneWidget);
-    expect(find.text('Reset'), findsOneWidget);
-  });
-
-  testWidgets('hides demo controls when showDemoControls is false', (tester) async {
+  testWidgets('shows demo controls only when showDemoControls is true', (tester) async {
     final service = VoiceConversationService();
     addTearDown(service.dispose);
 
@@ -56,6 +51,18 @@ void main() {
     expect(find.text('Demo controls'), findsNothing);
     expect(find.text('Wake'), findsNothing);
     await tester.pump();
+  });
+
+  testWidgets('shows demo controls when enabled', (tester) async {
+    final service = VoiceConversationService();
+    addTearDown(service.dispose);
+
+    await tester.pumpWidget(buildWidget(service, showDemoControls: true));
+
+    expect(find.text('Demo controls'), findsOneWidget);
+    expect(find.text('Wake'), findsOneWidget);
+    expect(find.text('User line'), findsOneWidget);
+    expect(find.text('Reset'), findsOneWidget);
   });
 
   testWidgets('still shows voice state without demo controls', (tester) async {
@@ -91,7 +98,7 @@ void main() {
     await tester.pumpWidget(buildWidget(service));
 
     service.noteWakePhrase('Hello');
-    service.noteAssistantReply('Yeah, I\'m here.');
+    service.noteAssistantReply("Yeah, I'm here.");
     await tester.pump();
 
     expect(find.text('speaking'), findsOneWidget);
@@ -119,5 +126,16 @@ void main() {
     expect(find.text('listening'), findsOneWidget);
     expect(find.text('Can you hear me?'), findsOneWidget);
     expect(find.text('Loud and clear.'), findsOneWidget);
+  });
+
+  testWidgets('shows mic status chip', (tester) async {
+    final service = VoiceConversationService();
+    addTearDown(service.dispose);
+
+    await tester.pumpWidget(buildWidget(service));
+    await tester.pump();
+
+    expect(find.text('Mic'), findsOneWidget);
+    expect(find.text('OFF'), findsOneWidget);
   });
 }

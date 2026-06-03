@@ -11,14 +11,12 @@ import 'voice_conversation_service.dart';
 class LocalVoiceInputSnapshot {
   const LocalVoiceInputSnapshot({
     required this.isCapturing,
-    required this.transcriptInProgress,
     required this.lastFullTranscript,
     required this.lastError,
     required this.sttStatus,
   });
 
   final bool isCapturing;
-  final String transcriptInProgress;
   final String lastFullTranscript;
   final String? lastError;
   final String sttStatus;
@@ -28,7 +26,7 @@ class LocalVoiceInputSnapshot {
 ///
 /// Captures PCM from `parec`, wraps chunks as WAV, POSTs to STT server,
 /// and feeds transcripts into [VoiceConversationService].
-class LocalVoiceInputService {
+class LocalVoiceInputService extends ChangeNotifier {
   LocalVoiceInputService({
     required VoiceConversationService voiceConversationService,
     this.sttUrl = 'http://127.0.0.1:8646/v1/audio/transcriptions',
@@ -59,7 +57,6 @@ class LocalVoiceInputService {
 
   LocalVoiceInputSnapshot get snapshot => LocalVoiceInputSnapshot(
         isCapturing: _isCapturing,
-        transcriptInProgress: '',
         lastFullTranscript: _lastFullTranscript,
         lastError: _lastError,
         sttStatus: _sttStatus,
@@ -128,9 +125,11 @@ class LocalVoiceInputService {
     _sttStatus = 'stopped';
   }
 
-  Future<void> dispose() async {
+  @override
+  void dispose() {
     _disposed = true;
-    await stopCapture();
+    stopCapture();
+    super.dispose();
   }
 
   /// PCM data arrives from parec as raw s16le bytes.
@@ -147,6 +146,13 @@ class LocalVoiceInputService {
   void _onPcmError(Object e) {
     _lastError = 'Capture stream error: $e';
     _sttStatus = 'error';
+    // Pipeline died silently — clean up so the UI can retry
+    _isCapturing = false;
+    _flushTimer?.cancel();
+    _flushTimer = null;
+    _pcmBuffer.clear();
+    _captureProcess = null;
+    notifyListeners();
   }
 
   /// Take the accumulated PCM, wrap as WAV, POST to STT, feed transcript.
@@ -163,8 +169,11 @@ class LocalVoiceInputService {
 
   Future<void> _transcribePcm(List<int> pcmBytes) async {
     try {
+      _voiceConversationService.noteTranscriptInProgress('Processing...');
       final wavBytes = _buildWav(Uint8List.fromList(pcmBytes));
       final text = await _postStt(wavBytes);
+
+      _voiceConversationService.noteTranscriptInProgress('');
 
       if (text.isEmpty) return;
 
@@ -248,16 +257,16 @@ class LocalVoiceInputService {
   }
 
   Future<bool> _reachableStt() async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(seconds: 2);
     try {
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 2);
       final request = await client.getUrl(Uri.parse(sttUrl.replaceAll('/v1/audio/transcriptions', '/health')));
       final response = await request.close();
-      final ok = response.statusCode == 200;
-      client.close(force: true);
-      return ok;
+      return response.statusCode == 200;
     } catch (_) {
       return false;
+    } finally {
+      client.close(force: true);
     }
   }
 

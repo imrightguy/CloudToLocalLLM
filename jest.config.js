@@ -27,8 +27,6 @@ export default {
     "/\\.kilo/",
     // Auth backend tests require live Auth0 JWKS (mock can't replicate express-jwt's full error flow)
     "test/backend/auth\\.test\\.js$",
-    // Policy test references external Paperclip workflow doc no longer in this repo
-    "test/policy/.*\\.test\\.js$",
     "tunnel-lifecycle\\.test\\.js$",
     "tunnel-health-tracking\\.test\\.js$",
     "tunnel-properties\\.test\\.js$",

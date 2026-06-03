@@ -128,22 +128,21 @@ class HermesVoiceBridgeService {
 
   /// Check if the Hermes gateway health endpoint is alive.
   Future<bool> _checkHermesHealth() async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(seconds: 2);
     try {
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 2);
       final request = await client.getUrl(Uri.parse(_healthUrl));
       final response = await request.close();
       if (response.statusCode != 200) {
-        client.close(force: true);
         return false;
       }
       final body = await response.transform(utf8.decoder).join();
-      client.close(force: true);
       final decoded = jsonDecode(body);
       return decoded is Map && decoded['status'] == 'ok';
     } catch (_) {
-      client.close(force: true);
       return false;
+    } finally {
+      client.close(force: true);
     }
   }
 
