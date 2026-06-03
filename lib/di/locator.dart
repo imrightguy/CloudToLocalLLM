@@ -72,6 +72,7 @@ import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
 import 'package:cloudtolocalllm/services/voice/cloud_tts_service.dart';
 import 'package:cloudtolocalllm/services/voice/hermes_voice_bridge_service.dart';
 import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_tts_service.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 import 'package:cloudtolocalllm/services/desktop_control/window_manager_service.dart';
 import 'package:cloudtolocalllm/services/popout/popout_manager.dart';
@@ -264,10 +265,16 @@ Future<void> setupCoreServices() async {
       // Local microphone capture → STT → voice conversation service
       final localVoiceInputService = LocalVoiceInputService(
         voiceConversationService: voiceConversationService,
-        sttUrl: 'http://127.0.0.1:8643/v1/audio/transcriptions',
+        sttUrl: 'http://127.0.0.1:8646/v1/audio/transcriptions',
       );
       serviceLocator.registerSingleton<LocalVoiceInputService>(
         localVoiceInputService,
+      );
+
+      // Local Piper TTS service
+      final localTtsService = LocalTtsService();
+      serviceLocator.registerSingleton<LocalTtsService>(
+        localTtsService,
       );
 
       // Start the router server in the background.
@@ -356,6 +363,7 @@ Future<void> setupCoreServices() async {
     // App initialization service - manages initialization order
     final appInitializationService = AppInitializationService(
       authService: authService,
+      connectionManager: () => serviceLocator.get<ConnectionManagerService>(),
     );
     serviceLocator.registerSingleton<AppInitializationService>(
       appInitializationService,
@@ -565,7 +573,10 @@ Future<void> _registerWebFallbackCoreServices() async {
 
   if (!serviceLocator.isRegistered<AppInitializationService>()) {
     serviceLocator.registerSingleton<AppInitializationService>(
-      AppInitializationService(authService: serviceLocator.get<AuthService>()),
+      AppInitializationService(
+        authService: serviceLocator.get<AuthService>(),
+        connectionManager: () => serviceLocator.get<ConnectionManagerService>(),
+      ),
     );
   }
 
