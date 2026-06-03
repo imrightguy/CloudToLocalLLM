@@ -8,11 +8,9 @@ import 'package:window_manager/window_manager.dart';
 // ── Provider ───────────────────────────────────────────────────────────
 
 class StreamerBotProvider extends ChangeNotifier {
-  // Config
   String _botUrl = 'http://localhost:8510';
   String get botUrl => _botUrl;
 
-  // Status
   String _streamStatus = 'unknown';
   String get streamStatus => _streamStatus;
   int _viewers = 0;
@@ -22,14 +20,10 @@ class StreamerBotProvider extends ChangeNotifier {
   String _title = '';
   String get title => _title;
 
-  // Chat
   List<Map<String, dynamic>> _chat = [];
   List<Map<String, dynamic>> get chat => _chat;
-
-  // Bot health
   bool _connected = false;
   bool get connected => _connected;
-
   Timer? _pollTimer;
 
   void setBotUrl(String url) {
@@ -84,11 +78,9 @@ class StreamerBotProvider extends ChangeNotifier {
   Future<bool> sendMessage(String text) async {
     try {
       final res = await http
-          .post(
-            Uri.parse('$_botUrl/chat/send'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'message': text}),
-          )
+          .post(Uri.parse('$_botUrl/chat/send'),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({'message': text}))
           .timeout(const Duration(seconds: 3));
       return res.statusCode == 200;
     } catch (_) {
@@ -157,7 +149,7 @@ void main() async {
       title: 'CloudToLocalLLM — Streamer Co-Pilot',
       center: true,
     ),
-    () async {},
+    (_) async {},
   );
 
   runApp(
@@ -191,7 +183,8 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -260,7 +253,9 @@ class _ConnectionIndicator extends StatelessWidget {
                 color: provider.connected ? Colors.green : Colors.red.shade400,
                 boxShadow: [
                   BoxShadow(
-                    color: (provider.connected ? Colors.green : Colors.red.shade400)
+                    color: (provider.connected
+                            ? Colors.green
+                            : Colors.red.shade400)
                         .withValues(alpha: 0.5),
                     blurRadius: 6,
                   ),
@@ -272,7 +267,9 @@ class _ConnectionIndicator extends StatelessWidget {
               provider.connected ? 'Connected' : 'Disconnected',
               style: TextStyle(
                 fontSize: 12,
-                color: provider.connected ? Colors.green : Colors.red.shade300,
+                color: provider.connected
+                    ? Colors.green
+                    : Colors.red.shade300,
               ),
             ),
           ],
@@ -296,7 +293,6 @@ class DashboardTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Stream status card ──
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -353,24 +349,11 @@ class DashboardTab extends StatelessWidget {
                           Text('${provider.viewers} viewers'),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _StatBox(
-                            icon: Icons.chat,
-                            label: 'Chat messages',
-                            value: '${provider.chat.length}',
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // ── Quick actions ──
               Row(
                 children: [
                   Expanded(
@@ -397,8 +380,6 @@ class DashboardTab extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // ── Chat preview ──
               Expanded(
                 child: Card(
                   child: Padding(
@@ -409,9 +390,7 @@ class DashboardTab extends StatelessWidget {
                         const Text(
                           'Recent Chat',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         const Divider(),
                         Expanded(
@@ -443,13 +422,12 @@ class DashboardTab extends StatelessWidget {
                                               style: const TextStyle(
                                                   color: Colors.grey),
                                             ),
-                                            WidgetSpan(
-                                              child: isMod
-                                                  ? const Text('🛡️ ',
-                                                      style: TextStyle(
-                                                          fontSize: 12))
-                                                  : const SizedBox.shrink(),
-                                            ),
+                                            if (isMod)
+                                              const WidgetSpan(
+                                                child: Text('🛡️ ',
+                                                    style: TextStyle(
+                                                        fontSize: 12)),
+                                              ),
                                             TextSpan(
                                               text: '$user: ',
                                               style: TextStyle(
@@ -482,45 +460,6 @@ class DashboardTab extends StatelessWidget {
   }
 }
 
-class _StatBox extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _StatBox({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.purple.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18, color: Colors.purple.shade300),
-          const SizedBox(width: 8),
-          Column(
-            children: [
-              Text(value,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              Text(label,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── Chat Tab ───────────────────────────────────────────────────────────
 
 class ChatTab extends StatefulWidget {
@@ -549,7 +488,6 @@ class _ChatTabState extends State<ChatTab> {
     final ok = await context.read<StreamerBotProvider>().sendMessage(text);
     if (ok) {
       _controller.clear();
-      // Scroll to bottom to see the response
       Future.delayed(const Duration(milliseconds: 500), () {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
@@ -599,9 +537,9 @@ class _ChatTabState extends State<ChatTab> {
                           children: [
                             Row(
                               children: [
-                                if (isMod) ...[
-                                  const Text('🛡️ ', style: TextStyle(fontSize: 12)),
-                                ],
+                                if (isMod)
+                                  const Text('🛡️ ',
+                                      style: TextStyle(fontSize: 12)),
                                 Text(
                                   user,
                                   style: TextStyle(
@@ -684,8 +622,8 @@ class _SettingsTabState extends State<SettingsTab> {
   @override
   void initState() {
     super.initState();
-    final provider = context.read<StreamerBotProvider>();
-    _urlController.text = provider.botUrl;
+    _urlController.text =
+        context.read<StreamerBotProvider>().botUrl;
   }
 
   @override
@@ -707,12 +645,10 @@ class _SettingsTabState extends State<SettingsTab> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Connect to your Streamer bot service. Run the bot first, then point this app to it.',
+            'Connect to your twitch-co-pilot bot service. Run the bot first, then point this app to it.',
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
-
-          // ── Bot URL ──
           TextField(
             controller: _urlController,
             decoration: const InputDecoration(
@@ -725,7 +661,6 @@ class _SettingsTabState extends State<SettingsTab> {
             },
           ),
           const SizedBox(height: 16),
-
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -763,7 +698,6 @@ class _SettingsTabState extends State<SettingsTab> {
             ),
           ),
           const SizedBox(height: 32),
-
           const Text(
             'Running the Bot',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -776,14 +710,11 @@ class _SettingsTabState extends State<SettingsTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '1. Get your credentials from dev.streamer.tv',
+                    '1. Get credentials from dev.twitch.tv',
                     style: TextStyle(fontSize: 13),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    '2. Run the bot service:',
-                    style: TextStyle(fontSize: 13),
-                  ),
+                  const Text('2. Run the plugin:', style: TextStyle(fontSize: 13)),
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
@@ -793,7 +724,6 @@ class _SettingsTabState extends State<SettingsTab> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
-                      'cd services/streamer-bot\n'
                       'TWITCH_CLIENT_ID=xxx \\\n'
                       'TWITCH_CLIENT_SECRET=*** \\\n'
                       'BOT_ID=123456 \\\n'
