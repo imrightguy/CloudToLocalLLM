@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  auth0_flutter
   flutter_secure_storage_windows
   local_notifier
   record_windows
