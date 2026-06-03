@@ -207,15 +207,15 @@ jobs:
             ## Desktop Release v${{ env.VERSION }}
 
             ### Linux
-            - **AppImage**: CloudToLocalLLM-x86_64.AppImage
-            - **Debian/Ubuntu**: .deb package
-            - **Portable**: .tar.gz bundle
-            - **Arch Linux**: AUR package
+            - **AppImage**: `cloudtolocalllm-${{ env.VERSION }}-x86_64.AppImage`
+            - **Debian/Ubuntu**: `CloudToLocalLLM_${{ env.VERSION }}_amd64.deb`
+            - **Portable**: `CloudToLocalLLM-Linux-x64.tar.gz`
+            - **Arch Linux**: AUR package (`cloudtolocalllm`)
             - Install script: `curl -fsSL https://cloudtolocalllm.online/install.sh | bash`
 
             ### Windows
-            - **Installer**: CloudToLocalLLM-Windows-x64-Setup.exe
-            - **Portable ZIP**: CloudToLocalLLM-Windows-x64.zip
+            - **Installer**: `CloudToLocalLLM-Windows-x64-Setup.exe`
+            - **Portable ZIP**: `CloudToLocalLLM-Windows-x64.zip`
 
             ### macOS
             - **Coming soon**

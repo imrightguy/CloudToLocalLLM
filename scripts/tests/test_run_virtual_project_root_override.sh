@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-RUN_SCRIPT="$PROJECT_ROOT/scripts/run_virtual.sh"
+RUN_SCRIPT="$PROJECT_ROOT/scripts/archive/run_virtual.sh"
 WORK_DIR="$(mktemp -d)"
 FAKE_ROOT="$WORK_DIR/fake-root"
 FAKE_XVFB_DIR="$WORK_DIR/fakebin"
