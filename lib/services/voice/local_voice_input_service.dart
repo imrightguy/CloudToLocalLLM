@@ -146,6 +146,7 @@ class LocalVoiceInputService {
 
   void _onPcmError(Object e) {
     _lastError = 'Capture stream error: $e';
+    _sttStatus = 'error';
   }
 
   /// Take the accumulated PCM, wrap as WAV, POST to STT, feed transcript.
