@@ -201,7 +201,7 @@ jobs:
           name: "Release v${{ env.VERSION }}"
           artifactErrorsFailBuild: false
           allowUpdates: true
-          removeAritifacts: true
+          removeArtifacts: true
           makeLatest: true
           body: |
             ## Desktop Release v${{ env.VERSION }}
