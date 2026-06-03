@@ -8,6 +8,7 @@ import '../models/streaming_message.dart';
 
 import 'streaming_service.dart';
 import 'hermes/hermes_streaming_service.dart';
+import 'hermes/hermes_process_client.dart';
 
 import 'connection_manager_service.dart';
 import 'conversation_storage_service.dart';
@@ -476,8 +477,15 @@ class StreamingChatService extends ChangeNotifier {
     _agentEventSubscription?.cancel();
     _agentEventSubscription = null;
 
+    Stream<AgentEvent>? eventStream;
     if (streamingService is HermesStreamingService) {
-      _agentEventSubscription = streamingService.agentEventStream.listen(
+      eventStream = streamingService.agentEventStream;
+    } else if (streamingService is HermesProcessClient) {
+      eventStream = streamingService.agentEventStream;
+    }
+
+    if (eventStream != null) {
+      _agentEventSubscription = eventStream.listen(
         _handleAgentEvent,
         onError: (e) {
           appLogger.warning('[StreamingChat] Agent event stream error: $e');
