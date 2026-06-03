@@ -262,8 +262,8 @@ class LocalVoiceInputService {
 
   Future<bool> _hasCommand(String command) async {
     try {
-      final result = await Process.run('command', ['-v', command]);
-      return result.exitCode == 0;
+      final result = await Process.run('which', [command]);
+      return result.exitCode == 0 && result.stdout.toString().trim().isNotEmpty;
     } catch (_) {
       return false;
     }
