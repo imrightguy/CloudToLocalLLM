@@ -191,6 +191,17 @@ class _MainScreenState extends State<MainScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // Auto-connect on launch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<StreamerBotProvider>();
+      provider.checkHealth().then((ok) {
+        if (ok) {
+          provider.startPolling();
+          provider.fetchStatus();
+          provider.fetchChat();
+        }
+      });
+    });
   }
 
   @override
