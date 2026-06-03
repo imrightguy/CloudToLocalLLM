@@ -10,6 +10,7 @@ on:
     paths:
       - "services/api-backend/**"
       - "services/streaming-proxy/**"
+      - "services/twitch-bot/**"
       - "services/postgres/**"
       - "config/docker/Dockerfile.api-backend"
       - "config/docker/Dockerfile.streaming-proxy"
@@ -82,6 +83,11 @@ jobs:
           # Streaming proxy
           if echo "$DIFF_FILES" | grep -qE "services/streaming-proxy/|config/docker/Dockerfile.streaming-proxy" || [ "${{ inputs.force_build }}" == "true" ]; then
             build_and_push streaming-proxy config/docker/Dockerfile.streaming-proxy
+          fi
+
+          # Twitch bot
+          if echo "$DIFF_FILES" | grep -qE "services/twitch-bot/" || [ "${{ inputs.force_build }}" == "true" ]; then
+            build_and_push twitch-bot services/twitch-bot/Dockerfile
           fi
 
           # Postgres
