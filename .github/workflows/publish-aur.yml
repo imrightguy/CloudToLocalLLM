@@ -32,10 +32,10 @@ jobs:
       - name: Download AppImage from release
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Linux-x86_64.AppImage"
+          ASSET="cloudtolocalllm-${VERSION}-x86_64.AppImage"
+          URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${ASSET}"
           curl -fsSL -o CloudToLocalLLM-x86_64.AppImage "$URL" || \
-            curl -fsSL -o CloudToLocalLLM-x86_64.AppImage "${URL%.AppImage}.AppImage" || \
-            { echo "Failed to download AppImage"; exit 1; }
+            { echo "Failed to download AppImage from $URL"; exit 1; }
           echo "SHA256=$(sha256sum CloudToLocalLLM-x86_64.AppImage | awk '{print $1}')" >> $GITHUB_OUTPUT
 
       - name: Generate PKGBUILD and .SRCINFO
