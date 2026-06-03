@@ -40,7 +40,7 @@ XVFB_BIN=Xvfb \
 XVFB_READY_DELAY=0 \
 STARTUP_CHECK_DELAY=0 \
 PATH="$FAKE_TOOLS:/usr/bin:/bin" \
-"$PROJECT_ROOT/scripts/run_virtual.sh" >/tmp/test_run_virtual_tmpdir_spaces.log 2>&1
+"$PROJECT_ROOT/scripts/archive/run_virtual.sh" >/tmp/test_run_virtual_tmpdir_spaces.log 2>&1
 
 if [[ ! -f "$LOG_FILE" ]]; then
   echo "Expected log file at $LOG_FILE" >&2
