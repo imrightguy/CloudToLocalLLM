@@ -61,9 +61,6 @@ class _MockAuthService extends ChangeNotifier implements AuthService {
       true;
 
   @override
-  Future<void> loginMockDeveloper() async {}
-
-  @override
   void dispose() {
     isAuthenticated.dispose();
     isLoading.dispose();
