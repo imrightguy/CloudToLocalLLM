@@ -286,6 +286,21 @@ class ConnectionManagerService extends ChangeNotifier {
       await httpClient.establishConnection();
       if (httpClient.connection.isActive) {
         _log.info('Auto-detected Hermes HTTP gateway at :8642');
+
+        // Try to auto-detect the API key from Hermes .env file
+        final autoApiKey = _readHermesApiKey();
+        if (autoApiKey != null && autoApiKey.isNotEmpty) {
+          _configuredHermesApiKey = autoApiKey;
+          _log.info('Auto-read Hermes API key from ~/.hermes/.env');
+          // Persist so it survives app restart
+          final settings = _settingsPreferenceService;
+          if (settings != null) {
+            unawaited(settings.setHermesApiKey(autoApiKey));
+          }
+        } else {
+          _log.info('No Hermes API key found in ~/.hermes/.env — using saved key or none');
+        }
+
         _currentBackend = BackendType.hermes;
         _activeRuntimeClient = _createHermesRuntimeClient();
         notifyListeners();
@@ -572,6 +587,37 @@ class ConnectionManagerService extends ChangeNotifier {
     final client = _createHermesRuntimeClient();
     _activeRuntimeClient = client;
     return client;
+  }
+
+  /// Try to auto-read the Hermes API key from ~/.hermes/.env.
+  ///
+  /// Looks for `API_SERVER_KEY=...` in the Hermes environment file.
+  /// Returns null if the file doesn't exist or no key is found.
+  String? _readHermesApiKey() {
+    try {
+      final hermesEnv = File(
+        '${Platform.environment['HOME'] ?? '/home/rightguy'}/.hermes/.env',
+      );
+      if (!hermesEnv.existsSync()) {
+        _log.info('Hermes .env not found at ${hermesEnv.path}');
+        return null;
+      }
+
+      final lines = hermesEnv.readAsLinesSync();
+      for (final line in lines) {
+        final trimmed = line.trim();
+        if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
+        if (trimmed.startsWith('API_SERVER_KEY=')) {
+          final key = trimmed.substring('API_SERVER_KEY='.length).trim();
+          if (key.isNotEmpty && !key.startsWith('\$')) {
+            return key;
+          }
+        }
+      }
+    } catch (e) {
+      _log.warning('Failed to read Hermes .env: $e');
+    }
+    return null;
   }
 
   HermesRuntimeClient _createHermesRuntimeClient() {
