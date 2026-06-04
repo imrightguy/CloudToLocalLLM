@@ -63,13 +63,20 @@ void main([List<String> args = const []]) async {
   // Moved inside runZonedGuarded in _runAppCommon to avoid Zone mismatch
   // WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Sentry IMMEDIATELY after Flutter binding (before all other services)
-  debugPrint('[Main] Initializing Sentry (FIRST after Flutter binding)...');
+  // Initialize Sentry immediately after Flutter binding
+  debugPrint('[Main] Initializing Sentry...');
 
-  // TEMPORARY: Skip Sentry to test app loading
-  debugPrint('[Main] Skipping Sentry for testing');
-  unawaited(_registerWindowsUrlScheme());
-  _runAppWithoutSentry();
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = AppConfig.sentryDsn;
+      options.environment = AppConfig.sentryEnvironment;
+      options.tracesSampleRate = 0.2;
+    },
+    appRunner: () {
+      unawaited(_registerWindowsUrlScheme());
+      _runAppCommon();
+    },
+  );
 }
 
 Future<void> _registerWindowsUrlScheme() async {
@@ -79,12 +86,6 @@ Future<void> _registerWindowsUrlScheme() async {
   } catch (e) {
     debugPrint('[Main] Windows URL scheme registration failed: $e');
   }
-}
-
-void _runAppWithoutSentry() {
-  debugPrint('Running app without Sentry');
-  _initializeClientLogBuffer();
-  _runAppCommon();
 }
 
 void _runAppCommon() {
