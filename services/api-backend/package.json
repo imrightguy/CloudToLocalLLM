@@ -46,7 +46,7 @@
     "express": "^5.2.1",
     "express-oauth2-jwt-bearer": "^1.8.0",
     "express-rate-limit": "^7.5.1",
-    "googleapis": "^171.4.0",
+    "googleapis": "^173.0.0",
     "helmet": "^8.1.0",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
