@@ -1,0 +1,35 @@
+app-id: online.cloudtolocalllm.app
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: cloudtolocalllm
+
+finish-args:
+  # X11 + Wayland
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  # Network for Hermes gateway + API
+  - --share=network
+  # GPU acceleration
+  - --device=dri
+  # DBus for tray/notifications
+  - --talk-name=org.freedesktop.Notifications
+  # File access for config/logs
+  - --filesystem=~/.hermes:ro
+  - --filesystem=~/.config/cloudtolocalllm
+  - --filesystem=~/.local/share/online.cloudtolocalllm.app
+
+modules:
+  - name: cloudtolocalllm
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 cloudtolocalllm /app/bin/cloudtolocalllm
+      - cp -r data /app/data
+      - cp -r lib /app/lib
+      - install -Dm644 online.cloudtolocalllm.app.desktop /app/share/applications/online.cloudtolocalllm.app.desktop
+      - install -Dm644 cloudtolocalllm.png /app/share/icons/hicolor/128x128/apps/online.cloudtolocalllm.app.png
+      - install -Dm644 online.cloudtolocalllm.app.metainfo.xml /app/share/metainfo/online.cloudtolocalllm.app.metainfo.xml
+    sources:
+      - type: dir
+        path: ../build/linux/x64/release/bundle

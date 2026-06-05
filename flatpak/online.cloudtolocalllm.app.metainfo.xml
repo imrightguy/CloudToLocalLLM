@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+  <id>online.cloudtolocalllm.app</id>
+  <name>CloudToLocalLLM</name>
+  <summary>Local AI companion with Hermes agent integration</summary>
+  <developer id="online.cloudtolocalllm">
+    <name>CloudToLocalLLM</name>
+  </developer>
+  <description>
+    <p>Privacy-first desktop AI companion with unified chat, agent runtime management, desktop control, and vision. Connect to Hermes Agent, OpenClaw, or other local LLM runtimes.</p>
+  </description>
+  <url type="homepage">https://cloudtolocalllm.online</url>
+  <url type="donate">https://cloudtolocalllm.online</url>
+  <project_license>MIT</project_license>
+  <metadata_license>CC0-1.0</metadata_license>
+  <source_url>https://github.com/CloudToLocalLLM-online/CloudToLocalLLM</source_url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main chat interface</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="10.1.205" date="2026-06-04"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

@@ -104,9 +104,6 @@ jobs:
           chmod +x scripts/packaging/build_appimage.sh
           ./scripts/packaging/build_appimage.sh || echo "AppImage build skipped"
 
-          chmod +x scripts/packaging/update_aur_pkgbuild.sh
-          ./scripts/packaging/update_aur_pkgbuild.sh
-
       - name: Generate Installer Script
         run: |
           chmod +x scripts/packaging/build_installer.sh
@@ -182,15 +179,6 @@ jobs:
           fi
           echo "tag=v${{ env.VERSION }}" >> $GITHUB_ENV
 
-      - name: Prepare AUR metadata
-        run: |
-          set -euo pipefail
-          APPIMAGE=$(ls linux-bundles/*.AppImage 2>/dev/null | head -1 || echo "")
-          if [ -n "$APPIMAGE" ]; then
-            SHA256=$(sha256sum "$APPIMAGE" | awk '{print $1}')
-            AUR_VERSION_OVERRIDE="${{ env.VERSION }}" AUR_APPIMAGE_SHA256="$SHA256" bash ./scripts/packaging/update_aur_pkgbuild.sh
-          fi
-
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
@@ -210,7 +198,6 @@ jobs:
             - **AppImage**: `cloudtolocalllm-${{ env.VERSION }}-x86_64.AppImage`
             - **Debian/Ubuntu**: `CloudToLocalLLM_${{ env.VERSION }}_amd64.deb`
             - **Portable**: `CloudToLocalLLM-Linux-x64.tar.gz`
-            - **Arch Linux**: AUR package (`cloudtolocalllm`)
             - Install script: `curl -fsSL https://cloudtolocalllm.online/install.sh | bash`
 
             ### Windows
@@ -220,31 +207,3 @@ jobs:
             ### macOS
             - **Coming soon**
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to AUR
-        env:
-          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
-        run: |
-          if [ -z "$AUR_SSH_KEY" ]; then
-            echo "AUR_SSH_KEY not set — skipping AUR publish"
-            exit 0
-          fi
-          set -euo pipefail
-          VERSION="${{ env.VERSION }}"
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur_key
-          chmod 600 ~/.ssh/aur_key
-          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-          echo -e "Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur_key\n  User aur" >> ~/.ssh/config
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-pkg
-          cp -r dist/aur/PKGBUILD dist/aur/.SRCINFO /tmp/aur-pkg/
-          cd /tmp/aur-pkg
-          git config user.name "CloudToLocalLLM CI"
-          git config user.email "ci@cloudtolocalllm.online"
-          git add PKGBUILD .SRCINFO
-          if git diff --cached --quiet; then
-            echo "No changes to AUR package — skipping push"
-          else
-            git commit -m "Update to v${VERSION}"
-            git push origin master
-          fi

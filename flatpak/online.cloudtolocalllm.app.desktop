@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=CloudToLocalLLM
+Comment=Manage and run powerful Large Language Models locally
+Exec=cloudtolocalllm %u
+Icon=online.cloudtolocalllm.app
+Type=Application
+Categories=Development;Utility;Network;
+Terminal=false
+StartupNotify=true
+MimeType=x-scheme-handler/cloudtolocalllm;

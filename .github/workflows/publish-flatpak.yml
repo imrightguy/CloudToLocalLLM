@@ -1,0 +1,76 @@
+name: "📦 Publish Flatpak Package"
+
+on:
+  workflow_run:
+    workflows: ["💻 Desktop Build & Release"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 10.1.200). Leave empty for latest release."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        env:
+          REPO: CloudToLocalLLM-online/CloudToLocalLLM
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            TAG=$(curl -sL "https://api.github.com/repos/${REPO}/releases/latest" | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'].lstrip('v'))")
+            echo "version=${TAG}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Flatpak
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
+
+      - name: Download Flutter Linux bundle
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TARBALL="CloudToLocalLLM-Linux-x64.tar.gz"
+          URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${TARBALL}"
+          curl -fsSL -o /tmp/linux-bundle.tar.gz "$URL" || { echo "Failed to download from $URL"; exit 1; }
+          mkdir -p build/linux/x64/release/bundle
+          tar -xzf /tmp/linux-bundle.tar.gz -C build/linux/x64/release/
+          ls -la build/linux/x64/release/bundle/
+
+      - name: Build Flatpak
+        run: |
+          chmod +x scripts/packaging/build_flatpak.sh
+          ./scripts/packaging/build_flatpak.sh
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-bundle
+          path: dist/flatpak/*.flatpak
+          retention-days: 7
+
+      # Flathub submission — requires flathub-bot token
+      # Uncomment when ready to submit to Flathub:
+      # - name: Submit to Flathub
+      #   env:
+      #     FLATHUB_TOKEN: ${{ secrets.FLATHUB_TOKEN }}
+      #   run: |
+      #     if [ -z "$FLATHUB_TOKEN" ]; then
+      #       echo "FLATHUB_TOKEN not set — skipping Flathub submission"
+      #       exit 0
+      #     fi
+      #     flatpak install --user --noninteractive flathub org.flatpak.Builder
+      #     flatpak run org.flatpak.Builder --submit dist/flatpak/cloudtolocalllm-*.flatpak
