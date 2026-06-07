@@ -27,11 +27,11 @@ permissions:
 jobs:
   flutter_analyze:
     name: "🔍 Flutter Analyze"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
@@ -46,12 +46,12 @@ jobs:
 
   flutter_unit_test:
     name: "🧪 Flutter — unit tests"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
@@ -72,12 +72,12 @@ jobs:
 
   flutter_integration_test:
     name: "🧪 Flutter — integration (allow fail)"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
@@ -93,12 +93,12 @@ jobs:
 
   build_web:
     name: "🌐 Build Web"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [flutter_analyze, flutter_unit_test]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
@@ -112,7 +112,7 @@ jobs:
         run: flutter build web --release
 
       - name: "📦 Upload web build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: web-build
           path: build/web/
@@ -120,12 +120,12 @@ jobs:
 
   build_linux:
     name: "🐧 Build Linux Desktop"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     needs: [flutter_analyze, flutter_unit_test]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
@@ -154,7 +154,7 @@ jobs:
           tar -czf /tmp/cloudtolocalllm-linux-x64.tar.gz bundle/
 
       - name: "📦 Upload Linux build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: linux-build
           path: /tmp/cloudtolocalllm-linux-x64.tar.gz
@@ -162,16 +162,16 @@ jobs:
 
   backend:
     name: "Backend — lint + test"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
       run:
         working-directory: services/api-backend
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: "npm"
