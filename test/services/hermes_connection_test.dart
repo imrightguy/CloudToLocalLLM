@@ -57,6 +57,8 @@ void main() {
         model: 'deepseek-v4-flash',
         conversationId: 'test-conv-001',
       )) {
+        print('[Test] received msg: chunk=${msg.chunk.length}ch, '
+            'error=${msg.error}, isComplete=${msg.isComplete}');
         if (msg.chunk.isNotEmpty) {
           gotChunks = true;
         }
