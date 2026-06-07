@@ -142,19 +142,16 @@ jobs:
         run: |
           # auth0_flutter needs cpprestsdk — install via vcpkg
           vcpkg install cpprestsdk --triplet x64-windows
-          # Set env vars so plugin cmake sub-builds can find vcpkg
-          echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "CMAKE_PREFIX_PATH=C:\vcpkg\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # CMake reads CMAKE_TOOLCHAIN_FILE from the environment before
+          # processing any CMakeLists.txt. This is the ONLY reliable way
+          # to propagate vcpkg to plugin sub-builds (auth0_flutter's
+          # separate CMakeLists.txt).
+          echo "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $env:GITHUB_ENV
 
       - name: Flutter Build Windows
         run: |
           flutter pub get
-          # --cmake-args propagates through add_subdirectory to plugins.
-          # auth0_flutter's CMake -> cpprestsdk-config.cmake -> find_dependency(ZLIB)
-          # FindZLIB.cmake can't locate it via CMAKE_PREFIX_PATH alone on MSVC,
-          # so we pass the exact path to its library + include root.
-          flutter build windows --release `
-            --cmake-args="-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DZLIB_INCLUDE_DIR=C:\vcpkg\installed\x64-windows\include -DZLIB_LIBRARY=C:\vcpkg\installed\x64-windows\lib\zlib.lib"
+          flutter build windows --release
 
       - name: Build Windows Installer
         shell: pwsh
