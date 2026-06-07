@@ -1,4 +1,4 @@
-name: "🧪 CI — Test Every Branch"
+name: "🧪 CI — Test & Build Every Branch"
 
 on:
   push:
@@ -25,7 +25,7 @@ permissions:
   checks: write
 
 jobs:
-  flutter:
+  flutter_analyze_test:
     name: "Flutter — analyze + test"
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -46,6 +46,81 @@ jobs:
 
       - name: "🧪 flutter test"
         run: flutter test --reporter expanded
+
+      - name: "📊 Upload test results"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/test-results/
+          retention-days: 3
+
+  build_web:
+    name: "🌐 Build Web"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: flutter_analyze_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: "📦 flutter pub get"
+        run: flutter pub get
+
+      - name: "🌐 flutter build web"
+        run: flutter build web --release
+
+      - name: "📦 Upload web build"
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
+          retention-days: 7
+
+  build_linux:
+    name: "🐧 Build Linux Desktop"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: flutter_analyze_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: "🐧 Install Linux deps"
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev \
+            libsecret-1-dev libjsoncpp-dev
+
+      - name: "📦 flutter pub get"
+        run: flutter pub get
+
+      - name: "🐧 flutter build linux --release"
+        run: flutter build linux --release
+
+      - name: "📦 Package bundle"
+        run: |
+          cd build/linux/x64/release
+          tar -czf /tmp/cloudtolocalllm-linux-x64.tar.gz bundle/
+
+      - name: "📦 Upload Linux build"
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: /tmp/cloudtolocalllm-linux-x64.tar.gz
+          retention-days: 7
 
   backend:
     name: "Backend — lint + test"
