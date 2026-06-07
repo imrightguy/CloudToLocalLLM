@@ -142,9 +142,11 @@ jobs:
         run: |
           # auth0_flutter needs cpprestsdk — install via vcpkg
           vcpkg install cpprestsdk --triplet x64-windows
-          # Set env vars so FindZLIB.cmake (called transitively by cpprestsdk-config)
-          # can locate ZLIB. CMAKE_PREFIX_PATH isn't enough for Find-modules.
-          echo "ZLIB_ROOT=C:\vcpkg\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Set CMAKE_TOOLCHAIN_FILE as env var so ALL cmake invocations
+          # (project + every plugin) auto-load the vcpkg toolchain
+          echo "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Also set VCPKG_ROOT for good measure
+          echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Flutter Build Windows
         run: |
