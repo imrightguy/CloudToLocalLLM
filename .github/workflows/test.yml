@@ -139,7 +139,8 @@ jobs:
             clang cmake ninja-build pkg-config \
             libgtk-3-dev liblzma-dev libstdc++-12-dev \
             libsecret-1-dev libjsoncpp-dev \
-            libnotify-dev libcurl4-openssl-dev
+            libnotify-dev libcurl4-openssl-dev \
+            libayatana-appindicator3-dev
 
       - name: "📦 flutter pub get"
         run: flutter pub get
