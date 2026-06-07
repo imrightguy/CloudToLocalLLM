@@ -137,12 +137,14 @@ jobs:
           channel: "stable"
           cache: true
 
-      - name: Install Windows Dependencies (cpprestsdk)
+      - name: Install Windows Dependencies (cpprestsdk+boost)
         shell: pwsh
         run: |
-          # auth0_flutter needs cpprestsdk — install via vcpkg
-          vcpkg install cpprestsdk --triplet x64-windows
-          # Propagate vcpkg toolchain to all cmake invocations
+          # auth0_flutter needs cpprestsdk + Boost (system, date_time, regex).
+          # windows-latest now runs CMake 4.2 which REMOVED FindBoost.cmake.
+          # Install boost via vcpkg so find_package(Boost) resolves via
+          # BoostConfig.cmake (CONFIG mode) instead of FindBoost.cmake.
+          vcpkg install cpprestsdk boost-system boost-date-time boost-regex --triplet x64-windows
           "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Flutter Build Windows
