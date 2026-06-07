@@ -14,7 +14,7 @@
  * Requirements: 15 (Security and Data Protection)
  */
 
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import logger from '../logger.js';
 
 /**
@@ -103,7 +103,7 @@ const RATE_LIMIT_CONFIGS = {
  */
 const adminKeyGenerator = (req) => {
   // Use admin user ID from authenticated request
-  const adminUserId = req.adminUser?.id || req.user?.sub || req.ip;
+  const adminUserId = req.adminUser?.id || req.user?.sub || ipKeyGenerator(req);
   return `admin:${adminUserId}`;
 };
 

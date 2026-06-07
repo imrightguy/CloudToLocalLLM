@@ -29,7 +29,10 @@ const thresholdValueSchema = z.object({
 });
 
 const updateThresholdsSchema = z.object({
-  thresholds: z.record(z.string(), thresholdValueSchema).min(1),
+  thresholds: z.record(z.string(), thresholdValueSchema).refine(
+    (val) => Object.keys(val).length >= 1,
+    { message: 'At least one threshold is required' }
+  ),
 });
 
 const updateChannelsSchema = z.object({
@@ -51,8 +54,8 @@ const alertHistoryQuerySchema = z.object({
   limit: z
     .string()
     .regex(/^\d+$/)
-    .transform(Number)
     .max(1000)
+    .transform(Number)
     .optional()
     .default(100),
   metric: z.string().optional(),
