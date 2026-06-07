@@ -2,9 +2,9 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 
-import '../auth_provider.dart';
-import 'auth0_auth_provider.dart';
-import 'local_auth_provider.dart';
+import 'auth_provider.dart';
+import 'providers/auth0_auth_provider.dart';
+import 'providers/local_auth_provider.dart';
 
 /// Factory for creating the right authentication provider based on context.
 ///
