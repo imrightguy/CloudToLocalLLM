@@ -24,10 +24,10 @@ permissions:
 
 jobs:
   analyze:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
@@ -40,11 +40,11 @@ jobs:
   set_version:
     name: Set Version
     needs: analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Compute version
         id: version
         run: |
@@ -62,9 +62,9 @@ jobs:
     name: Linux Build
     needs: set_version
     if: contains(inputs.platforms, 'linux')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set Version
         run: |
@@ -113,7 +113,7 @@ jobs:
           ./scripts/packaging/build_installer.sh
 
       - name: Upload Linux Bundles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: linux-bundles
           path: dist/linux/*
@@ -123,9 +123,9 @@ jobs:
     name: Windows Build
     needs: set_version
     if: contains(inputs.platforms, 'windows')
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set Version
         shell: bash
@@ -140,6 +140,13 @@ jobs:
           channel: "stable"
           cache: true
 
+      - name: Install Windows Dependencies (cpprestsdk)
+        shell: pwsh
+        run: |
+          # auth0_flutter needs cpprestsdk — install via vcpkg
+          vcpkg install cpprestsdk --triplet x64-windows
+          echo "CPPRESTSDK_DIR=C:\vcpkg\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Flutter Build Windows
         run: |
           flutter pub get
@@ -150,7 +157,7 @@ jobs:
         run: ./scripts/packaging/build_windows_installer.ps1
 
       - name: Upload Windows Bundles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: windows-bundles
           path: |
@@ -160,14 +167,15 @@ jobs:
 
   create_release:
     needs: [set_version, build_linux, build_windows]
-    runs-on: ubuntu-latest
+    if: always() && needs.build_linux.result == 'success'
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
 
       - name: Compute version
         run: |
