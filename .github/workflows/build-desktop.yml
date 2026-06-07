@@ -140,16 +140,19 @@ jobs:
       - name: Install Windows Dependencies (cpprestsdk)
         shell: pwsh
         run: |
+          # auth0_flutter needs cpprestsdk — install via vcpkg
           vcpkg install cpprestsdk --triplet x64-windows
 
       - name: Flutter Build Windows
         run: |
           flutter pub get
-          # auth0_flutter's cmake finds cpprestsdk via this env var dir
-          $env:CPPRESTSDK_DIR = "C:\vcpkg\installed\x64-windows"
-          $env:CMAKE_TOOLCHAIN_FILE = "C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
-          $env:CMAKE_PREFIX_PATH = "C:\vcpkg\installed\x64-windows"
-          flutter build windows --release
+          # --cmake-args propagates to plugins via add_subdirectory.
+          # auth0_flutter's CMake -> find_package(cpprestsdk CONFIG)
+          # -> cpprestsdk-config.cmake -> find_dependency(ZLIB).
+          # We pass both the vcpkg toolchain AND explicit ZLIB paths
+          # since FindZLIB.cmake won't search vcpkg paths automatically.
+          flutter build windows --release `
+            --cmake-args="-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DZLIB_INCLUDE_DIR=C:\vcpkg\installed\x64-windows\include -DZLIB_LIBRARY=C:\vcpkg\installed\x64-windows\lib\zlib.lib"
 
       - name: Build Windows Installer
         shell: pwsh
