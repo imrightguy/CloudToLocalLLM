@@ -39,6 +39,11 @@ jobs:
           flutter analyze lib/
           echo "✅ Analysis passed"
 
+      - name: flutter test
+        run: |
+          flutter test --reporter expanded
+          echo "✅ Tests passed"
+
   build_and_deploy:
     needs: analyze
     runs-on: ubuntu-latest

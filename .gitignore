@@ -65,6 +65,10 @@ certbot/
 # Binary tools and local config
 .config/
 
+# Asterisk/FreePBX shared objects (not part of this project)
+chan_pjsip.so
+chan_sip.so
+
 # SQLite databases
 *.db
 
