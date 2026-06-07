@@ -140,17 +140,15 @@ jobs:
       - name: Install Windows Dependencies (cpprestsdk)
         shell: pwsh
         run: |
-          # auth0_flutter needs cpprestsdk — install via vcpkg
           vcpkg install cpprestsdk --triplet x64-windows
-          # CMake reads CMAKE_TOOLCHAIN_FILE from the environment before
-          # processing any CMakeLists.txt. This is the ONLY reliable way
-          # to propagate vcpkg to plugin sub-builds (auth0_flutter's
-          # separate CMakeLists.txt).
-          echo "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $env:GITHUB_ENV
 
       - name: Flutter Build Windows
         run: |
           flutter pub get
+          # auth0_flutter's cmake finds cpprestsdk via this env var dir
+          $env:CPPRESTSDK_DIR = "C:\vcpkg\installed\x64-windows"
+          $env:CMAKE_TOOLCHAIN_FILE = "C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
+          $env:CMAKE_PREFIX_PATH = "C:\vcpkg\installed\x64-windows"
           flutter build windows --release
 
       - name: Build Windows Installer
