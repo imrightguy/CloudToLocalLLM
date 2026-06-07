@@ -120,7 +120,7 @@ jobs:
     name: Windows Build
     needs: set_version
     if: contains(inputs.platforms, 'windows')
-    runs-on: windows-2025-vs2026
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
 
@@ -140,10 +140,9 @@ jobs:
       - name: Install Windows Dependencies (cpprestsdk)
         shell: pwsh
         run: |
-          # auth0_flutter needs cpprestsdk + Boost (system, date_time, regex).
-          # windows-2025-vs2026 has CMake 4.2 which removed FindBoost.cmake.
-          # Install via vcpkg with the toolchain so cmake uses CONFIG mode.
-          vcpkg install cpprestsdk boost-system boost-date-time boost-regex --triplet x64-windows
+          # auth0_flutter needs cpprestsdk — install via vcpkg
+          vcpkg install cpprestsdk --triplet x64-windows
+          # Propagate vcpkg toolchain to all cmake invocations
           "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Flutter Build Windows
