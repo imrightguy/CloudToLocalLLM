@@ -140,10 +140,9 @@ jobs:
       - name: Install Windows Dependencies (cpprestsdk)
         shell: pwsh
         run: |
-          # auth0_flutter needs cpprestsdk + Boost. The windows-2025-vs2026
-          # runner has CMake 4.2 which REMOVED FindBoost.cmake, so Boost
-          # must be found via CONFIG mode. Install both via vcpkg with
-          # the vcpkg toolchain so cmake can resolve find_package(CONFIG).
+          # auth0_flutter needs cpprestsdk + Boost (system, date_time, regex).
+          # windows-2025-vs2026 has CMake 4.2 which removed FindBoost.cmake.
+          # Install via vcpkg with the toolchain so cmake uses CONFIG mode.
           vcpkg install cpprestsdk boost-system boost-date-time boost-regex --triplet x64-windows
           "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
 
