@@ -142,17 +142,16 @@ jobs:
         run: |
           # auth0_flutter needs cpprestsdk — install via vcpkg
           vcpkg install cpprestsdk --triplet x64-windows
+          # Set CMAKE_TOOLCHAIN_FILE as an env variable so it propagates to
+          # all cmake invocations (project + plugin sub-builds). This is the
+          # ONLY way to get cmake args to plugins since --cmake-args doesn't
+          # exist in Flutter 3.44.x for windows builds.
+          "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $env:GITHUB_ENV
 
       - name: Flutter Build Windows
         run: |
           flutter pub get
-          # --cmake-args propagates to plugins via add_subdirectory.
-          # auth0_flutter's CMake -> find_package(cpprestsdk CONFIG)
-          # -> cpprestsdk-config.cmake -> find_dependency(ZLIB).
-          # We pass both the vcpkg toolchain AND explicit ZLIB paths
-          # since FindZLIB.cmake won't search vcpkg paths automatically.
-          flutter build windows --release `
-            --cmake-args="-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DZLIB_INCLUDE_DIR=C:\vcpkg\installed\x64-windows\include -DZLIB_LIBRARY=C:\vcpkg\installed\x64-windows\lib\zlib.lib"
+          flutter build windows --release
 
       - name: Build Windows Installer
         shell: pwsh
