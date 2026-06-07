@@ -145,12 +145,13 @@ jobs:
         run: |
           # auth0_flutter needs cpprestsdk — install via vcpkg
           vcpkg install cpprestsdk --triplet x64-windows
-          echo "CPPRESTSDK_DIR=C:\vcpkg\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Register vcpkg toolchain so CMake can resolve transitive deps (ZLIB, brotli, etc.)
+          echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Flutter Build Windows
         run: |
           flutter pub get
-          flutter build windows --release
+          flutter build windows --release --cmake-args="-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake"
 
       - name: Build Windows Installer
         shell: pwsh
