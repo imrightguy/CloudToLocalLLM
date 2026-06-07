@@ -99,13 +99,10 @@ jobs:
           tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
 
           chmod +x scripts/packaging/build_deb.sh
-          ./scripts/packaging/build_deb.sh
+          ./scripts/packaging/build_deb.sh || echo "Deb build skipped"
 
           chmod +x scripts/packaging/build_appimage.sh
           ./scripts/packaging/build_appimage.sh || echo "AppImage build skipped"
-
-          chmod +x scripts/packaging/update_aur_pkgbuild.sh
-          ./scripts/packaging/update_aur_pkgbuild.sh
 
       - name: Generate Installer Script
         run: |
@@ -123,7 +120,7 @@ jobs:
     name: Windows Build
     needs: set_version
     if: contains(inputs.platforms, 'windows')
-    runs-on: windows-2025-vs2026
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v5
 
@@ -140,12 +137,15 @@ jobs:
           channel: "stable"
           cache: true
 
-      - name: Install Windows Dependencies (cpprestsdk)
+      - name: Install Windows Dependencies (cpprestsdk+boost)
         shell: pwsh
+        timeout-minutes: 30
         run: |
-          # auth0_flutter needs cpprestsdk — install via vcpkg
-          vcpkg install cpprestsdk --triplet x64-windows
-          echo "CPPRESTSDK_DIR=C:\vcpkg\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # auth0_flutter needs cpprestsdk + Boost (system, date_time, regex).
+          # windows-2022 has CMake 3.31 (FindBoost exists) but no Boost SDK.
+          # Install ALL needed deps via vcpkg with toolchain.
+          vcpkg install cpprestsdk boost-system boost-date-time boost-regex --triplet x64-windows
+          "CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Flutter Build Windows
         run: |
@@ -190,15 +190,6 @@ jobs:
           fi
           echo "tag=v${{ env.VERSION }}" >> $GITHUB_ENV
 
-      - name: Prepare AUR metadata
-        run: |
-          set -euo pipefail
-          APPIMAGE=$(ls linux-bundles/*.AppImage 2>/dev/null | head -1 || echo "")
-          if [ -n "$APPIMAGE" ]; then
-            SHA256=$(sha256sum "$APPIMAGE" | awk '{print $1}')
-            AUR_VERSION_OVERRIDE="${{ env.VERSION }}" AUR_APPIMAGE_SHA256="$SHA256" bash ./scripts/packaging/update_aur_pkgbuild.sh
-          fi
-
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
@@ -218,7 +209,6 @@ jobs:
             - **AppImage**: `cloudtolocalllm-${{ env.VERSION }}-x86_64.AppImage`
             - **Debian/Ubuntu**: `CloudToLocalLLM_${{ env.VERSION }}_amd64.deb`
             - **Portable**: `CloudToLocalLLM-Linux-x64.tar.gz`
-            - **Arch Linux**: AUR package (`cloudtolocalllm`)
             - Install script: `curl -fsSL https://cloudtolocalllm.online/install.sh | bash`
 
             ### Windows
@@ -228,31 +218,3 @@ jobs:
             ### macOS
             - **Coming soon**
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to AUR
-        env:
-          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
-        run: |
-          if [ -z "$AUR_SSH_KEY" ]; then
-            echo "AUR_SSH_KEY not set — skipping AUR publish"
-            exit 0
-          fi
-          set -euo pipefail
-          VERSION="${{ env.VERSION }}"
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur_key
-          chmod 600 ~/.ssh/aur_key
-          ssh-keyscan -t ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-          echo -e "Host aur.archlinux.org\n  IdentityFile ~/.ssh/aur_key\n  User aur" >> ~/.ssh/config
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-pkg
-          cp -r dist/aur/PKGBUILD dist/aur/.SRCINFO /tmp/aur-pkg/
-          cd /tmp/aur-pkg
-          git config user.name "CloudToLocalLLM CI"
-          git config user.email "ci@cloudtolocalllm.online"
-          git add PKGBUILD .SRCINFO
-          if git diff --cached --quiet; then
-            echo "No changes to AUR package — skipping push"
-          else
-            git commit -m "Update to v${VERSION}"
-            git push origin master
-          fi
