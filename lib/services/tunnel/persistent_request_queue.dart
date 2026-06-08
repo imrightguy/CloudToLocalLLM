@@ -398,8 +398,26 @@ class PersistentRequestQueue {
         }
       }
 
-      // Clear persistence after restoration
-      await _clearPersistence();
+      // Persist remaining (overflow + malformed-skipped) entries for later restoration
+      final remaining = <String>[];
+      for (final jsonStr in persisted) {
+        try {
+          final json = jsonDecode(jsonStr) as Map<String, dynamic>;
+          final queuedRequest = QueuedRequest.fromJson(json);
+          // If this request was not restored (overflow or timed out), keep in persistence
+          if (!_queue.any((q) => q.request.id == queuedRequest.request.id)) {
+            remaining.add(jsonStr);
+          }
+        } catch (_) {
+          // Skip corrupted entries — don't persist malformed data
+        }
+      }
+
+      if (remaining.isEmpty) {
+        await _clearPersistence();
+      } else {
+        await prefs.setStringList(_persistenceKey, remaining);
+      }
 
       return restored;
     } catch (e) {
