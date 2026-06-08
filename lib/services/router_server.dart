@@ -15,7 +15,12 @@ import 'voice/cloud_tts_service.dart';
 import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
 import 'package:cloudtolocalllm/utils/http_constants.dart';
 
-/// Local HTTP Server that mimics OpenAI API and routes to providers
+/// Local HTTP Server that mimics OpenAI API and routes to providers.
+///
+/// When [authSecret] is non-null, all endpoints except `/health` and
+/// `/v1/models` require a valid `Bearer <authSecret>` header.
+/// Requests without a token receive 403; requests with the wrong token
+/// receive 401.
 class RouterServer {
   final int port;
   final RateLimitManager rateLimitManager;
@@ -25,7 +30,14 @@ class RouterServer {
   final ConscienceStorageService? conscienceStorage;
   final CloudTtsService? ttsService;
 
+  /// Bearer token required for privileged endpoints.
+  /// When null, all endpoints are open (no auth check).
+  final String? authSecret;
+
   HttpServer? _server;
+
+  /// Endpoints that remain accessible without authentication.
+  static const _publicPaths = {'/health', '/v1/models'};
 
   RouterServer({
     this.port = 1337,
@@ -35,6 +47,7 @@ class RouterServer {
     this.evolutionTracker,
     this.conscienceStorage,
     CloudTtsService? ttsService,
+    this.authSecret,
   }) : ttsService = ttsService ?? (kIsWeb ? null : CloudTtsService());
 
   /// Start the server
@@ -74,8 +87,10 @@ class RouterServer {
       router.put('/api/conscience/decisions/verdict', _handleSubmitVerdict);
     }
 
-    final handler =
-        const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
+    final handler = const Pipeline()
+        .addMiddleware(logRequests())
+        .addMiddleware(_authMiddleware())
+        .addHandler(router.call);
 
     _server = await io.serve(handler, InternetAddress.anyIPv4, port);
     debugPrint('LLM Router Server running on port ${_server!.port}');
@@ -85,6 +100,47 @@ class RouterServer {
   Future<void> stop() async {
     await _server?.close();
     _server = null;
+  }
+
+  /// Auth middleware: when [authSecret] is set, rejects unauthenticated
+  /// requests to privileged endpoints. Public paths (/health, /v1/models)
+  /// always pass through.
+  Middleware _authMiddleware() {
+    return (Handler innerHandler) {
+      return (Request request) {
+        // No secret configured — open access (backward compat).
+        if (authSecret == null) return innerHandler(request);
+
+        // Public endpoints are always accessible.
+        if (_publicPaths.contains(request.requestedUri.path)) {
+          return innerHandler(request);
+        }
+
+        // Check for Authorization header.
+        final authHeader = request.headers['authorization'];
+        if (authHeader == null || authHeader.isEmpty) {
+          return Response.forbidden(
+            jsonEncode({'error': 'Missing Authorization header'}),
+            headers: {'Content-Type': 'application/json'},
+          );
+        }
+
+        // Validate Bearer token.
+        final expected = 'Bearer $authSecret';
+        if (authHeader != expected) {
+          return Response(
+            HttpStatus.unauthorized,
+            body: jsonEncode({'error': 'Invalid or missing token'}),
+            headers: {
+              'Content-Type': 'application/json',
+              'WWW-Authenticate': 'Bearer realm="router"',
+            },
+          );
+        }
+
+        return innerHandler(request);
+      };
+    };
   }
 
   Response _handleListModels(Request request) {
