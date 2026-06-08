@@ -189,9 +189,11 @@ class RouterServer {
 
       // 4. Dispatch to provider
       if (completionRequest.stream) {
+        // ignore: unawaited_return_in_try_block — returns Future<Response>, caught by catch
         return _handleStreaming(
             provider, completionRequest, actualModel, headers);
       } else {
+        // ignore: unawaited_return_in_try_block — returns Future<Response>, caught by catch
         return _handleNonStreaming(
             provider, completionRequest, actualModel, headers);
       }

@@ -492,6 +492,7 @@ class ConnectionManagerService extends ChangeNotifier {
         },
       );
 
+      // ignore: unawaited_return_in_try_block — returns Future<String?>, caught by catch
       return completer.future.timeout(const Duration(seconds: 60));
     } catch (e) {
       _lastError = e.toString();
