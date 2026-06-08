@@ -16,6 +16,7 @@ Widget buildWidget() {
   final connService = ConnectionManagerService(
     openclawGatewayService: openclawGateway,
     hermesGatewayService: hermesGateway,
+    autoDetectOnInitialize: false,
   );
   final voiceService = VoiceConversationService();
   final localVoice = LocalVoiceInputService(
