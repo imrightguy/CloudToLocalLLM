@@ -72,9 +72,11 @@ class TunnelConfigManager {
         _currentProfile = ProfileType.custom;
       }
     } catch (e) {
-      // If loading fails, use defaults
+      // If loading fails, use defaults and clear corrupted data
       _currentConfig = const TunnelConfig();
       _currentProfile = ProfileType.custom;
+      await _prefs.remove(_configKey);
+      await _prefs.remove(_profileKey);
     }
   }
 

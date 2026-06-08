@@ -290,14 +290,17 @@ class _SkillsScreenState extends State<SkillsScreen>
                     children: [
                       Row(
                         children: [
-                          Text(
-                            skill.name,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: skill.enabled
-                                  ? null
-                                  : theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
+                          Expanded(
+                            child: Text(
+                              skill.name,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: skill.enabled
+                                    ? null
+                                    : theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),

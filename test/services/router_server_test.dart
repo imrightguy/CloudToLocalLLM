@@ -27,6 +27,7 @@ void main() {
       expect(server, isNotNull);
     });
 
+    // Tests 1 & 2: re-enabled — auth middleware now implemented (#422).
     test('rejects privileged local requests when no local token is available',
         () async {
       final baseUrl = await _startRouter(serverRef: (value) => server = value);
@@ -51,7 +52,10 @@ void main() {
 
       final response = await http.post(
         baseUrl.replace(path: '/v1/chat/completions'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer wrong-token',
+          'Content-Type': 'application/json',
+        },
         body: jsonEncode({
           'model': 'glm-4-flash',
           'messages': [
@@ -107,6 +111,7 @@ RouterServer _buildRouter({
     port: port,
     rateLimitManager: _TestRateLimitManager(),
     providers: {'zhipu': _EchoProvider()},
+    authSecret: 'router-secret',
   );
 }
 
