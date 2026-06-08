@@ -27,9 +27,8 @@ void main() {
       expect(server, isNotNull);
     });
 
-    // TODO(zoidbot): Re-enable once auth middleware is implemented. See #422.
+    // Tests 1 & 2: re-enabled — auth middleware now implemented (#422).
     test('rejects privileged local requests when no local token is available',
-        skip: true,
         () async {
       final baseUrl = await _startRouter(serverRef: (value) => server = value);
 
@@ -47,15 +46,16 @@ void main() {
       expect(response.statusCode, HttpStatus.forbidden);
     });
 
-    // TODO(zoidbot): Re-enable once auth middleware is implemented. See #422.
     test('rejects privileged local requests without the configured local token',
-        skip: true,
         () async {
       final baseUrl = await _startRouter(serverRef: (value) => server = value);
 
       final response = await http.post(
         baseUrl.replace(path: '/v1/chat/completions'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer wrong-token',
+          'Content-Type': 'application/json',
+        },
         body: jsonEncode({
           'model': 'glm-4-flash',
           'messages': [
@@ -111,6 +111,7 @@ RouterServer _buildRouter({
     port: port,
     rateLimitManager: _TestRateLimitManager(),
     providers: {'zhipu': _EchoProvider()},
+    authSecret: 'router-secret',
   );
 }
 
