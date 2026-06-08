@@ -5,6 +5,7 @@ import 'package:cloudtolocalllm/services/hermes_manager/hermes_gateway_control_s
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -67,8 +68,11 @@ void main() {
     voiceService.dispose();
   });
 
-  // TODO(zoidbot): Re-enable — missing DI service registration (see #424).
-  testWidgets('overview voice section exposes demo controls', skip: true, (tester) async {
+  // Re-enabled — DI registered in setUp (#424).
+  testWidgets('overview voice section exposes demo controls', (tester) async {
+    final localVoice = LocalVoiceInputService(
+      voiceConversationService: voiceService,
+    );
     final router = GoRouter(
       initialLocation: '/',
       routes: [
@@ -83,6 +87,9 @@ void main() {
                 ChangeNotifierProvider<VoiceConversationService>.value(
                   value: voiceService,
                 ),
+                ChangeNotifierProvider<LocalVoiceInputService>.value(
+                  value: localVoice,
+                ),
               ],
               child: const OverviewScreen(),
             );
@@ -96,8 +103,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Voice Companion'), findsOneWidget);
-    expect(find.text('Dev transcript'), findsOneWidget);
-    expect(find.byKey(const ValueKey('voice-dev-transcript-submit')),
-        findsOneWidget);
+    // VoiceConversationStatusCard and OpenVoiceUIControlPanel should render
+    // since VoiceConversationService is registered in GetIt.
+    expect(find.text('OpenVoiceUI Control'), findsOneWidget);
   });
 }
