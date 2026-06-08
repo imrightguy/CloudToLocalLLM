@@ -61,6 +61,10 @@ class ConnectionManagerService extends ChangeNotifier {
   String? _configuredHermesUrl;
   String? _configuredHermesApiKey;
 
+  /// When false, [initialize] skips auto-detection so unit tests can run
+  /// without a live agent runtime on the host.
+  final bool _autoDetectOnInitialize;
+
   // ---------------------------------------------------------------------------
   // Connection state
   // ---------------------------------------------------------------------------
@@ -156,7 +160,9 @@ class ConnectionManagerService extends ChangeNotifier {
     required this.openclawGatewayService,
     required this.hermesGatewayService,
     preferences.SettingsPreferenceService? settingsPreferenceService,
-  }) : _settingsPreferenceService = settingsPreferenceService;
+    @visibleForTesting bool autoDetectOnInitialize = true,
+  })  : _settingsPreferenceService = settingsPreferenceService,
+        _autoDetectOnInitialize = autoDetectOnInitialize;
 
   // ---------------------------------------------------------------------------
   // Existing API: connect
@@ -251,7 +257,7 @@ class ConnectionManagerService extends ChangeNotifier {
     notifyListeners();
 
     // Auto-detect: if no backend configured, probe for available runtimes
-    if (_currentBackend == null) {
+    if (_currentBackend == null && _autoDetectOnInitialize) {
       await _autoDetectRuntime();
     }
   }

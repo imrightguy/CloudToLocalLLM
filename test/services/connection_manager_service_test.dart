@@ -18,6 +18,7 @@ void main() {
         ),
         hermesGatewayService: HermesGatewayControlService(),
         settingsPreferenceService: SettingsPreferenceService(),
+        autoDetectOnInitialize: false,
       );
       await service.initialize();
     });
