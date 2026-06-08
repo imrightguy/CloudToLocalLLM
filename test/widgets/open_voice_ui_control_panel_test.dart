@@ -3,6 +3,7 @@ import 'package:cloudtolocalllm/services/hermes_manager/hermes_gateway_control_s
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
+import 'package:cloudtolocalllm/services/voice/local_voice_input_service.dart';
 import 'package:cloudtolocalllm/widgets/voice/open_voice_ui_control_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,6 +48,9 @@ void main() {
       (tester) async {
     final connectionManager = _FakeConnectionManager();
     final voiceService = VoiceConversationService();
+    final localVoice = LocalVoiceInputService(
+      voiceConversationService: voiceService,
+    );
     voiceService.noteWakePhrase('Zoidbot, are you there?');
 
     await tester.pumpWidget(
@@ -58,10 +62,15 @@ void main() {
           ChangeNotifierProvider<VoiceConversationService>.value(
             value: voiceService,
           ),
+          ChangeNotifierProvider<LocalVoiceInputService>.value(
+            value: localVoice,
+          ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
-            body: OpenVoiceUIControlPanel(),
+            body: SingleChildScrollView(
+              child: OpenVoiceUIControlPanel(),
+            ),
           ),
         ),
       ),
