@@ -22,6 +22,7 @@ class GatewayControlService extends ChangeNotifier {
   final SettingsPreferenceService _settings;
   bool _autoRestartEnabled = true;
   int _restartAttempts = 0;
+  bool _isDisposed = false;
   static const int _maxRestartAttempts = 5;
   ConnectionManagerService? _connectionManager;
 
@@ -65,7 +66,9 @@ class GatewayControlService extends ChangeNotifier {
 
   Future<void> _loadAutoRestartSetting() async {
     _autoRestartEnabled = await _settings.getGatewayAutoRestart() ?? true;
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   Future<void> setAutoRestart(bool enabled) async {
@@ -109,7 +112,9 @@ class GatewayControlService extends ChangeNotifier {
   }
 
   Future<bool> stop() async {
-    if (_state == GatewayState.stopped || _state == GatewayState.stopping) {
+    if (_state == GatewayState.stopped ||
+        _state == GatewayState.stopping ||
+        _state == GatewayState.unknown) {
       return true;
     }
 
@@ -227,6 +232,7 @@ class GatewayControlService extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _healthCheckTimer?.cancel();
     if (_connectionManager != null) {
       _connectionManager!.removeListener(_onConnectionChanged);
