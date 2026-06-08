@@ -47,12 +47,13 @@ class PopOutManager extends ChangeNotifier {
   ///
   /// If window is open, closes it. If closed and enabled, opens it.
   void togglePopOut(String sectionName, int branchIndex) {
-    final existingWindow = _openWindows[sectionName];
+    final key = '$sectionName:$branchIndex';
+    final existingWindow = _openWindows[key];
 
     if (existingWindow != null) {
       // Window is open, close it
-      _openWindows.remove(sectionName);
-      debugPrint('[PopOutManager] Closed window for section: $sectionName');
+      _openWindows.remove(key);
+      debugPrint('[PopOutManager] Closed window for section: $sectionName branch: $branchIndex');
     } else {
       // Window is closed, check if enabled
       if (!isSectionPopOutEnabled(sectionName)) {
@@ -63,13 +64,13 @@ class PopOutManager extends ChangeNotifier {
 
       // Open new window
       final newWindow = PopOutWindow(
-        id: sectionName,
+        id: key,
         sectionName: sectionName,
         branchIndex: branchIndex,
         isVisible: true,
       );
-      _openWindows[sectionName] = newWindow;
-      debugPrint('[PopOutManager] Opened window for section: $sectionName');
+      _openWindows[key] = newWindow;
+      debugPrint('[PopOutManager] Opened window for section: $sectionName branch: $branchIndex');
     }
 
     notifyListeners();
