@@ -42,10 +42,7 @@ void main() {
   });
 
   group('SkillsScreen', () {
-    // TODO: SkillsScreen has a Row overflow bug at skills_screen.dart:291 —
-    // the category/version row overflows at default 800px test width.
-    // Re-enable after fixing the Row layout (use Expanded/Flexible).
-    testWidgets('renders skills list after loading', skip: true, (tester) async {
+    testWidgets('renders skills list after loading', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: const SizedBox(
