@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cloudtolocalllm/services/tunnel/interfaces/tunnel_models.dart';
-import 'package:cloudtolocalllm/services/tunnel/metrics_collector.dart';
 
 void main() {
   test('ServerMetrics.fromJson accepts valid payloads', () {

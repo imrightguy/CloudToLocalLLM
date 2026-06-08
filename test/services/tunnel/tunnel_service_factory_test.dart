@@ -86,6 +86,7 @@ void main() {
       }
 
       // maxHistorySize=17 caps the concrete implementation at 17 entries
+      // ignore: unnecessary_cast — needed to access concrete method
       final c = collector as metrics_impl.MetricsCollector;
       expect(c.totalRequests, 17);
     });
