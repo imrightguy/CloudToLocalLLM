@@ -221,7 +221,9 @@ class MetricsExporter {
 
     return {
       'total_errors': totalErrors,
-      'error_rate': metrics.failedRequests / metrics.totalRequests,
+      'error_rate': metrics.totalRequests > 0
+          ? metrics.failedRequests / metrics.totalRequests
+          : 0.0,
       'errors_by_type': errorsByType,
       'error_percentages': errorPercentages,
       'most_common_error': _getMostCommonError(errorsByType),

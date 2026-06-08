@@ -635,18 +635,24 @@ class TunnelConnection {
     );
 
     final eventHistoryJson = json['eventHistory'] as List<dynamic>?;
-    final eventHistory = eventHistoryJson
-            ?.map((e) => ConnectionEvent(
-                  timestamp: DateTime.parse(e['timestamp'] as String),
-                  type: ConnectionEventType.values.firstWhere(
-                    (t) => t.name == e['type'],
-                    orElse: () => ConnectionEventType.connected,
-                  ),
-                  message: e['message'] as String?,
-                  metadata: e['metadata'] as Map<String, dynamic>?,
-                ))
-            .toList() ??
-        [];
+    final eventHistory = <ConnectionEvent>[];
+    if (eventHistoryJson != null) {
+      for (final e in eventHistoryJson) {
+        try {
+          eventHistory.add(ConnectionEvent(
+            timestamp: DateTime.parse(e['timestamp'] as String),
+            type: ConnectionEventType.values.firstWhere(
+              (t) => t.name == e['type'],
+              orElse: () => ConnectionEventType.connected,
+            ),
+            message: e['message'] as String?,
+            metadata: e['metadata'] as Map<String, dynamic>?,
+          ));
+        } catch (_) {
+          // Skip malformed event history entries
+        }
+      }
+    }
 
     return TunnelConnection(
       id: json['id'] as String,
