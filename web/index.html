@@ -109,6 +109,10 @@
       document.getElementById("splash-branding")?.remove();
       document.body.style.background = "transparent";
     }
+    // Fallback: kill the splash after first frame if Flutter engine never calls us
+    window.addEventListener('flutter-first-frame', removeSplashFromWeb);
+    // Hard timeout: if first-frame never fires, kill it anyway after 8s
+    setTimeout(removeSplashFromWeb, 8000);
   </script>
 </head>
 
