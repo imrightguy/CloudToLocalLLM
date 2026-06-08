@@ -34,6 +34,7 @@ void main() {
       openclawGatewayService: GatewayControlService(settingsService),
       hermesGatewayService: HermesGatewayControlService(),
       settingsPreferenceService: settingsService,
+      autoDetectOnInitialize: false,
     );
   });
 

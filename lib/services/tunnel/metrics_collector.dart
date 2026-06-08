@@ -206,11 +206,6 @@ class MetricsCollector {
       _requestHistory.removeFirst();
     }
 
-    // Update error counts
-    if (!success && errorType != null) {
-      _errorCounts[errorType] = (_errorCounts[errorType] ?? 0) + 1;
-    }
-
     // Update connection quality based on recent metrics
     _updateConnectionQuality();
   }
