@@ -1,6 +1,13 @@
 # OpenClaw
 .openclaw/
 
+# Playwright (web e2e test artifacts)
+playwright-report/
+test-results/
+
+# Hermes runtime state (created by Hermes Agent sessions)
+.hermes/
+
 # Node.js
 node_modules/
 package-lock.json
