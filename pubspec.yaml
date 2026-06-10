@@ -49,7 +49,7 @@ dependencies:
 
   # Google APIs for Local Integration
   googleapis: ^16.0.0
-  googleapis_auth: ^2.0.0
+  googleapis_auth: ^2.3.2
   google_sign_in: 6.3.0
 
   # System Integration - Flutter plugins for window management and secure storage
