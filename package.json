@@ -47,7 +47,7 @@
     "jest": "30.4.2",
     "jsonwebtoken": "^9.0.3",
     "nodemon": "^3.1.14",
-    "prettier": "^3.8.3",
+    "prettier": "^3.8.4",
     "supertest": "^7.2.2",
     "validator": "^13.15.35",
     "ws": "^8.20.0"
