@@ -28,7 +28,7 @@ dependencies:
   shared_preferences: ^2.5.4
 
   # Database - Local Brain
-  drift: ^2.32.0
+  drift: ^2.34.0
   sqlite3_flutter_libs: ^0.6.0+eol
 
   # Error tracking
