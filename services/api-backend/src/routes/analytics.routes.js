@@ -54,6 +54,50 @@ router.get('/dashboard', authenticateToken, validate(analyticsSchemas.dashboard)
 
 /**
  * @swagger
+ * /api/analytics/pillars:
+ *   get:
+ *     tags: [Analytics]
+ *     summary: Three-pillar dashboard overview
+ *     description: "Returns unified KPIs for the Leasing, Maintenance, and Renovation pillars."
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Pillars overview metrics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         generatedAt: { type: string, format: date-time }
+ *                         leasing:
+ *                           type: object
+ *                           properties:
+ *                             activeLeads: { type: integer }
+ *                             visitsThisWeek: { type: integer }
+ *                             conversionRate: { type: string }
+ *                         maintenance:
+ *                           type: object
+ *                           properties:
+ *                             openTickets: { type: integer }
+ *                             inProgressTickets: { type: integer }
+ *                             avgResolutionHours: { type: number, nullable: true }
+ *                         renovation:
+ *                           type: object
+ *                           properties:
+ *                             activeProjects: { type: integer }
+ *                             blockedProjects: { type: integer }
+ *                             openOrders: { type: integer }
+ */
+router.get('/pillars', authenticateToken, asyncHandler(analyticsController.getPillarsOverview));
+
+/**
+ * @swagger
  * /api/analytics/leads/pipeline:
  *   get:
  *     tags: [Analytics]

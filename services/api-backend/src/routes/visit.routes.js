@@ -245,7 +245,7 @@ router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(visitCon
  *               reasonCode:
  *                 type: string
  *                 nullable: true
- *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other]
+ *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, employee_declined, no_response, other]
  *               notes:
  *                 type: string
  *     responses:
@@ -336,7 +336,7 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visit
  *               reasonCode:
  *                 type: string
  *                 nullable: true
- *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other]
+ *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, employee_declined, no_response, other]
  *               notes:
  *                 type: string
  *       200:
@@ -387,7 +387,7 @@ router.patch('/:id/status', authenticateToken, validate(visitSchemas.updateStatu
  *                 default: true
  *               reasonCode:
  *                 type: string
- *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other]
+ *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, employee_declined, no_response, other]
  *               notes:
  *                 type: string
  *     responses:

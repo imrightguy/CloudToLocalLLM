@@ -332,6 +332,91 @@ class MaintenanceCommandCenterTenantMessage {
   }
 }
 
+class MaintenanceTicket {
+  const MaintenanceTicket({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.urgency,
+    required this.status,
+    required this.source,
+    required this.tenantName,
+    required this.callerPhone,
+    required this.unitId,
+    required this.buildingId,
+    required this.photos,
+    required this.resolvedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  final String id;
+  final String title;
+  final String description;
+  final String urgency;
+  final String status;
+  final String source;
+  final String tenantName;
+  final String callerPhone;
+  final String? unitId;
+  final String? buildingId;
+  final List<String> photos;
+  final DateTime? resolvedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  factory MaintenanceTicket.fromJson(Map<String, dynamic> json) {
+    return MaintenanceTicket(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      urgency: json['urgency'] as String? ?? 'moyenne',
+      status: json['status'] as String? ?? 'ouvert',
+      source: json['source'] as String? ?? 'manual',
+      tenantName: json['tenantName'] as String? ?? '',
+      callerPhone: json['callerPhone'] as String? ?? '',
+      unitId: json['unitId'] as String?,
+      buildingId: json['buildingId'] as String?,
+      photos: (json['photos'] as List<dynamic>? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+      resolvedAt: json['resolvedAt'] != null
+          ? DateTime.tryParse(json['resolvedAt'] as String)
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
+    );
+  }
+
+  String get urgencyLabel {
+    switch (urgency) {
+      case 'basse':
+        return 'Basse';
+      case 'haute':
+        return 'Haute';
+      case 'urgence':
+        return 'Urgence';
+      default:
+        return 'Moyenne';
+    }
+  }
+
+  String get statusLabel {
+    switch (status) {
+      case 'en_cours':
+        return 'En cours';
+      case 'resolu':
+        return 'Résolu';
+      default:
+        return 'Ouvert';
+    }
+  }
+}
+
 class MaintenanceService {
   MaintenanceService._();
   static final MaintenanceService instance = MaintenanceService._();
@@ -358,5 +443,50 @@ class MaintenanceService {
     return MaintenanceCommandCenterData.fromJson(
       (result['data'] as Map<String, dynamic>?) ?? const {},
     );
+  }
+
+  /// GET /maintenance/tickets
+  Future<List<MaintenanceTicket>> getTickets({
+    String? status,
+    String? urgency,
+    String? search,
+    int limit = 50,
+  }) async {
+    final params = <String, String>{'limit': limit.toString()};
+    if (status != null && status.isNotEmpty) params['status'] = status;
+    if (urgency != null && urgency.isNotEmpty) params['urgency'] = urgency;
+    if (search != null && search.isNotEmpty) params['search'] = search;
+
+    final query = params.entries
+        .map((entry) => '${entry.key}=${Uri.encodeComponent(entry.value)}')
+        .join('&');
+
+    final result = await ApiService.instance.get('/maintenance/tickets?$query');
+    final data = result['data'] as List<dynamic>? ?? const [];
+    return data
+        .map((e) => MaintenanceTicket.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// GET /maintenance/tickets/:id
+  Future<MaintenanceTicket> getTicket(String id) async {
+    final result = await ApiService.instance.get('/maintenance/tickets/$id');
+    return MaintenanceTicket.fromJson(result['data'] as Map<String, dynamic>);
+  }
+
+  /// POST /maintenance/tickets
+  Future<MaintenanceTicket> createTicket(Map<String, dynamic> data) async {
+    final result = await ApiService.instance.post('/maintenance/tickets', data);
+    return MaintenanceTicket.fromJson(result['data'] as Map<String, dynamic>);
+  }
+
+  /// PUT /maintenance/tickets/:id
+  Future<MaintenanceTicket> updateTicket(
+    String id,
+    Map<String, dynamic> data,
+  ) async {
+    final result =
+        await ApiService.instance.put('/maintenance/tickets/$id', data);
+    return MaintenanceTicket.fromJson(result['data'] as Map<String, dynamic>);
   }
 }

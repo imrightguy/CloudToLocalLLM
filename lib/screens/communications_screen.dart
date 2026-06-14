@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/communication_service.dart';
-import 'conversation_detail_screen.dart';
 import 'compose_sms_screen.dart';
 import 'sms_conversation_screen.dart';
 import '../theme/app_colors.dart';
@@ -286,28 +285,15 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   Widget _buildCommunicationItem(CommunicationItem item) {
     return InkWell(
       onTap: () {
-        if (item.type == 'sms') {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => SmsConversationScreen(
-                contactId: item.contactId,
-                contactName: item.contactName,
-                contactPhone: item.contactPhone,
-              ),
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => SmsConversationScreen(
+              contactId: item.contactId,
+              contactName: item.contactName,
+              contactPhone: item.contactPhone,
             ),
-          );
-        } else {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => ConversationDetailScreen(
-                contactId: item.contactId,
-                contactName: item.contactName,
-                contactPhone: item.contactPhone,
-                contactInitials: item.contactInitials,
-              ),
-            ),
-          );
-        }
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),

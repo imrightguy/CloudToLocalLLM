@@ -13,7 +13,7 @@ import '../services/property_photo_service.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/property_photo_upload_sheet.dart';
 import '../widgets/renovation_job_template_panel.dart';
-import 'tenant_checklist_operator_screen.dart';
+import 'renovation_orders_screen.dart';
 
 class RenovationOpsScreen extends StatefulWidget {
   const RenovationOpsScreen({super.key});
@@ -354,7 +354,6 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
   }
 
   void _openApartmentDetail(BuildContext context, _RenovationApartment apartment) {
-    final navigator = Navigator.of(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -365,22 +364,6 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
       builder: (context) {
         return _ApartmentDetailSheet(
           apartment: apartment,
-          onOpenChecklist: () {
-            navigator.pop();
-            navigator.push(
-              MaterialPageRoute(
-                builder: (_) => TenantChecklistOperatorScreen(
-                  unitId: apartment.unitId,
-                  unitLabel: apartment.unitLabel,
-                  buildingName: apartment.buildingName,
-                  leaseId: apartment.leaseId.isEmpty ? null : apartment.leaseId,
-                  tenantName: apartment.tenantName == 'Locataire inconnu' ? null : apartment.tenantName,
-                  tenantPhone: apartment.tenantPhone == '—' ? null : apartment.tenantPhone,
-                  checklistType: apartment.phase == _RenovationPhase.ready ? 'move_out' : 'move_in',
-                ),
-              ),
-            );
-          },
         );
       },
     );
@@ -816,10 +799,9 @@ class _HookRow extends StatelessWidget {
 }
 
 class _ApartmentDetailSheet extends StatelessWidget {
-  const _ApartmentDetailSheet({required this.apartment, required this.onOpenChecklist});
+  const _ApartmentDetailSheet({required this.apartment});
 
   final _RenovationApartment apartment;
-  final VoidCallback onOpenChecklist;
 
   @override
   Widget build(BuildContext context) {
@@ -977,14 +959,23 @@ class _ApartmentDetailSheet extends StatelessWidget {
                       label: const Text('Téléverser une photo'),
                     ),
                     OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => RenovationOrdersScreen(
+                              renovationId: apartment.id,
+                              unitLabel: apartment.unitLabel,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.inventory_2_outlined),
+                      label: const Text('Commandes de matériaux'),
+                    ),
+                    OutlinedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.verified_rounded),
                       label: const Text('Marquer prêt'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: onOpenChecklist,
-                      icon: const Icon(Icons.assignment_outlined),
-                      label: const Text('Ouvrir la checklist locataire'),
                     ),
                   ],
                 ),

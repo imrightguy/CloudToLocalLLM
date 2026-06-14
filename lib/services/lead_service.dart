@@ -96,7 +96,7 @@ class LeadService {
   /// POST /leads
   Future<LeadItem> createLead(Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/leads', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('lead*');
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -106,7 +106,7 @@ class LeadService {
     Map<String, dynamic> data,
   ) async {
     final result = await ApiService.instance.put('/leads/$id', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('lead*');
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -119,13 +119,13 @@ class LeadService {
       '/leads/$id/stage',
       {'stage': newStage.name},
     );
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('lead*');
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /leads/:id
   Future<void> deleteLead(String id) async {
     await ApiService.instance.delete('/leads/$id');
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('lead*');
   }
 }

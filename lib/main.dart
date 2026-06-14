@@ -10,30 +10,24 @@ import 'services/lead_service.dart';
 import 'services/visit_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/public_entry_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/lead_detail_screen.dart';
+import 'screens/leads_screen.dart';
 import 'screens/visit_detail_screen.dart';
 import 'screens/visit_form_screen.dart';
 import 'utils/browser_location.dart';
 import 'utils/entrypoint_policy.dart';
-import 'screens/pipeline_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/visits_screen.dart';
 import 'screens/buildings_screen.dart';
 import 'screens/leases_screen.dart';
 import 'screens/payments_screen.dart';
 import 'screens/employees_screen.dart';
-import 'screens/documents_screen.dart';
 import 'screens/communications_screen.dart';
-import 'screens/marketplace_inbox_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/renovation_ops_screen.dart';
 import 'screens/maintenance_command_center_screen.dart';
-import 'screens/daily_task_tracker_screen.dart';
-import 'screens/observation_review_inbox_screen.dart';
-import 'screens/dossier_assistant_screen.dart';
-import 'screens/onboarding_screen.dart';
+import 'screens/maintenance_screen.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_typography.dart';
 
@@ -99,8 +93,6 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       location: location,
       isLoggedIn: AuthNotifier.instance.isLoggedIn,
     )) {
-      case EntryPointDestination.publicLanding:
-        return PublicEntryScreen(location: location);
       case EntryPointDestination.loginWall:
         return const LoginScreen();
       case EntryPointDestination.appShell:
@@ -126,39 +118,24 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
           : const _SplashScreen(),
       routes: {
         '/dashboard': _protectedRoute((context) => const DashboardScreen()),
-        '/pipeline': _protectedRoute((context) => const PipelineScreen()),
         '/calendar': _protectedRoute((context) => const CalendarScreen()),
         '/visits': _protectedRoute((context) => const VisitsScreen()),
+        '/leads': _protectedRoute((context) => const LeadsScreen()),
         '/buildings': _protectedRoute((context) => const BuildingsScreen()),
         '/leases': _protectedRoute((context) => const LeasesScreen()),
         '/payments': _protectedRoute((context) => const PaymentsScreen()),
         '/employees': _protectedRoute((context) => const EmployeesScreen()),
-        '/documents': _protectedRoute((context) => const DocumentsScreen()),
         '/renovation-ops':
             _protectedRoute((context) => const RenovationOpsScreen()),
         '/maintenance': _protectedRoute(
             (context) => const MaintenanceCommandCenterScreen()),
-        '/daily-tasks':
-            _protectedRoute((context) => const DailyTaskTrackerScreen()),
-        '/dossiers':
-            _protectedRoute((context) => const DossierAssistantScreen()),
-        '/observations': _protectedRoute((context) {
-          final args = ModalRoute.of(context)?.settings.arguments;
-          final findingId = args is Map<String, dynamic>
-              ? args['findingId'] as String?
-              : args is String
-                  ? args
-                  : null;
-          return ObservationReviewInboxScreen(initialFindingId: findingId);
-        }),
+        '/maintenance-tickets':
+            _protectedRoute((context) => const MaintenanceScreen()),
         '/communications':
             _protectedRoute((context) => const CommunicationsScreen()),
         '/messages':
-            _protectedRoute((context) => const MarketplaceInboxScreen()),
-        '/marketplace':
-            _protectedRoute((context) => const MarketplaceInboxScreen()),
+            _protectedRoute((context) => const CommunicationsScreen()),
         '/settings': _protectedRoute((context) => const SettingsScreen()),
-        '/onboarding': _protectedRoute((context) => const OnboardingScreen()),
       },
       onGenerateRoute: _buildDynamicRoute,
     );
@@ -356,11 +333,15 @@ Widget buildAuthenticatedStartScreen(Uri location) {
   final segments = location.pathSegments;
 
   if (normalizedPath == '/messages' || normalizedPath == '/marketplace') {
-    return const AuthGate(child: MarketplaceInboxScreen());
+    return const AuthGate(child: CommunicationsScreen());
   }
 
   if (normalizedPath == '/visits') {
     return const AuthGate(child: VisitsScreen());
+  }
+
+  if (normalizedPath == '/leads' && segments.length <= 1) {
+    return const AuthGate(child: LeadsScreen());
   }
 
   if (segments.length == 2 && segments[0] == 'leads') {
@@ -388,14 +369,12 @@ Widget buildAuthenticatedStartScreen(Uri location) {
   }
 
   switch (normalizedPath) {
+    case '/maintenance-tickets':
+      return const AuthGate(child: MaintenanceScreen());
     case '/maintenance':
       return const AuthGate(child: MaintenanceCommandCenterScreen());
-    case '/daily-tasks':
-      return const AuthGate(child: DailyTaskTrackerScreen());
     case '/renovation-ops':
       return const AuthGate(child: RenovationOpsScreen());
-    case '/dossiers':
-      return const AuthGate(child: DossierAssistantScreen());
     default:
       return const AuthGate(child: HomeScreen());
   }

@@ -9,7 +9,7 @@ import '../models.dart';
 import 'api_service.dart';
 import 'unit_service.dart';
 
-const String propertyPhotoCompanyId = AppConfig.demoCompanyId;
+const String propertyPhotoCompanyId = AppConfig.companyId;
 
 abstract class PropertyPhotoContextSource {
   Future<List<BuildingItem>> getBuildings();

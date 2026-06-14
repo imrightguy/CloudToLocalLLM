@@ -149,6 +149,32 @@ const leadSchemas = {
       }).min(1).required(),
     }),
   },
+  marketplaceWebhook: {
+    body: Joi.object({
+      fullName: Joi.string().trim().max(255),
+      name: Joi.string().trim().max(255),
+      firstName: Joi.string().trim().max(255),
+      lastName: Joi.string().trim().max(255),
+      senderName: Joi.string().trim().max(255),
+      email: Joi.string().trim().max(255),
+      phone: Joi.string().trim().max(50),
+      phoneNumber: Joi.string().trim().max(50),
+      source: Joi.string().trim().max(50),
+      channel: Joi.string().trim().max(50),
+      platform: Joi.string().trim().max(50),
+      message: Joi.string().trim().max(5000),
+      notes: Joi.string().trim().max(5000),
+      body: Joi.string().trim().max(5000),
+      text: Joi.string().trim().max(5000),
+      desiredUnit: Joi.string().trim().max(255),
+      listingTitle: Joi.string().trim().max(255),
+      listingId: Joi.string().trim().max(255),
+      adId: Joi.string().trim().max(255),
+      budget: Joi.number().min(0),
+      budgetCents: Joi.number().integer().min(0),
+      language: Joi.string().valid('fr', 'en'),
+    }).unknown(true),
+  },
 };
 
 const leaseSchemas = {
@@ -657,12 +683,60 @@ const observationResultDismissSchema = Joi.object({
   reason: Joi.string().trim().min(1).max(2000).allow(null, ''),
 });
 
+const maintenanceUrgencies = ['basse', 'moyenne', 'haute', 'urgence'];
+const maintenanceStatuses = ['ouvert', 'en_cours', 'resolu'];
+
 const maintenanceSchemas = {
   commandCenter: {
     query: Joi.object({
       buildingId: uuid,
       limit: Joi.number().integer().min(1).max(50).default(12),
     }),
+  },
+  listTickets: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      status: Joi.string().valid(...maintenanceStatuses),
+      urgency: Joi.string().valid(...maintenanceUrgencies),
+      buildingId: uuid,
+      search: Joi.string().trim().max(255),
+    }),
+  },
+  ticketId: {
+    params: Joi.object({ id: uuid }),
+  },
+  createTicket: {
+    body: Joi.object({
+      title: Joi.string().trim().min(1).max(255).required(),
+      description: Joi.string().trim().max(5000),
+      urgency: Joi.string().valid(...maintenanceUrgencies).default('moyenne'),
+      status: Joi.string().valid(...maintenanceStatuses).default('ouvert'),
+      source: Joi.string().trim().max(50),
+      tenantId: uuid,
+      tenantName: Joi.string().trim().max(255),
+      callerPhone: Joi.string().trim().max(50),
+      unitId: uuid,
+      buildingId: uuid,
+      photos: Joi.array().items(Joi.string().trim().max(1000)).max(20),
+    }),
+  },
+  updateTicket: {
+    params: Joi.object({ id: uuid }),
+    body: Joi.object({
+      title: Joi.string().trim().min(1).max(255),
+      description: Joi.string().trim().max(5000).allow(null, ''),
+      urgency: Joi.string().valid(...maintenanceUrgencies),
+      status: Joi.string().valid(...maintenanceStatuses),
+      tenantName: Joi.string().trim().max(255).allow(null, ''),
+      unitId: uuid.allow(null),
+      buildingId: uuid.allow(null),
+      photos: Joi.array().items(Joi.string().trim().max(1000)).max(20),
+      isActive: Joi.boolean(),
+    }).min(1),
+  },
+  vapiWebhook: {
+    body: Joi.object().unknown(true),
   },
 };
 
@@ -829,6 +903,12 @@ const analyticsSchemas = {
   },
 };
 
+const plexflowSchemas = {
+  idParam: {
+    params: Joi.object({ id: Joi.string().trim().min(1).max(128).required() }),
+  },
+};
+
 const tenantConfirmationSchemas = {
   submit: {
     params: Joi.object({ token: Joi.string().trim().min(1).max(255).required() }),
@@ -927,6 +1007,7 @@ module.exports = {
   dossierCaseSchemas,
   smsWebhookSchemas,
   analyticsSchemas,
+  plexflowSchemas,
   tenantConfirmationSchemas,
   facebookWebhookSchemas,
 };

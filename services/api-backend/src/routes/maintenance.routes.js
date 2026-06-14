@@ -93,4 +93,131 @@ const { maintenanceSchemas } = require('../config/validation-schemas');
  */
 router.get('/command-center', authenticateToken, validate(maintenanceSchemas.commandCenter), asyncHandler(maintenanceController.getCommandCenter));
 
+/**
+ * @swagger
+ * /api/maintenance/tickets:
+ *   get:
+ *     tags: [Maintenance]
+ *     summary: List maintenance tickets
+ *     description: Returns a paginated list of maintenance tickets with optional filters.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string, enum: [ouvert, en_cours, resolu] }
+ *       - in: query
+ *         name: urgency
+ *         schema: { type: string, enum: [basse, moyenne, haute, urgence] }
+ *       - in: query
+ *         name: buildingId
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: List of tickets
+ *   post:
+ *     tags: [Maintenance]
+ *     summary: Create a maintenance ticket
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title]
+ *             properties:
+ *               title: { type: string }
+ *               description: { type: string }
+ *               urgency: { type: string, enum: [basse, moyenne, haute, urgence] }
+ *               status: { type: string, enum: [ouvert, en_cours, resolu] }
+ *               callerPhone: { type: string }
+ *               unitId: { type: string, format: uuid }
+ *               buildingId: { type: string, format: uuid }
+ *     responses:
+ *       201:
+ *         description: Ticket created
+ */
+router.get('/tickets', authenticateToken, validate(maintenanceSchemas.listTickets), asyncHandler(maintenanceController.getTickets));
+router.post('/tickets', authenticateToken, validate(maintenanceSchemas.createTicket), asyncHandler(maintenanceController.createTicket));
+
+/**
+ * @swagger
+ * /api/maintenance/webhook/vapi:
+ *   post:
+ *     tags: [Maintenance]
+ *     summary: Vapi Voice AI inbound webhook
+ *     description: >
+ *       Receives a call/text event from the Vapi Voice AI agent and opens a maintenance ticket.
+ *       Public endpoint protected by an optional X-Vapi-Secret header.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: Ticket created from Vapi event
+ *       200:
+ *         description: Ticket already existed for this call
+ */
+router.post('/webhook/vapi', validate(maintenanceSchemas.vapiWebhook), asyncHandler(maintenanceController.receiveVapiWebhook));
+
+/**
+ * @swagger
+ * /api/maintenance/tickets/{id}:
+ *   get:
+ *     tags: [Maintenance]
+ *     summary: Get a maintenance ticket
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Ticket details
+ *       404:
+ *         description: Ticket not found
+ *   put:
+ *     tags: [Maintenance]
+ *     summary: Update a maintenance ticket
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status: { type: string, enum: [ouvert, en_cours, resolu] }
+ *               urgency: { type: string, enum: [basse, moyenne, haute, urgence] }
+ *     responses:
+ *       200:
+ *         description: Ticket updated
+ *       404:
+ *         description: Ticket not found
+ */
+router.get('/tickets/:id', authenticateToken, validate(maintenanceSchemas.ticketId), asyncHandler(maintenanceController.getTicketById));
+router.put('/tickets/:id', authenticateToken, validate(maintenanceSchemas.updateTicket), asyncHandler(maintenanceController.updateTicket));
+
 module.exports = router;

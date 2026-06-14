@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const smsWebhookController = require('../controllers/sms-webhook.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
+const { validateTwilioWebhook } = require('../services/twilio.service');
 const { asyncHandler } = require('../utils/apiResponse');
 const validate = require('../middleware/validate');
 const { smsWebhookSchemas } = require('../config/validation-schemas');
@@ -41,7 +42,7 @@ const { smsWebhookSchemas } = require('../config/validation-schemas');
  *             schema:
  *               type: string
  */
-router.post('/sms/incoming', validate(smsWebhookSchemas.incoming), asyncHandler(smsWebhookController.handleIncoming));
+router.post('/sms/incoming', validateTwilioWebhook, validate(smsWebhookSchemas.incoming), asyncHandler(smsWebhookController.handleIncoming));
 
 /**
  * @swagger
@@ -77,7 +78,7 @@ router.post('/sms/incoming', validate(smsWebhookSchemas.incoming), asyncHandler(
  *             schema:
  *               type: string
  */
-router.post('/sms/status', validate(smsWebhookSchemas.status), asyncHandler(smsWebhookController.handleStatus));
+router.post('/sms/status', validateTwilioWebhook, validate(smsWebhookSchemas.status), asyncHandler(smsWebhookController.handleStatus));
 
 /**
  * @swagger

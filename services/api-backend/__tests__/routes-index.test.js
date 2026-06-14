@@ -61,7 +61,6 @@ describe('routes/index', () => {
       expect(res.body.status).toBe('unhealthy');
       expect(res.body.database).toBeDefined();
       expect(res.body.database.status).toBe('disconnected');
-      expect(res.body.database.error).toBe('Connection refused');
     });
 
     it('includes CORS headers in health response', async () => {
@@ -86,7 +85,6 @@ describe('routes/index', () => {
       expect(res.body).toHaveProperty('uptime');
       expect(res.body).toHaveProperty('database');
       expect(res.body.database).toHaveProperty('status', 'disconnected');
-      expect(res.body.database).toHaveProperty('error');
     });
   });
 
@@ -101,28 +99,6 @@ describe('routes/index', () => {
       const res = await supertest(app).get('/api/buildings/99999/unit');
 
       expect(res.status).toBe(404);
-    });
-  });
-
-  describe('webhook route exposure', () => {
-    it('exposes the Facebook webhook verification endpoint through the route index', async () => {
-      const res = await supertest(app).get('/api/webhooks/facebook')
-        .query({
-          'hub.mode': 'subscribe',
-          'hub.verify_token': 'test_verify_token',
-          'hub.challenge': 'CHALLENGE_123',
-        });
-
-      expect(res.status).toBe(200);
-      expect(res.text).toBe('CHALLENGE_123');
-    });
-
-    it('exposes the Facebook webhook event endpoint through the route index', async () => {
-      const res = await supertest(app).post('/api/webhooks/facebook')
-        .send({ object: 'user' });
-
-      expect(res.status).toBe(200);
-      expect(res.text).toBe('EVENT_RECEIVED');
     });
   });
 });

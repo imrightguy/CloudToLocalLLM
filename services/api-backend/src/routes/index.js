@@ -1,34 +1,27 @@
 const express = require('express');
 const { setCORSHeaders } = require('../utils/apiResponse');
 const { connect } = require('../database/connection');
+const logger = require('../utils/logger');
 const authRoutes = require('./auth.routes');
 const buildingRoutes = require('./building.routes');
 const employeeRoutes = require('./employee.routes');
 const leadRoutes = require('./lead.routes');
 const leaseRoutes = require('./lease.routes');
 const visitRoutes = require('./visit.routes');
-const marketplaceRoutes = require('./marketplace.routes');
-const documentRoutes = require('./document.routes');
 const scheduleRoutes = require('./schedule.routes');
 const communicationRoutes = require('./communication.routes');
 const smsRoutes = require('./sms.routes');
 const smsCampaignRoutes = require('./sms-campaign.routes');
-const facebookRoutes = require('./facebook.routes');
 const analyticsRoutes = require('./analytics.routes');
 const tenantConfirmationRoutes = require('./tenant-confirmation.routes');
 const notificationRoutes = require('./notification.routes');
-const adminRoutes = require('./admin.routes');
 const paymentRoutes = require('./payment.routes');
 const renewalRoutes = require('./renewal.routes');
 const renovationRoutes = require('./renovation.routes');
 const maintenanceRoutes = require('./maintenance.routes');
-const observationResultRoutes = require('./observation-result.routes');
-const twilioWhatsAppRoutes = require('./twilio-whatsapp.routes');
 const photoRoutes = require('./photo.routes');
-const dossierRoutes = require('./dossier.routes');
-const tenantChecklistRoutes = require('./tenant-checklist.routes');
 const renovationJobTemplateRoutes = require('./renovation-job-template.routes');
-const demoRoutes = require('./demo.routes');
+const plexflowRoutes = require('./plexflow.routes');
 
 const router = express.Router();
 
@@ -46,12 +39,13 @@ router.get('/health', async (req, res) => {
       database: { status: 'connected', latencyMs: dbLatencyMs },
     });
   } catch (error) {
+    logger.error('Health check failed', { error: error.message });
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
       uptime: process.uptime(),
-      database: { status: 'disconnected', error: error.message },
+      database: { status: 'disconnected' },
     });
   }
 });
@@ -62,27 +56,19 @@ router.use('/employees', employeeRoutes);
 router.use('/leads', leadRoutes);
 router.use('/leases', leaseRoutes);
 router.use('/visits', visitRoutes);
-router.use('/marketplace', marketplaceRoutes);
-router.use('/documents', documentRoutes);
 router.use('/schedules', scheduleRoutes);
 router.use('/communications', communicationRoutes);
 router.use('/webhooks', smsRoutes);
-router.use('/webhooks/facebook', facebookRoutes);
 router.use('/sms', smsCampaignRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/confirm', tenantConfirmationRoutes);
-router.use('/admin', adminRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/renewals', renewalRoutes);
 router.use('/renovations', renovationRoutes);
 router.use('/maintenance', maintenanceRoutes);
-router.use('/companies/:companyId/observation-results', observationResultRoutes);
-router.use('/webhooks/twilio/whatsapp', twilioWhatsAppRoutes);
+router.use('/plexflow', plexflowRoutes);
 router.use('/companies/:companyId/photos', photoRoutes);
-router.use('/companies/:companyId/dossiers', dossierRoutes);
-router.use('/companies/:companyId/tenant-checklists', tenantChecklistRoutes);
 router.use('/companies/:companyId/renovation-job-templates', renovationJobTemplateRoutes);
-router.use('/demo', demoRoutes);
 
 module.exports = router;

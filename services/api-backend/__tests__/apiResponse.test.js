@@ -5,7 +5,6 @@ const {
   validateFilters,
   getPagination,
   asyncHandler,
-  addSearch,
   addSort,
 } = require('../src/utils/apiResponse');
 
@@ -161,42 +160,6 @@ describe('asyncHandler', () => {
 
     await handler({}, {}, next);
     expect(next).not.toHaveBeenCalled();
-  });
-});
-
-describe('addSearch', () => {
-  it('returns queryBuilder unchanged when search is falsy', () => {
-    const qb = { whereRaw: jest.fn().mockReturnThis() };
-    const result = addSearch(qb, '', ['name']);
-    expect(result).toBe(qb);
-    expect(qb.whereRaw).not.toHaveBeenCalled();
-  });
-
-  it('returns queryBuilder unchanged when search is null', () => {
-    const qb = { whereRaw: jest.fn().mockReturnThis() };
-    const result = addSearch(qb, null, ['name']);
-    expect(result).toBe(qb);
-    expect(qb.whereRaw).not.toHaveBeenCalled();
-  });
-
-  it('calls whereRaw with LIKE conditions for each search field', () => {
-    const qb = { whereRaw: jest.fn().mockReturnThis() };
-    addSearch(qb, 'john', ['name', 'email']);
-
-    expect(qb.whereRaw).toHaveBeenCalledTimes(1);
-    const [rawClause, bindings] = qb.whereRaw.mock.calls[0];
-    expect(rawClause).toContain('LOWER(name)');
-    expect(rawClause).toContain('LOWER(email)');
-    expect(rawClause).toContain(' OR ');
-    expect(bindings).toEqual(['%john%', '%john%']);
-  });
-
-  it('lowercases the search term', () => {
-    const qb = { whereRaw: jest.fn().mockReturnThis() };
-    addSearch(qb, 'JOHN', ['name']);
-
-    const bindings = qb.whereRaw.mock.calls[0][1];
-    expect(bindings).toEqual(['%john%']);
   });
 });
 

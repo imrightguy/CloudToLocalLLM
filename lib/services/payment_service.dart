@@ -69,13 +69,13 @@ class PaymentService {
 
   Future<PaymentItem> recordPayment(Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/payments', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('payment*');
     return PaymentItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   Future<PaymentItem> updatePayment(String id, Map<String, dynamic> data) async {
     final result = await ApiService.instance.patch('/payments/$id', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('payment*');
     return PaymentItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 }

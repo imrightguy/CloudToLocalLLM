@@ -9,6 +9,36 @@ const { leadSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
+ * /api/leads/webhook/marketplace:
+ *   post:
+ *     tags: [Leads]
+ *     summary: Marketplace inbound webhook
+ *     description: >
+ *       Receives an inbound message from Kijiji / Facebook Marketplace, stores it as a lead,
+ *       and notifies Hermes for qualification. Public endpoint protected by an optional
+ *       X-Marketplace-Secret header.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *               source: { type: string, example: kijiji }
+ *               message: { type: string }
+ *               listingId: { type: string }
+ *     responses:
+ *       201:
+ *         description: Lead ingested
+ *       401:
+ *         description: Invalid webhook secret
+ */
+
+/**
+ * @swagger
  * /api/leads:
  *   get:
  *     tags: [Leads]
@@ -76,6 +106,8 @@ const { leadSchemas, uuidParam } = require('../config/validation-schemas');
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+router.post('/webhook/marketplace', validate(leadSchemas.marketplaceWebhook), asyncHandler(leadController.receiveMarketplaceWebhook));
+
 router.get('/', authenticateToken, asyncHandler(leadController.getLeads));
 
 /**
@@ -331,6 +363,30 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(leadC
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch('/:id/status', authenticateToken, validate(leadSchemas.updateStatus), asyncHandler(leadController.updateLeadStatus));
+
+/**
+ * @swagger
+ * /api/leads/{id}/notify-hermes:
+ *   post:
+ *     tags: [Leads]
+ *     summary: Trigger Hermes qualification
+ *     description: Sends an outbound notification to Hermes asking it to qualify the lead.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Hermes notification result
+ *       404:
+ *         description: Lead not found
+ */
+router.post('/:id/notify-hermes', authenticateToken, validate(uuidParam), asyncHandler(leadController.notifyHermesForLead));
 
 /**
  * @swagger

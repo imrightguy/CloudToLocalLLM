@@ -56,7 +56,8 @@
     "supertest": "^6.3.4"
   },
   "overrides": {
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "axios": "^1.7.9"
   },
   "engines": {
     "node": ">=18.0.0"

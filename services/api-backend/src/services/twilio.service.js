@@ -1,6 +1,39 @@
 const twilio = require('twilio');
 const logger = require('../utils/logger');
 
+const isProduction = () => process.env.NODE_ENV === 'production';
+
+/**
+ * Express middleware that verifies the X-Twilio-Signature header on incoming
+ * Twilio webhooks using the official SDK (twilio.validateRequest).
+ * Must run before any body-mutating middleware (e.g. validate) so the signed
+ * params are checked against the exact payload Twilio sent.
+ */
+const validateTwilioWebhook = (req, res, next) => {
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+  if (!authToken) {
+    if (isProduction()) {
+      logger.error('Twilio webhook rejected: TWILIO_AUTH_TOKEN not configured');
+      return res.status(403).type('text/xml').send('<Response></Response>');
+    }
+    logger.warn('⚠️  TWILIO_AUTH_TOKEN not set — skipping signature check (non-production)');
+    return next();
+  }
+
+  const signature = req.headers['x-twilio-signature'];
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const url = `${protocol}://${req.get('host')}${req.originalUrl}`;
+  const isValid = twilio.validateRequest(authToken, signature, url, req.body || {});
+
+  if (!isValid) {
+    logger.warn(`⚠️  Invalid Twilio signature for ${req.originalUrl}`);
+    return res.status(403).type('text/xml').send('<Response></Response>');
+  }
+
+  return next();
+};
+
 let twilioClient = null;
 let twilioPhoneNumber = null;
 let isInitialized = false;
@@ -141,4 +174,6 @@ const handleIncomingMessage = (body) => {
   }
 };
 
-module.exports = { initTwilio, sendSMS, handleIncomingMessage };
+module.exports = {
+  initTwilio, sendSMS, handleIncomingMessage, validateTwilioWebhook,
+};

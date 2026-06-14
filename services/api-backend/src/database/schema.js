@@ -16,7 +16,7 @@ const usersTable = pgTable('users', {
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   phone: text('phone'),
-  role: text('role').notNull().default('admin'),
+  role: text('role').notNull().default('user'),
   isActive: boolean('is_active').notNull().default(true),
   emailVerified: boolean('email_verified').notNull().default(false),
   tokenVersion: integer('token_version').notNull().default(1),
@@ -266,6 +266,32 @@ const unitReadinessTable = pgTable('unit_readiness', {
   leasingStatusIdx: index('unit_readiness_leasing_status_idx').on(table.leasingStatus),
 }));
 
+// ─── Maintenance Tickets (Voice AI / Vapi pillar) ───
+const maintenanceTicketsTable = pgTable('maintenance_tickets', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  title: text('title').notNull(),
+  description: text('description'),
+  urgency: text('urgency').notNull().default('moyenne'), // basse | moyenne | haute | urgence
+  status: text('status').notNull().default('ouvert'), // ouvert | en_cours | resolu
+  source: text('source').notNull().default('manual'), // manual | vapi | sms | phone
+  tenantId: uuid('tenant_id'),
+  tenantName: text('tenant_name'),
+  callerPhone: text('caller_phone'),
+  unitId: uuid('unit_id').references(() => unitsTable.id, { onDelete: 'set null' }),
+  buildingId: uuid('building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
+  photos: jsonb('photos').notNull().default('[]'),
+  vapiCallId: text('vapi_call_id'),
+  resolvedAt: timestamp('resolved_at'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  statusIdx: index('maintenance_tickets_status_idx').on(table.status),
+  urgencyIdx: index('maintenance_tickets_urgency_idx').on(table.urgency),
+  buildingIdx: index('maintenance_tickets_building_id_idx').on(table.buildingId),
+  unitIdx: index('maintenance_tickets_unit_id_idx').on(table.unitId),
+}));
+
 // ─── Employee Weekly Schedule ───
 const employeeSchedulesTable = pgTable('employee_schedules', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -417,56 +443,6 @@ const communicationThreadsTable = pgTable('communication_threads', {
   bookingStateIdx: index('comm_threads_booking_state_idx').on(table.bookingState),
 }));
 
-// ─── Messenger Conversations ───
-const messengerConversationsTable = pgTable('messenger_conversations', {
-  senderId: text('sender_id').primaryKey(),
-  state: text('state').notNull().default('NEW'),
-  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
-  language: text('language').notNull().default('fr'),
-  firstName: text('first_name'),
-  lastName: text('last_name'),
-  selectedBuildingId: uuid('selected_building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
-  selectedUnitId: uuid('selected_unit_id').references(() => unitsTable.id, { onDelete: 'set null' }),
-  lastActivityAt: timestamp('last_activity_at').notNull().defaultNow(),
-  conversationData: jsonb('conversation_data').notNull().default('{}'),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
-
-// ─── WhatsApp Conversations ───
-const whatsappConversationsTable = pgTable('whatsapp_conversations', {
-  phoneNumber: text('phone_number').primaryKey(),
-  state: text('state').notNull().default('NEW'),
-  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
-  language: text('language').notNull().default('fr'),
-  profileName: text('profile_name'),
-  conversationData: jsonb('conversation_data').notNull().default('{}'),
-  lastActivityAt: timestamp('last_activity_at').notNull().defaultNow(),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
-
-// ─── Documents ───
-const documentsTable = pgTable('documents', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  name: text('name').notNull(),
-  type: text('type').notNull(), // lease | application | id | income_proof | other
-  category: text('category'),
-  fileSize: integer('file_size'),
-  mimeType: text('mime_type'),
-  url: text('url').notNull(),
-  status: text('status').notNull().default('pending'), // pending | approved | rejected
-  referenceId: uuid('reference_id'),
-  referenceType: text('reference_type'), // lead | building | unit
-  metadata: jsonb('metadata').default('{}'),
-  uploadedBy: uuid('uploaded_by').references(() => usersTable.id),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
-
 // ─── Property Photos ───
 const propertyPhotosTable = pgTable('property_photos', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -522,128 +498,6 @@ const leasesTable = pgTable('leases', {
 }, (table) => ({
   unitIdx: index('leases_unit_id_idx').on(table.unitId),
   statusIdx: index('leases_status_idx').on(table.status),
-}));
-
-// ─── Tenant Checklists ───
-const tenantChecklistSessionsTable = pgTable('tenant_checklist_sessions', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  unitId: uuid('unit_id').notNull().references(() => unitsTable.id, { onDelete: 'cascade' }),
-  leaseId: uuid('lease_id').references(() => leasesTable.id, { onDelete: 'set null' }),
-  checklistType: text('checklist_type').notNull().default('move_in'),
-  state: text('state').notNull().default('draft'),
-  currentStepKey: text('current_step_key'),
-  currentStepOrder: integer('current_step_order').notNull().default(0),
-  tenantName: text('tenant_name'),
-  tenantPhone: text('tenant_phone'),
-  startedByUserId: uuid('started_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  resumedByUserId: uuid('resumed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  pausedByUserId: uuid('paused_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  completedByUserId: uuid('completed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  submittedByUserId: uuid('submitted_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  startedAt: timestamp('started_at'),
-  resumedAt: timestamp('resumed_at'),
-  pausedAt: timestamp('paused_at'),
-  pausedReason: text('paused_reason'),
-  submittedAt: timestamp('submitted_at'),
-  completedAt: timestamp('completed_at'),
-  reviewedByUserId: uuid('reviewed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  reviewedAt: timestamp('reviewed_at'),
-  confirmationNote: text('confirmation_note'),
-  metadata: jsonb('metadata').notNull().default('{}'),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  unitIdx: index('tenant_checklist_sessions_unit_id_idx').on(table.unitId),
-  leaseIdx: index('tenant_checklist_sessions_lease_id_idx').on(table.leaseId),
-  stateIdx: index('tenant_checklist_sessions_state_idx').on(table.state),
-  typeIdx: index('tenant_checklist_sessions_checklist_type_idx').on(table.checklistType),
-}));
-
-const tenantChecklistStepsTable = pgTable('tenant_checklist_steps', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  sessionId: uuid('session_id').notNull().references(() => tenantChecklistSessionsTable.id, { onDelete: 'cascade' }),
-  stepKey: text('step_key').notNull(),
-  stepOrder: integer('step_order').notNull(),
-  title: text('title').notNull(),
-  description: text('description'),
-  status: text('status').notNull().default('pending'),
-  requiredFields: jsonb('required_fields').notNull().default('[]'),
-  notes: text('notes'),
-  blockedReason: text('blocked_reason'),
-  completedAt: timestamp('completed_at'),
-  metadata: jsonb('metadata').notNull().default('{}'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  sessionStepIdx: uniqueIndex('tenant_checklist_steps_session_step_key_unique').on(table.sessionId, table.stepKey),
-  sessionIdx: index('tenant_checklist_steps_session_id_idx').on(table.sessionId),
-  orderIdx: index('tenant_checklist_steps_session_order_idx').on(table.sessionId, table.stepOrder),
-  statusIdx: index('tenant_checklist_steps_status_idx').on(table.status),
-}));
-
-const tenantChecklistAttachmentsTable = pgTable('tenant_checklist_attachments', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  sessionId: uuid('session_id').notNull().references(() => tenantChecklistSessionsTable.id, { onDelete: 'cascade' }),
-  stepId: uuid('step_id').notNull().references(() => tenantChecklistStepsTable.id, { onDelete: 'cascade' }),
-  documentRefId: text('document_ref_id'),
-  fileName: text('file_name'),
-  mimeType: text('mime_type'),
-  url: text('url'),
-  caption: text('caption'),
-  takenAt: timestamp('taken_at'),
-  uploadedByUserId: uuid('uploaded_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  metadata: jsonb('metadata').notNull().default('{}'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  sessionIdx: index('tenant_checklist_attachments_session_id_idx').on(table.sessionId),
-  stepIdx: index('tenant_checklist_attachments_step_id_idx').on(table.stepId),
-}));
-
-const tenantChecklistSignaturesTable = pgTable('tenant_checklist_signatures', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  sessionId: uuid('session_id').notNull().references(() => tenantChecklistSessionsTable.id, { onDelete: 'cascade' }),
-  signatureType: text('signature_type').notNull(),
-  signerName: text('signer_name'),
-  signerRole: text('signer_role'),
-  method: text('method').notNull().default('typed'),
-  status: text('status').notNull().default('captured'),
-  signatureData: jsonb('signature_data').notNull().default('{}'),
-  signedAt: timestamp('signed_at').notNull().defaultNow(),
-  signedByUserId: uuid('signed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  metadata: jsonb('metadata').notNull().default('{}'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  sessionTypeIdx: uniqueIndex('tenant_checklist_signatures_session_type_unique').on(table.sessionId, table.signatureType),
-  sessionIdx: index('tenant_checklist_signatures_session_id_idx').on(table.sessionId),
-}));
-
-const tenantChecklistEventsTable = pgTable('tenant_checklist_events', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  sessionId: uuid('session_id').notNull().references(() => tenantChecklistSessionsTable.id, { onDelete: 'cascade' }),
-  eventType: text('event_type').notNull(),
-  actorType: text('actor_type').notNull().default('user'),
-  actorUserId: uuid('actor_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  fromState: text('from_state'),
-  toState: text('to_state'),
-  stepId: uuid('step_id').references(() => tenantChecklistStepsTable.id, { onDelete: 'set null' }),
-  payload: jsonb('payload').notNull().default('{}'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-}, (table) => ({
-  sessionIdx: index('tenant_checklist_events_session_id_idx').on(table.sessionId),
-  sessionEventIdx: index('tenant_checklist_events_session_event_type_idx').on(table.sessionId, table.eventType),
-  createdAtIdx: index('tenant_checklist_events_created_at_idx').on(table.createdAt),
-}));
-
-// ─── Document-Lead junction ───
-const documentsLeadsTable = pgTable('documents_leads', {
-  documentId: uuid('document_id').notNull().references(() => documentsTable.id, { onDelete: 'cascade' }),
-  leadId: uuid('lead_id').notNull().references(() => leadsTable.id, { onDelete: 'cascade' }),
-  assignedAt: timestamp('assigned_at').notNull().defaultNow(),
-}, (table) => ({
-  pk: { primaryKey: { columns: [table.documentId, table.leadId] } },
 }));
 
 // ─── SMS Templates ───
@@ -709,55 +563,6 @@ const notificationsTable = pgTable('notifications', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 }, (table) => ({
   userIdReadIdx: index('notifications_user_read_idx').on(table.userId, table.isRead),
-}));
-
-// ─── TAL Dossiers ───
-const dossierCasesTable = pgTable('dossier_cases', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  companyId: uuid('company_id').notNull(),
-  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
-  unitId: uuid('unit_id').references(() => unitsTable.id, { onDelete: 'set null' }),
-  buildingId: uuid('building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
-  problemCategory: text('problem_category').notNull(),
-  incidentWindowStart: timestamp('incident_window_start'),
-  incidentWindowEnd: timestamp('incident_window_end'),
-  status: text('status').notNull().default('draft'), // draft | in_review | approved | exported | archived
-  factualSummary: text('factual_summary').notNull().default(''),
-  nextSteps: jsonb('next_steps').notNull().default('[]'),
-  reviewNotes: text('review_notes'),
-  reviewedByUserId: uuid('reviewed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  reviewedAt: timestamp('reviewed_at'),
-  exportedByUserId: uuid('exported_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  exportedAt: timestamp('exported_at'),
-  createdByUserId: uuid('created_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  companyIdx: index('dossier_cases_company_id_idx').on(table.companyId),
-  companyStatusIdx: index('dossier_cases_company_status_idx').on(table.companyId, table.status),
-  companyUnitIdx: index('dossier_cases_company_unit_idx').on(table.companyId, table.unitId),
-}));
-
-const dossierCaseItemsTable = pgTable('dossier_case_items', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  companyId: uuid('company_id').notNull(),
-  dossierCaseId: uuid('dossier_case_id').notNull().references(() => dossierCasesTable.id, { onDelete: 'cascade' }),
-  sourceType: text('source_type').notNull(),
-  sourceRecordId: text('source_record_id').notNull(),
-  sourceAt: timestamp('source_at'),
-  sortOrder: integer('sort_order').notNull().default(0),
-  title: text('title').notNull(),
-  summary: text('summary').notNull(),
-  supportingLabel: text('supporting_label'),
-  details: jsonb('details').notNull().default('{}'),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  dossierCaseIdx: index('dossier_case_items_dossier_case_id_idx').on(table.dossierCaseId),
-  companyIdx: index('dossier_case_items_company_id_idx').on(table.companyId),
-  sourceTypeIdx: index('dossier_case_items_source_type_idx').on(table.sourceType),
 }));
 
 // ─── Rent Payments ───
@@ -834,41 +639,6 @@ const smsOptOutsTable = pgTable('sms_opt_outs', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-// ─── Observation Results ───
-const observationResultsTable = pgTable('observation_results', {
-  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
-  companyId: uuid('company_id').notNull(),
-  projectId: uuid('project_id'),
-  domain: text('domain').notNull(), // lead | message | visit | follow-up
-  sourceKind: text('source_kind').notNull(),
-  sourceRef: text('source_ref'),
-  sourceFingerprint: text('source_fingerprint'),
-  title: text('title').notNull(),
-  summary: text('summary').notNull(),
-  details: jsonb('details').notNull().default('{}'),
-  privacyClass: text('privacy_class').notNull().default('redacted'),
-  confidence: numeric('confidence', { precision: 5, scale: 4 }),
-  status: text('status').notNull().default('new'), // new | reviewed | dismissed | converted
-  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
-  communicationLogId: uuid('communication_log_id').references(() => communicationLogsTable.id, { onDelete: 'set null' }),
-  visitId: uuid('visit_id').references(() => visitsTable.id, { onDelete: 'set null' }),
-  followUpType: text('follow_up_type'),
-  followUpDueAt: timestamp('follow_up_due_at'),
-  reviewedByUserId: uuid('reviewed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
-  reviewedAt: timestamp('reviewed_at'),
-  dismissedAt: timestamp('dismissed_at'),
-  dismissalReason: text('dismissal_reason'),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (table) => ({
-  companyIdx: index('observation_results_company_id_idx').on(table.companyId),
-  companyStatusIdx: index('observation_results_company_status_idx').on(table.companyId, table.status),
-  companyDomainIdx: index('observation_results_company_domain_idx').on(table.companyId, table.domain),
-  sourceFingerprintIdx: index('observation_results_source_fingerprint_idx').on(table.sourceFingerprint),
-  companySourceRefIdx: index('observation_results_company_source_ref_idx').on(table.companyId, table.sourceKind, table.sourceRef),
-}));
-
 module.exports = {
   usersTable,
   refreshTokensTable,
@@ -884,32 +654,21 @@ module.exports = {
   renovationJobTemplatesTable,
   workerIntakeRecordsTable,
   unitReadinessTable,
+  maintenanceTicketsTable,
   employeeSchedulesTable,
   leadsTable,
   visitsTable,
   smsLogsTable,
   communicationLogsTable,
   communicationThreadsTable,
-  messengerConversationsTable,
-  whatsappConversationsTable,
-  documentsTable,
   propertyPhotosTable,
-  documentsLeadsTable,
   leasesTable,
-  tenantChecklistSessionsTable,
-  tenantChecklistStepsTable,
-  tenantChecklistAttachmentsTable,
-  tenantChecklistSignaturesTable,
-  tenantChecklistEventsTable,
   notificationPreferencesTable,
   notificationsTable,
   smsTemplatesTable,
   smsCampaignsTable,
   smsQueueTable,
   smsOptOutsTable,
-  observationResultsTable,
-  dossierCasesTable,
-  dossierCaseItemsTable,
   paymentsTable,
   renewalOffersTable,
 };

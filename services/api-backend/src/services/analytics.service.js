@@ -1,5 +1,5 @@
 const {
-  sql, eq, and, gte, desc, or,
+  sql, eq, and, gte, lt, desc, or, inArray, notInArray,
 } = require('drizzle-orm');
 const logger = require('../utils/logger');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
@@ -8,7 +8,14 @@ const { db } = require('../database/connection');
 const {
   leadsTable, visitsTable, buildingsTable, employeesTable, leasesTable, unitsTable,
   communicationLogsTable, communicationThreadsTable,
+  maintenanceTicketsTable, renovationsTable, renovationOrdersTable,
 } = require('../database/schema');
+
+const LEASING_TERMINAL_STAGES = ['signe', 'bailSigne', 'inactif'];
+const LEASING_SIGNED_STAGES = ['signe', 'bailSigne'];
+const MAINTENANCE_OPEN_STATUSES = ['ouvert', 'en_cours'];
+const RENOVATION_ACTIVE_STATUSES = ['planned', 'active', 'blocked'];
+const RENOVATION_OPEN_ORDER_STATUSES = ['draft', 'ordered', 'partially_received'];
 
 const VALID_PERIODS = new Set(['30d', '90d', '12m']);
 const VALID_GRANULARITIES = new Set(['day', 'week', 'month']);
@@ -886,8 +893,144 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
   }
 }
 
+// ─── Pillars Overview (Dashboard — Leasing / Maintenance / Renovation) ───
+
+async function getLeasingPillar() {
+  const weekStart = getPeriodStart('week');
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+
+  const [[activeLeads], [visitsThisWeek], [totalLeads], [signedLeads]] = await Promise.all([
+    db
+      .select({ count: sql`count(*)` })
+      .from(leadsTable)
+      .where(and(
+        eq(leadsTable.isActive, true),
+        notInArray(leadsTable.stage, LEASING_TERMINAL_STAGES),
+      )),
+    db
+      .select({ count: sql`count(*)` })
+      .from(visitsTable)
+      .where(and(
+        eq(visitsTable.isActive, true),
+        gte(visitsTable.dateTime, weekStart),
+        lt(visitsTable.dateTime, weekEnd),
+      )),
+    db
+      .select({ count: sql`count(*)` })
+      .from(leadsTable)
+      .where(eq(leadsTable.isActive, true)),
+    db
+      .select({ count: sql`count(*)` })
+      .from(leadsTable)
+      .where(and(
+        eq(leadsTable.isActive, true),
+        inArray(leadsTable.stage, LEASING_SIGNED_STAGES),
+      )),
+  ]);
+
+  const total = Number(totalLeads.count);
+  const signed = Number(signedLeads.count);
+  const rate = total > 0 ? Math.round((signed / total) * 1000) / 10 : 0;
+
+  return {
+    activeLeads: Number(activeLeads.count),
+    visitsThisWeek: Number(visitsThisWeek.count),
+    conversionRate: `${rate}%`,
+  };
+}
+
+async function getMaintenancePillar() {
+  const [[openTickets], [inProgressTickets], [resolution]] = await Promise.all([
+    db
+      .select({ count: sql`count(*)` })
+      .from(maintenanceTicketsTable)
+      .where(and(
+        eq(maintenanceTicketsTable.isActive, true),
+        inArray(maintenanceTicketsTable.status, MAINTENANCE_OPEN_STATUSES),
+      )),
+    db
+      .select({ count: sql`count(*)` })
+      .from(maintenanceTicketsTable)
+      .where(and(
+        eq(maintenanceTicketsTable.isActive, true),
+        eq(maintenanceTicketsTable.status, 'en_cours'),
+      )),
+    db
+      .select({
+        avgHours: sql`AVG(EXTRACT(EPOCH FROM (${maintenanceTicketsTable.resolvedAt} - ${maintenanceTicketsTable.createdAt})) / 3600)`.as('avg_hours'),
+      })
+      .from(maintenanceTicketsTable)
+      .where(and(
+        eq(maintenanceTicketsTable.status, 'resolu'),
+        sql`${maintenanceTicketsTable.resolvedAt} IS NOT NULL`,
+      )),
+  ]);
+
+  return {
+    openTickets: Number(openTickets.count),
+    inProgressTickets: Number(inProgressTickets.count),
+    avgResolutionHours: resolution.avgHours !== null && resolution.avgHours !== undefined
+      ? Math.round(Number(resolution.avgHours) * 10) / 10
+      : null,
+  };
+}
+
+async function getRenovationPillar() {
+  const [[activeProjects], [blockedProjects], [openOrders]] = await Promise.all([
+    db
+      .select({ count: sql`count(*)` })
+      .from(renovationsTable)
+      .where(and(
+        eq(renovationsTable.isActive, true),
+        inArray(renovationsTable.status, RENOVATION_ACTIVE_STATUSES),
+      )),
+    db
+      .select({ count: sql`count(*)` })
+      .from(renovationsTable)
+      .where(and(
+        eq(renovationsTable.isActive, true),
+        eq(renovationsTable.status, 'blocked'),
+      )),
+    db
+      .select({ count: sql`count(*)` })
+      .from(renovationOrdersTable)
+      .where(and(
+        eq(renovationOrdersTable.isActive, true),
+        inArray(renovationOrdersTable.status, RENOVATION_OPEN_ORDER_STATUSES),
+      )),
+  ]);
+
+  return {
+    activeProjects: Number(activeProjects.count),
+    blockedProjects: Number(blockedProjects.count),
+    openOrders: Number(openOrders.count),
+  };
+}
+
+async function getPillarsOverview() {
+  try {
+    const [leasing, maintenance, renovation] = await Promise.all([
+      getLeasingPillar(),
+      getMaintenancePillar(),
+      getRenovationPillar(),
+    ]);
+
+    return {
+      generatedAt: new Date().toISOString(),
+      leasing,
+      maintenance,
+      renovation,
+    };
+  } catch (error) {
+    logger.error('[analytics.service] getPillarsOverview error:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getPeriodStart,
+  getPillarsOverview,
   getHotLeads,
   getPipelineSummary,
   getConversionRates,

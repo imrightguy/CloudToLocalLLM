@@ -7,17 +7,14 @@ import '../services/auth_service.dart';
 import '../services/communication_service.dart';
 import 'calendar_screen.dart';
 import 'dashboard_screen.dart';
-import 'pipeline_screen.dart';
 import 'visits_screen.dart';
 import 'buildings_screen.dart';
 import 'settings_screen.dart';
 import 'employees_screen.dart';
-import 'documents_screen.dart';
 import 'leases_screen.dart';
 import 'payments_screen.dart';
-import 'marketplace_inbox_screen.dart';
 import 'communications_screen.dart';
-import 'onboarding_screen.dart';
+import 'leads_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
@@ -45,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
       icon: Icons.dashboard_outlined,
     ),
     _NavigationEntry(
-      screen: MarketplaceInboxScreen(),
+      screen: CommunicationsScreen(),
       label: 'Messages',
       icon: Icons.message_outlined,
     ),
@@ -205,10 +202,10 @@ class _MoreScreen extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           _MoreTile(
-            icon: Icons.trending_up,
-            label: 'Pipeline',
+            icon: Icons.people_alt_outlined,
+            label: 'Pistes',
             onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PipelineScreen()),
+                  MaterialPageRoute(builder: (_) => const LeadsScreen()),
                 ),
           ),
           _MoreTile(
@@ -240,13 +237,6 @@ class _MoreScreen extends StatelessWidget {
                 ),
           ),
           _MoreTile(
-            icon: Icons.play_circle_outline,
-            label: 'Configuration initiale',
-            onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-                ),
-          ),
-          _MoreTile(
             icon: Icons.receipt_long_outlined,
             label: 'Paiements',
             onTap: () => Navigator.of(context).push(
@@ -261,13 +251,6 @@ class _MoreScreen extends StatelessWidget {
                 ),
           ),
           _MoreTile(
-            icon: Icons.folder_outlined,
-            label: 'Documents',
-            onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const DocumentsScreen()),
-                ),
-          ),
-          _MoreTile(
             icon: Icons.construction_outlined,
             label: 'Rénovation Ops',
             onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
@@ -278,14 +261,9 @@ class _MoreScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).pushNamed('/maintenance'),
           ),
           _MoreTile(
-            icon: Icons.event_note_outlined,
-            label: 'Tâches du jour',
-            onTap: () => Navigator.of(context).pushNamed('/daily-tasks'),
-          ),
-          _MoreTile(
-            icon: Icons.rate_review_outlined,
-            label: 'Revue des observations',
-            onTap: () => Navigator.of(context).pushNamed('/observations'),
+            icon: Icons.confirmation_number_outlined,
+            label: 'Tickets de maintenance',
+            onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
           ),
           _MoreTile(
             icon: Icons.settings_outlined,
@@ -469,17 +447,6 @@ class _CompanyAccessMissingState extends StatelessWidget {
                         onPressed: () => onRefresh(),
                         icon: const Icon(Icons.refresh_rounded),
                         label: const Text('Réessayer'),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const OnboardingScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.play_circle_outline),
-                        label: const Text('Configuration initiale'),
                       ),
                       TextButton.icon(
                         onPressed: () => onLogout(),
@@ -729,7 +696,7 @@ class _HomeTabState extends State<_HomeTab> {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Commencez ici pour traiter les messages Marketplace et verrouiller les visites.',
+          'Commencez ici pour traiter les messages SMS et verrouiller les visites.',
           style: TextStyle(
             fontSize: 13,
             color: AppColors.textSecondary,
@@ -745,11 +712,11 @@ class _HomeTabState extends State<_HomeTab> {
               accentColor: AppColors.primary,
               title: 'Boîte de réception',
               subtitle: _recentCommunications.isEmpty
-                  ? 'Messages Marketplace, SMS et appels regroupés au même endroit.'
+                  ? 'Vos conversations SMS regroupées au même endroit.'
                   : '${_recentCommunications.first.contactName} · ${_shortPreview(_recentCommunications.first.body)}',
               actionLabel: 'Ouvrir les messages',
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MarketplaceInboxScreen()),
+                MaterialPageRoute(builder: (_) => const CommunicationsScreen()),
               ),
             ),
             _PrimaryFlowCard(

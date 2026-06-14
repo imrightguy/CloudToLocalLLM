@@ -95,9 +95,46 @@ class CacheService {
     }
   }
 
-  void invalidate(String key) {
-    _memory.remove(key);
-    _prefs?.remove('$_prefix$key');
+  /// Removes a single key, or all keys matching a glob pattern when [pattern]
+  /// contains `*` (e.g. `buildings_*`).
+  void invalidate(String pattern) {
+    if (!pattern.contains('*')) {
+      _memory.remove(pattern);
+      _prefs?.remove('$_prefix$pattern');
+      return;
+    }
+
+    final regex = _patternToRegExp(pattern);
+    for (final key in _memory.keys.toList()) {
+      if (regex.hasMatch(key)) {
+        _memory.remove(key);
+        _prefs?.remove('$_prefix$key');
+      }
+    }
+
+    final prefsKeys = _prefs?.getKeys() ?? <String>{};
+    for (final prefsKey in prefsKeys.toList()) {
+      if (!prefsKey.startsWith(_prefix)) continue;
+      final key = prefsKey.substring(_prefix.length);
+      if (regex.hasMatch(key)) {
+        _prefs?.remove(prefsKey);
+      }
+    }
+  }
+
+  RegExp _patternToRegExp(String pattern) {
+    final buffer = StringBuffer('^');
+    for (final char in pattern.split('')) {
+      if (char == '*') {
+        buffer.write('.*');
+      } else if (r'\^$.|?+()[]{}'.contains(char)) {
+        buffer.write('\\$char');
+      } else {
+        buffer.write(char);
+      }
+    }
+    buffer.write(r'$');
+    return RegExp(buffer.toString());
   }
 
   void invalidateAll() {

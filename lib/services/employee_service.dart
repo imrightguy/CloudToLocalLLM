@@ -62,7 +62,7 @@ class EmployeeService {
 
   Future<EmployeeItem> createEmployee(Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/employees', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('employee*');
     return EmployeeItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -71,12 +71,12 @@ class EmployeeService {
     Map<String, dynamic> data,
   ) async {
     final result = await ApiService.instance.patch('/employees/$id', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('employee*');
     return EmployeeItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   Future<void> deleteEmployee(String id) async {
     await ApiService.instance.delete('/employees/$id');
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('employee*');
   }
 }

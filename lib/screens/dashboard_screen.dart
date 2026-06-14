@@ -11,10 +11,7 @@ import '../theme/app_typography.dart';
 import '../widgets/building_perf_row.dart';
 import '../widgets/kpi_card.dart';
 import '../widgets/lead_funnel.dart';
-import '../widgets/occupancy_chart.dart';
-import '../widgets/revenue_chart.dart';
 import 'units_screen.dart';
-import 'onboarding_screen.dart';
 import '../widgets/immo_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -29,6 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _errorMessage;
 
   FullDashboardData? _dashboardData;
+  PillarsOverview? _pillars;
   List<BuildingItem> _buildings = [];
   List<CommunicationItem> _recentCommunications = [];
 
@@ -46,18 +44,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final results = await Future.wait([
         AnalyticsService.instance.getDashboard(),
+        AnalyticsService.instance.getPillarsOverview(),
         ApiService.instance.get('/buildings'),
         CommunicationService.instance.getActivity(limit: 5),
       ]);
 
       final analytics = results[0] as FullDashboardData;
-      final buildingsResponse = results[1];
-      final communications = results[2] as List<CommunicationItem>;
+      final pillars = results[1] as PillarsOverview;
+      final buildingsResponse = results[2];
+      final communications = results[3] as List<CommunicationItem>;
 
       final buildingsData = (buildingsResponse as Map<String, dynamic>)['data'] as List<dynamic>;
 
       setState(() {
         _dashboardData = analytics;
+        _pillars = pillars;
         _buildings = buildingsData
             .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -101,7 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         elevation: 4,
         shape: const StadiumBorder(),
         onPressed: () {
-          Navigator.of(context).pushNamed('/pipeline');
+          Navigator.of(context).pushNamed('/communications');
         },
         icon: const Icon(Icons.add_circle_outline),
         label: const Text('Nouvelle piste', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
@@ -194,34 +195,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               child: const Text('Ajouter un immeuble'),
             ),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const OnboardingScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.play_circle_outline, size: 18),
-              label: const Text('Configuration initiale guidée'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-              ),
-            ),
           ],
         ),
       );
     }
-
-    final revenueChart = _dashboardData?.revenueChart
-            ?.map((e) => RevenueDataPoint.fromJson(e))
-            .toList() ??
-        [];
-    final occupancyChart = _dashboardData?.occupancyChart
-            ?.map((e) => OccupancyDataPoint.fromJson(e))
-            .toList() ??
-        [];
 
     return RefreshIndicator(
       onRefresh: _fetchDashboard,
@@ -234,16 +211,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildPeriodSelector(),
             const SizedBox(height: AppSpacing.xl),
 
+            if (_pillars != null) ...[
+              _buildPillarsSection(),
+              const SizedBox(height: AppSpacing.xl),
+            ],
+
             _buildKpiCards(),
-            const SizedBox(height: AppSpacing.xl),
-
-            RevenueChartCard(data: revenueChart),
-            const SizedBox(height: AppSpacing.xl),
-
-            OccupancyChartCard(
-              data: occupancyChart,
-              currentRate: _kpi?.occupancyRate.current.toDouble(),
-            ),
             const SizedBox(height: AppSpacing.xl),
 
             if (_dashboardData?.leadFunnel != null &&
@@ -351,10 +324,158 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icons.person_add,
             trendPercentage: _kpi!.openLeads.trend,
             onTap: () {
-              Navigator.of(context).pushNamed('/pipeline');
+              Navigator.of(context).pushNamed('/communications');
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPillarsSection() {
+    final pillars = _pillars!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Les 3 piliers', style: AppTypography.sectionHeader),
+        const SizedBox(height: AppSpacing.md),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 720;
+            final leasingCard = _buildPillarCard(
+              title: 'Leasing',
+              icon: Icons.people_alt_outlined,
+              accentColor: AppColors.primary,
+              onTap: () => Navigator.of(context).pushNamed('/leads'),
+              metrics: [
+                _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
+                _PillarMetric('Visites cette semaine', '${pillars.leasing.visitsThisWeek}'),
+                _PillarMetric('Taux de conversion', pillars.leasing.conversionRate),
+              ],
+            );
+            final maintenanceCard = _buildPillarCard(
+              title: 'Maintenance',
+              icon: Icons.build_outlined,
+              accentColor: AppColors.skyBlue,
+              onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
+              metrics: [
+                _PillarMetric('Tickets ouverts', '${pillars.maintenance.openTickets}'),
+                _PillarMetric('En cours', '${pillars.maintenance.inProgressTickets}'),
+                _PillarMetric(
+                  'Résolution moy.',
+                  pillars.maintenance.avgResolutionHours != null
+                      ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h'
+                      : '—',
+                ),
+              ],
+            );
+            final renovationCard = _buildPillarCard(
+              title: 'Rénovation',
+              icon: Icons.handyman_outlined,
+              accentColor: AppColors.warning,
+              onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+              metrics: [
+                _PillarMetric('Projets actifs', '${pillars.renovation.activeProjects}'),
+                _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
+                _PillarMetric('Commandes ouvertes', '${pillars.renovation.openOrders}'),
+              ],
+            );
+
+            if (isWide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: leasingCard),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: maintenanceCard),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: renovationCard),
+                ],
+              );
+            }
+
+            return Column(
+              children: [
+                leasingCard,
+                const SizedBox(height: AppSpacing.md),
+                maintenanceCard,
+                const SizedBox(height: AppSpacing.md),
+                renovationCard,
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPillarCard({
+    required String title,
+    required IconData icon,
+    required Color accentColor,
+    required List<_PillarMetric> metrics,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, size: 22, color: accentColor),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Text(title, style: AppTypography.cardTitle),
+                  ),
+                  const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              ...metrics.map((m) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            m.label,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          m.value,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -854,4 +975,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+}
+
+class _PillarMetric {
+  const _PillarMetric(this.label, this.value);
+  final String label;
+  final String value;
 }

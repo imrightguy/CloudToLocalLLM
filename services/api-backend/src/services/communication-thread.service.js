@@ -12,10 +12,6 @@ const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 const { BOOKING_STATES } = require('../constants/marketplace-states');
 const logger = require('../utils/logger');
 const {
-  isDemoMarketplaceLead,
-  isSeededMarketplaceMode,
-} = require('./marketplace-mode');
-const {
   normalizeCommunicationAttachments,
   normalizeCommunicationMetadata,
   normalizeCommunicationStatus,
@@ -558,9 +554,7 @@ async function loadThreadContext(filters = {}) {
     .where(leadWhere)
     .orderBy(desc(leadsTable.updatedAt));
 
-  const marketplaceLeads = isSeededMarketplaceMode()
-    ? leads.filter((lead) => isDemoMarketplaceLead(lead))
-    : leads;
+  const marketplaceLeads = leads;
 
   if (marketplaceLeads.length === 0) {
     return {
@@ -879,41 +873,6 @@ async function recordCommunicationActivity(payload = {}) {
     };
   }
 
-  if (leadId && isSeededMarketplaceMode()) {
-    const [marketplaceLead] = await db
-      .select({
-        id: leadsTable.id,
-        stage: leadsTable.stage,
-        tags: leadsTable.tags,
-      })
-      .from(leadsTable)
-      .where(eq(leadsTable.id, leadId))
-      .limit(1);
-
-    if (!marketplaceLead) {
-      return {
-        statusCode: 400,
-        body: {
-          success: false,
-          error: { message: 'Invalid leadId or employeeId', code: 'FOREIGN_KEY_ERROR' },
-        },
-      };
-    }
-
-    if (!isDemoMarketplaceLead(marketplaceLead)) {
-      return {
-        statusCode: 403,
-        body: {
-          success: false,
-          error: {
-            message: 'Marketplace seeded mode only accepts demo leads',
-            code: 'DEMO_MARKETPLACE_ONLY',
-          },
-        },
-      };
-    }
-  }
-
   try {
     const insertValues = {
       leadId,
@@ -1053,41 +1012,6 @@ async function recordMarketplaceVisit(leadId, payload = {}) {
         error: { message: 'leadId is required', code: 'VALIDATION_ERROR' },
       },
     };
-  }
-
-  if (isSeededMarketplaceMode()) {
-    const [marketplaceLead] = await db
-      .select({
-        id: leadsTable.id,
-        stage: leadsTable.stage,
-        tags: leadsTable.tags,
-      })
-      .from(leadsTable)
-      .where(eq(leadsTable.id, leadId))
-      .limit(1);
-
-    if (!marketplaceLead) {
-      return {
-        statusCode: 400,
-        body: {
-          success: false,
-          error: { message: 'Invalid leadId or employeeId', code: 'FOREIGN_KEY_ERROR' },
-        },
-      };
-    }
-
-    if (!isDemoMarketplaceLead(marketplaceLead)) {
-      return {
-        statusCode: 403,
-        body: {
-          success: false,
-          error: {
-            message: 'Marketplace seeded mode only accepts demo leads',
-            code: 'DEMO_MARKETPLACE_ONLY',
-          },
-        },
-      };
-    }
   }
 
   const { createVisit } = require('../controllers/visit.controller');

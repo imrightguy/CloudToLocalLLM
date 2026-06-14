@@ -9,9 +9,7 @@ const routes = require('./routes');
 const swaggerSpec = require('./config/swagger');
 const { connect, closeDatabase } = require('./database/connection');
 const { initTwilio } = require('./services/twilio.service');
-const { initWhatsApp } = require('./services/whatsapp.service');
 const { startScheduler, stopScheduler } = require('./services/scheduler.service');
-const { startWeeklyReport, stopWeeklyReport } = require('./services/weekly-report.service');
 const { apiLimiter } = require('./middleware/rateLimiters');
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -25,6 +23,10 @@ if (isProduction) {
   }
   if (process.env.JWT_SECRET.length < 32) {
     console.error('FATAL: JWT_SECRET must be at least 32 characters in production');
+    process.exit(1);
+  }
+  if (process.env.JWT_REFRESH_SECRET.length < 32) {
+    console.error('FATAL: JWT_REFRESH_SECRET must be at least 32 characters in production');
     process.exit(1);
   }
   if (!process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS.includes('*')) {
@@ -53,7 +55,10 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
 app.use(cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buf) => { req.rawBody = buf; },
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(apiLimiter);
 
@@ -93,7 +98,8 @@ app.get('/health', async (req, res) => {
     await connect();
     res.json({ status: 'healthy', timestamp: new Date().toISOString(), uptime: process.uptime() });
   } catch (error) {
-    res.status(503).json({ status: 'unhealthy', timestamp: new Date().toISOString(), error: error.message });
+    logger.error('Health check failed', { error: error.message });
+    res.status(503).json({ status: 'unhealthy', timestamp: new Date().toISOString() });
   }
 });
 
@@ -130,15 +136,12 @@ app.listen(PORT, async () => {
   }
 
   initTwilio();
-  initWhatsApp();
   startScheduler();
-  startWeeklyReport();
 });
 
 const shutdown = async () => {
   logger.info('Shutting down');
   stopScheduler();
-  stopWeeklyReport();
   await closeDatabase();
   process.exit(0);
 };

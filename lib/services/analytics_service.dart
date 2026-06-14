@@ -258,11 +258,110 @@ class FullDashboardData {
   }
 }
 
+class LeasingPillar {
+  const LeasingPillar({
+    required this.activeLeads,
+    required this.visitsThisWeek,
+    required this.conversionRate,
+  });
+
+  final int activeLeads;
+  final int visitsThisWeek;
+  final String conversionRate;
+
+  factory LeasingPillar.fromJson(Map<String, dynamic> json) => LeasingPillar(
+        activeLeads: (json['activeLeads'] as num?)?.toInt() ?? 0,
+        visitsThisWeek: (json['visitsThisWeek'] as num?)?.toInt() ?? 0,
+        conversionRate: json['conversionRate'] as String? ?? '0%',
+      );
+}
+
+class MaintenancePillar {
+  const MaintenancePillar({
+    required this.openTickets,
+    required this.inProgressTickets,
+    required this.avgResolutionHours,
+  });
+
+  final int openTickets;
+  final int inProgressTickets;
+  final double? avgResolutionHours;
+
+  factory MaintenancePillar.fromJson(Map<String, dynamic> json) =>
+      MaintenancePillar(
+        openTickets: (json['openTickets'] as num?)?.toInt() ?? 0,
+        inProgressTickets: (json['inProgressTickets'] as num?)?.toInt() ?? 0,
+        avgResolutionHours: (json['avgResolutionHours'] as num?)?.toDouble(),
+      );
+}
+
+class RenovationPillar {
+  const RenovationPillar({
+    required this.activeProjects,
+    required this.blockedProjects,
+    required this.openOrders,
+  });
+
+  final int activeProjects;
+  final int blockedProjects;
+  final int openOrders;
+
+  factory RenovationPillar.fromJson(Map<String, dynamic> json) =>
+      RenovationPillar(
+        activeProjects: (json['activeProjects'] as num?)?.toInt() ?? 0,
+        blockedProjects: (json['blockedProjects'] as num?)?.toInt() ?? 0,
+        openOrders: (json['openOrders'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class PillarsOverview {
+  const PillarsOverview({
+    required this.leasing,
+    required this.maintenance,
+    required this.renovation,
+  });
+
+  final LeasingPillar leasing;
+  final MaintenancePillar maintenance;
+  final RenovationPillar renovation;
+
+  factory PillarsOverview.fromJson(Map<String, dynamic> json) =>
+      PillarsOverview(
+        leasing: LeasingPillar.fromJson(
+            (json['leasing'] as Map<String, dynamic>?) ?? {}),
+        maintenance: MaintenancePillar.fromJson(
+            (json['maintenance'] as Map<String, dynamic>?) ?? {}),
+        renovation: RenovationPillar.fromJson(
+            (json['renovation'] as Map<String, dynamic>?) ?? {}),
+      );
+}
+
 class AnalyticsService {
   AnalyticsService._();
   static final AnalyticsService instance = AnalyticsService._();
 
   static const int _cacheTtlSeconds = 60;
+
+  Future<PillarsOverview> getPillarsOverview({bool forceRefresh = false}) async {
+    const cacheKey = 'analytics_pillars';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        return PillarsOverview.fromJson(
+          jsonDecode(cached) as Map<String, dynamic>,
+        );
+      }
+    }
+
+    final result = await ApiService.instance.get('/analytics/pillars');
+    final data = result['data'] as Map<String, dynamic>;
+    CacheService.instance.set(
+      cacheKey,
+      jsonEncode(data),
+      ttlSeconds: _cacheTtlSeconds,
+    );
+    return PillarsOverview.fromJson(data);
+  }
 
   Future<FullDashboardData> getDashboard({bool forceRefresh = false}) async {
     const cacheKey = 'analytics_dashboard';

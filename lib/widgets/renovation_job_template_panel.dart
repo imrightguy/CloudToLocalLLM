@@ -14,7 +14,7 @@ class RenovationJobTemplatePanel extends StatefulWidget {
 }
 
 class _RenovationJobTemplatePanelState extends State<RenovationJobTemplatePanel> {
-  static const String _companyId = AppConfig.demoCompanyId;
+  static const String _companyId = AppConfig.companyId;
 
   late Future<List<RenovationJobTemplate>> _templatesFuture;
 

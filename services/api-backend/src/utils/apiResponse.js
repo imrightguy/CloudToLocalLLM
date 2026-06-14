@@ -90,25 +90,6 @@ const validateFilters = (req, allowedFilters) => {
 };
 
 /**
- * Search helper for text searches
- * @param {Object} queryBuilder - Knex query builder
- * @param {string} search - Search term
- * @param {Array} searchFields - Array of fields to search in
- * @returns {Object} Updated query builder
- */
-const addSearch = (queryBuilder, search, searchFields) => {
-  if (!search) {return queryBuilder;}
-
-  const searchTerm = `%${search.toLowerCase()}%`;
-  const searchConditions = searchFields.map((field) => `LOWER(${field}) LIKE LOWER(${queryBuilder.client ? '?' : '?'})`);
-
-  return queryBuilder.whereRaw(
-    searchConditions.join(' OR '),
-    Array(searchConditions.length).fill(searchTerm),
-  );
-};
-
-/**
  * Sort helper for query ordering
  * @param {Object} queryBuilder - Knex query builder
  * @param {string} sortBy - Field to sort by
@@ -337,7 +318,6 @@ module.exports = {
   errorResponse,
   generatePaginationMetadata,
   validateFilters,
-  addSearch,
   addSort,
   getPagination,
   errorHandler,

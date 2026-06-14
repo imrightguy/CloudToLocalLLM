@@ -113,7 +113,7 @@ class BuildingService {
   /// POST /buildings
   Future<BuildingItem> createBuilding(Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/buildings', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('building*');
     return BuildingItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -123,14 +123,14 @@ class BuildingService {
     Map<String, dynamic> data,
   ) async {
     final result = await ApiService.instance.put('/buildings/$id', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('building*');
     return BuildingItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /buildings/:id
   Future<void> deleteBuilding(String id) async {
     await ApiService.instance.delete('/buildings/$id');
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('building*');
   }
 
   // ---------------------------------------------------------------------------
@@ -172,20 +172,23 @@ class BuildingService {
   ) async {
     final result =
         await ApiService.instance.post('/buildings/units', {'buildingId': buildingId, ...data});
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('unit*');
+    CacheService.instance.invalidate('building*');
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// PUT /units/:id
   Future<UnitItem> updateUnit(String id, Map<String, dynamic> data) async {
     final result = await ApiService.instance.put('/buildings/units/$id', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('unit*');
+    CacheService.instance.invalidate('building*');
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /units/:id
   Future<void> deleteUnit(String id) async {
     await ApiService.instance.delete('/buildings/units/$id');
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('unit*');
+    CacheService.instance.invalidate('building*');
   }
 }

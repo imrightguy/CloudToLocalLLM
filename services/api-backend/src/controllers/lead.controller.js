@@ -5,6 +5,7 @@ const { db } = require('../database/connection');
 const { leadsTable } = require('../database/schema');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 const { child } = require('../utils/logger');
+const leasingService = require('../services/leasing.service');
 
 const log = child({ controller: 'lead' });
 
@@ -315,6 +316,71 @@ exports.updateLeadStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'LEAD_STATUS_UPDATE_FAILED' },
+    });
+  }
+};
+
+// ─── Marketplace Webhook (Kijiji / Facebook Marketplace → Hermes) ───
+exports.receiveMarketplaceWebhook = async (req, res) => {
+  try {
+    const expectedSecret = process.env.MARKETPLACE_WEBHOOK_SECRET;
+    if (expectedSecret) {
+      const provided = req.headers['x-marketplace-secret'];
+      if (provided !== expectedSecret) {
+        return res.status(401).json({
+          success: false,
+          error: { message: 'Invalid webhook secret', code: 'UNAUTHORIZED' },
+        });
+      }
+    }
+
+    const lead = await leasingService.ingestMarketplaceLead(req.body || {});
+    const hermes = await leasingService.notifyHermes('lead.created', lead);
+
+    res.status(201).json({
+      success: true,
+      data: { lead, hermesNotified: hermes.delivered },
+      message: 'Marketplace lead ingested successfully',
+    });
+  } catch (error) {
+    log.error('Error ingesting marketplace lead', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: { message: 'Internal server error', code: 'MARKETPLACE_INGEST_FAILED' },
+    });
+  }
+};
+
+// ─── Trigger Hermes Qualification ───
+exports.notifyHermesForLead = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [lead] = await db
+      .select()
+      .from(leadsTable)
+      .where(eq(leadsTable.id, id))
+      .limit(1);
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Lead not found', code: 'LEAD_NOT_FOUND' },
+      });
+    }
+
+    const hermes = await leasingService.notifyHermes('lead.qualify_request', lead);
+
+    res.json({
+      success: true,
+      data: { hermesNotified: hermes.delivered, reason: hermes.reason || null },
+      message: hermes.delivered ? 'Hermes notified' : 'Hermes notification skipped',
+    });
+  } catch (error) {
+    log.error('Error notifying Hermes', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: { message: 'Internal server error', code: 'HERMES_NOTIFY_FAILED' },
     });
   }
 };

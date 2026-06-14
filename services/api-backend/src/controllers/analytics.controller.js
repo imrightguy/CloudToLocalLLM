@@ -40,6 +40,21 @@ exports.getDashboard = async (req, res) => {
   }
 };
 
+// ─── Pillars Overview (Leasing / Maintenance / Renovation) ───
+
+exports.getPillarsOverview = async (req, res) => {
+  try {
+    const data = await analyticsService.getPillarsOverview();
+    return res.json(successResponse({ data }));
+  } catch (error) {
+    logger.error('[analytics.controller] getPillarsOverview error:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Failed to load pillars overview', code: 'PILLARS_OVERVIEW_ERROR' },
+    });
+  }
+};
+
 // ─── Pipeline Summary ───
 
 exports.getPipeline = async (req, res) => {

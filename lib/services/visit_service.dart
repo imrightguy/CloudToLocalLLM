@@ -106,7 +106,7 @@ class VisitService {
   Future<({VisitItem visit, Map<String, dynamic>? confirmationSMS, Map<String, dynamic>? occupantSMS})> createVisit(
       Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/visits', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('visit*');
     final visit = VisitItem.fromJson(result['data'] as Map<String, dynamic>);
     final confirmationSMS = result['confirmationSMS'] as Map<String, dynamic>?;
     final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
@@ -119,7 +119,7 @@ class VisitService {
     Map<String, dynamic> data,
   ) async {
     final result = await ApiService.instance.put('/visits/$id', data);
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('visit*');
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -139,14 +139,14 @@ class VisitService {
       '/visits/$id/status',
       payload,
     );
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('visit*');
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /visits/:id
   Future<void> deleteVisit(String id) async {
     await ApiService.instance.delete('/visits/$id');
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('visit*');
   }
 
   /// PATCH /visits/:id/reschedule — reschedule and optionally send re-confirmation SMS.
@@ -164,7 +164,7 @@ class VisitService {
         if (notes != null) 'notes': notes,
       },
     );
-    CacheService.instance.invalidateAll();
+    CacheService.instance.invalidate('visit*');
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 }

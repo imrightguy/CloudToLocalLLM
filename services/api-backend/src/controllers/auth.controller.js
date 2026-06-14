@@ -78,6 +78,7 @@ const register = async (req, res) => {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         phone: phone ? phone.trim() : null,
+        role: 'user',
       })
       .returning(userPublicFields);
 

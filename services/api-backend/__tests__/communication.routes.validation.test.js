@@ -1,7 +1,6 @@
 const validate = require('../src/middleware/validate');
 const { communicationSchemas, marketplaceSchemas } = require('../src/config/validation-schemas');
 const communicationRouter = require('../src/routes/communication.routes');
-const marketplaceRouter = require('../src/routes/marketplace.routes');
 
 function mockReqRes(body = {}, query = {}, params = {}) {
   const res = {};
@@ -226,21 +225,6 @@ describe('Communication route validation contract', () => {
     expect(error.details.body).toEqual(expect.arrayContaining([
       expect.objectContaining({ field: 'status' }),
     ]));
-  });
-
-  it('mounts dedicated marketplace routes with auth and validation middleware', () => {
-    const routeShapes = [
-      ['/inbox', 'get'],
-      ['/leads/:leadId/timeline', 'get'],
-      ['/leads/:leadId/messages', 'post'],
-      ['/leads/:leadId/visits', 'post'],
-    ];
-
-    for (const [path, method] of routeShapes) {
-      const route = marketplaceRouter.stack.find((layer) => layer.route?.path === path && layer.route.methods[method]);
-      expect(route).toBeDefined();
-      expect(route.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
-    }
   });
 
   it('accepts marketplace inbox filters used by Simon workflow triage', () => {
