@@ -6,8 +6,6 @@
 services:
   api:
     image: ghcr.io/imrightguy/immogestion/api:latest
-    build: null
 
   flutter-web:
     image: ghcr.io/imrightguy/immogestion/web:latest
-    build: null
