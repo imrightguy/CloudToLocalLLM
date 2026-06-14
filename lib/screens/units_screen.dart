@@ -386,7 +386,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
+            color: isSelected ? color.withValues(alpha: 0.1) : AppColors.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isSelected ? color : AppColors.border,

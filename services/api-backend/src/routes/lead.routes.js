@@ -58,20 +58,19 @@ const { leadSchemas, uuidParam } = require('../config/validation-schemas');
  *           type: integer
  *           default: 20
  *       - in: query
- *         name: status
+ *         name: stage
  *         schema:
  *           type: string
  *           enum:
- *             - new
- *             - contacted
- *             - interested
- *             - viewing_scheduled
- *             - application_submitted
- *             - approved
- *             - rejected
- *             - leased
- *             - inactive
- *         description: Filter by lead status
+ *             - nouveau
+ *             - contacte
+ *             - qualifie
+ *             - visitePlanifiee
+ *             - offreEnvoyee
+ *             - negociation
+ *             - bailSigne
+ *             - signe
+ *         description: Filter by lead stage
  *       - in: query
  *         name: buildingId
  *         schema:
@@ -126,15 +125,11 @@ router.get('/', authenticateToken, asyncHandler(leadController.getLeads));
  *           schema:
  *             type: object
  *             required:
- *               - firstName
- *               - lastName
+ *               - fullName
  *             properties:
- *               firstName:
+ *               fullName:
  *                 type: string
- *                 example: Pierre
- *               lastName:
- *                 type: string
- *                 example: Martin
+ *                 example: Pierre Martin
  *               email:
  *                 type: string
  *                 format: email
@@ -145,6 +140,9 @@ router.get('/', authenticateToken, asyncHandler(leadController.getLeads));
  *               source:
  *                 type: string
  *                 example: facebook
+ *               qualificationState:
+ *                 type: string
+ *                 enum: [unknown, qualified, rejected, needs_follow_up]
  *               buildingId:
  *                 type: string
  *                 format: uuid
@@ -234,9 +232,7 @@ router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(leadCont
  *           schema:
  *             type: object
  *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
+ *               fullName:
  *                 type: string
  *               email:
  *                 type: string
@@ -245,6 +241,11 @@ router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(leadCont
  *                 type: string
  *               source:
  *                 type: string
+ *               stage:
+ *                 type: string
+ *               qualificationState:
+ *                 type: string
+ *                 enum: [unknown, qualified, rejected, needs_follow_up]
  *               buildingId:
  *                 type: string
  *                 format: uuid
@@ -334,15 +335,14 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(leadC
  *               status:
  *                 type: string
  *                 enum:
- *                   - new
- *                   - contacted
- *                   - interested
- *                   - viewing_scheduled
- *                   - application_submitted
- *                   - approved
- *                   - rejected
- *                   - leased
- *                   - inactive
+ *                   - nouveau
+ *                   - contacte
+ *                   - qualifie
+ *                   - visitePlanifiee
+ *                   - offreEnvoyee
+ *                   - negociation
+ *                   - bailSigne
+ *                   - signe
  *     responses:
  *       200:
  *         description: Lead status updated
@@ -419,15 +419,17 @@ router.post('/:id/notify-hermes', authenticateToken, validate(uuidParam), asyncH
  *                   status:
  *                     type: string
  *                     enum:
- *                       - new
- *                       - contacted
- *                       - interested
- *                       - viewing_scheduled
- *                       - application_submitted
- *                       - approved
- *                       - rejected
- *                       - leased
- *                       - inactive
+ *                       - nouveau
+ *                       - contacte
+ *                       - qualifie
+ *                       - visitePlanifiee
+ *                       - offreEnvoyee
+ *                       - negociation
+ *                       - bailSigne
+ *                       - signe
+ *                   qualificationState:
+ *                     type: string
+ *                     enum: [unknown, qualified, rejected, needs_follow_up]
  *                   buildingId:
  *                     type: string
  *                     format: uuid

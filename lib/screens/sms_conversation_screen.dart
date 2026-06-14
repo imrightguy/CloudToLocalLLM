@@ -364,7 +364,7 @@ class _SmsConversationScreenState extends State<SmsConversationScreen> {
         margin: const EdgeInsets.only(left: 48, right: 16, top: 4, bottom: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFFEF2F2),
+          color: AppColors.error.withValues(alpha: 0.12),
           border: Border.all(color: AppColors.errorLight),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16),

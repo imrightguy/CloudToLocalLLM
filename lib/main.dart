@@ -29,6 +29,7 @@ import 'screens/renovation_ops_screen.dart';
 import 'screens/maintenance_command_center_screen.dart';
 import 'screens/maintenance_screen.dart';
 import 'theme/app_colors.dart';
+import 'theme/app_spacing.dart';
 import 'theme/app_typography.dart';
 
 Future<void> main() async {
@@ -105,7 +106,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     return MaterialApp(
       title: 'ImmoGestion',
       themeMode: _themeMode,
-      theme: _buildLightTheme(),
+      theme: _buildDarkTheme(),
       darkTheme: _buildDarkTheme(),
       debugShowCheckedModeBanner: false,
       home: _isInitialized
@@ -186,10 +187,10 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     return null;
   }
 
-  ThemeData _buildLightTheme() {
+  ThemeData _buildDarkTheme() {
     return ThemeData(
-      primarySwatch: Colors.teal,
-      brightness: Brightness.light,
+      colorSchemeSeed: AppColors.primary,
+      brightness: Brightness.dark,
       useMaterial3: true,
       fontFamily: AppTypography.fontFamily,
       scaffoldBackgroundColor: AppColors.background,
@@ -200,48 +201,25 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         surfaceTintColor: AppColors.surface,
       ),
       cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+        color: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+          side: const BorderSide(color: AppColors.border),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      ),
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      primarySwatch: Colors.teal,
-      brightness: Brightness.dark,
-      useMaterial3: true,
-      fontFamily: AppTypography.fontFamily,
-      scaffoldBackgroundColor: const Color(0xFF0F172A),
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        backgroundColor: AppColors.textPrimary,
-        foregroundColor: AppColors.surfaceVariant,
-        surfaceTintColor: AppColors.textPrimary,
-      ),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        color: AppColors.textPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryLight,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
+          ),
         ),
       ),
       dividerTheme: const DividerThemeData(
-        color: Color(0xFF334155),
+        color: AppColors.border,
         thickness: 1,
       ),
     );

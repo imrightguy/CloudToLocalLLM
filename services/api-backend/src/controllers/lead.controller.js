@@ -14,6 +14,7 @@ exports.createLead = async (req, res) => {
   try {
     const {
       fullName, email, phone, budgetCents, desiredUnit, source, stage,
+      qualificationState, qualificationReasonCode, qualificationReasonNote,
       notes, tags, language, assignedEmployeeId, buildingId, unitId,
     } = req.body;
 
@@ -34,6 +35,9 @@ exports.createLead = async (req, res) => {
         desiredUnit: desiredUnit?.trim() || null,
         source: source || 'other',
         stage: stage || 'nouveau',
+        qualificationState: qualificationState || 'unknown',
+        qualificationReasonCode: qualificationReasonCode || null,
+        qualificationReasonNote: qualificationReasonNote?.trim() || null,
         notes: notes?.trim() || null,
         tags: tags || [],
         language: language || 'fr',
@@ -173,6 +177,7 @@ exports.updateLead = async (req, res) => {
     const { id } = req.params;
     const {
       fullName, email, phone, budgetCents, desiredUnit, source, stage,
+      qualificationState, qualificationReasonCode, qualificationReasonNote,
       notes, tags, language, assignedEmployeeId, buildingId, unitId, isActive,
     } = req.body;
 
@@ -209,6 +214,11 @@ exports.updateLead = async (req, res) => {
         });
       }
       updateData.stage = stage;
+    }
+    if (qualificationState !== undefined) {updateData.qualificationState = qualificationState;}
+    if (qualificationReasonCode !== undefined) {updateData.qualificationReasonCode = qualificationReasonCode || null;}
+    if (qualificationReasonNote !== undefined) {
+      updateData.qualificationReasonNote = qualificationReasonNote?.trim() || null;
     }
     if (notes !== undefined) {updateData.notes = notes?.trim() || null;}
     if (tags !== undefined) {updateData.tags = tags;}

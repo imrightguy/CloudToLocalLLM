@@ -15,7 +15,13 @@ const { apiLimiter } = require('./middleware/rateLimiters');
 const isProduction = process.env.NODE_ENV === 'production';
 
 if (isProduction) {
-  const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL'];
+  const required = [
+    'JWT_SECRET',
+    'JWT_REFRESH_SECRET',
+    'DATABASE_URL',
+    'VAPI_WEBHOOK_SECRET',
+    'MARKETPLACE_WEBHOOK_SECRET',
+  ];
   const missing = required.filter(k => !process.env[k]);
   if (missing.length) {
     console.error(`FATAL: Missing required env vars: ${missing.join(', ')}`);

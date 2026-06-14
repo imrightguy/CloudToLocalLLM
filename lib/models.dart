@@ -1382,7 +1382,7 @@ enum DocumentType {
       case DocumentType.lease:
         return const Color(0xFF6366F1);
       case DocumentType.contract:
-        return const Color(0xFF0F766E);
+        return const Color(0xFF10B981);
       case DocumentType.insurance:
         return const Color(0xFFF59E0B);
       case DocumentType.other:

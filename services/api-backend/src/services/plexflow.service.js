@@ -58,7 +58,13 @@ async function cachedGet(cacheKey, path) {
   if (cached !== undefined) {
     return cached;
   }
-  const data = asArray(await plexflowGet(path));
+  const raw = await plexflowGet(path);
+  if (raw === null) {
+    // Échec/timeout de l'API PlexFlow: ne pas cacher pour éviter de figer
+    // des données vides pendant tout le TTL. On réessaiera au prochain appel.
+    return [];
+  }
+  const data = asArray(raw);
   cache.set(cacheKey, data, CACHE_TTL_SECONDS);
   return data;
 }
