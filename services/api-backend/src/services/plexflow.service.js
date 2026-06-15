@@ -34,7 +34,7 @@ async function plexflowGet(path) {
   try {
     const headers = { 'Content-Type': 'application/json' };
     if (process.env.PLEXFLOW_API_KEY) {
-      headers.Authorization = `Bearer ${process.env.PLEXFLOW_API_KEY}`;
+      headers['X-Plexflow-Key'] = process.env.PLEXFLOW_API_KEY;
     }
 
     const response = await fetch(`${baseUrl}${path}`, {
