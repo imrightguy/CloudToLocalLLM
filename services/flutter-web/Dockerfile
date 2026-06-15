@@ -5,7 +5,7 @@ RUN flutter config --no-analytics && flutter config --enable-web && flutter prec
 
 WORKDIR /app
 ARG WEB_CACHE_BUST=latest
-ARG API_BASE_URL=https://api.immogestion.app/api
+ARG API_BASE_URL=/api
 COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get
 
