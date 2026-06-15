@@ -60,8 +60,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(express-rate-limit@8.5.2(express@5.2.1))
       stripe:
-        specifier: ^22.2.0
-        version: 22.2.0(@types/node@25.9.1)
+        specifier: ^22.2.1
+        version: 22.2.1(@types/node@25.9.1)
       uuid:
         specifier: ^14.0.0
         version: 14.0.0
@@ -2846,8 +2846,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  stripe@22.2.0:
-    resolution: {integrity: sha512-WFGpMOom9QZqso1kcnSwJsCdC1QHDlMoCOxBZRf3JraMzhkfw7dgSdD2a1CFZrqC+mzAfqeEtYILrZhWKIDruA==}
+  stripe@22.2.1:
+    resolution: {integrity: sha512-ULAtq25USBEx3yeN5zimEkfYVFETVMP5om25Ryr8ol11P62imaCZLBIEW78T7zm7Wg3wnZi+80S72yf3LCpNhw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@types/node': '>=18'
@@ -6457,7 +6457,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  stripe@22.2.0(@types/node@25.9.1):
+  stripe@22.2.1(@types/node@25.9.1):
     optionalDependencies:
       '@types/node': 25.9.1
 
