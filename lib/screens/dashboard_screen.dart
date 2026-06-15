@@ -149,40 +149,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const ImmoAppBar(title: 'Tableau de bord'),
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.xl + 32,
+      body: Column(
+        children: [
+          // Sections interactives (hors RefreshIndicator pour que les taps fonctionnent)
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                  AppSpacing.xl + 32,
+                ),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Personalised header + quick actions
+                    _buildHeader(),
+                    const SizedBox(height: AppSpacing.xl),
+
+                    // 2. « À traiter » — top priority (pillars-driven)
+                    _buildAttentionBlock(),
+                    const SizedBox(height: AppSpacing.xl),
+
+                    // 3. The three pillars (pillars-driven)
+                    _buildPillarsBlock(),
+                    const SizedBox(height: AppSpacing.xl),
+
+                    // 4. Recent activity (communications-driven)
+                    _buildActivityBlock(),
+                    const SizedBox(height: AppSpacing.xl),
+
+                    // 5. Portfolio overview (buildings-driven)
+                    _buildPortfolioBlock(),
+                  ],
+                ),
+              ),
+            ),
           ),
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Personalised header + quick actions
-              _buildHeader(),
-              const SizedBox(height: AppSpacing.xl),
-
-              // 2. « À traiter » — top priority (pillars-driven)
-              _buildAttentionBlock(),
-              const SizedBox(height: AppSpacing.xl),
-
-              // 3. The three pillars (pillars-driven)
-              _buildPillarsBlock(),
-              const SizedBox(height: AppSpacing.xl),
-
-              // 4. Recent activity (communications-driven)
-              _buildActivityBlock(),
-              const SizedBox(height: AppSpacing.xl),
-
-              // 5. Portfolio overview (buildings-driven)
-              _buildPortfolioBlock(),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -608,7 +615,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTapDown: (_) => onTap(),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
