@@ -606,18 +606,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
     required String semanticLabel,
   }) {
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      child: Card(
+    return Card(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         ),
-        child: InkWell(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          child: Padding(
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
