@@ -19,6 +19,8 @@ import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../widgets/loading_state.dart';
+import '../widgets/error_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -140,6 +142,33 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ],
+                      ),
+                    ),
+                    trailing: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: ListenableBuilder(
+                        listenable: AuthNotifier.instance,
+                        builder: (context, _) {
+                          final user = AuthNotifier.instance.currentUser;
+                          final initials = user != null
+                              ? '${user.firstName.isNotEmpty ? user.firstName[0] : ''}${user.lastName.isNotEmpty ? user.lastName[0] : ''}'
+                              : '?';
+                          return Tooltip(
+                            message: user != null ? '${user.firstName} ${user.lastName}' : 'Utilisateur',
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                              child: Text(
+                                initials.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -482,7 +511,7 @@ class _HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<_HomeTab> {
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _lastError;
   bool _missingCompanyAccess = false;
 
   // User profile
@@ -508,7 +537,7 @@ class _HomeTabState extends State<_HomeTab> {
   Future<void> _fetchHomeData() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _lastError = null;
       _missingCompanyAccess = false;
     });
     try {
@@ -667,7 +696,7 @@ class _HomeTabState extends State<_HomeTab> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _lastError = e;
         _isLoading = false;
       });
     }
@@ -825,9 +854,7 @@ class _HomeTabState extends State<_HomeTab> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_isLoading) return const DashboardSkeleton();
     if (_missingCompanyAccess) {
       return _CompanyAccessMissingState(
         userName: _userName,
@@ -835,43 +862,8 @@ class _HomeTabState extends State<_HomeTab> {
         onLogout: () => AuthNotifier.instance.logout(),
       );
     }
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Impossible de charger les données',
-                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchHomeData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
-              ),
-            ),
-          ],
-        ),
-      );
+    if (_lastError != null) {
+      return ErrorState(error: _lastError!, onRetry: _fetchHomeData);
     }
 
     return RefreshIndicator(

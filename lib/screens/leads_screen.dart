@@ -86,8 +86,8 @@ class _LeadsScreenState extends State<LeadsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(notified
-              ? 'Hermes notifié pour ${lead.fullName}'
-              : 'Hermes non configuré — notification ignorée'),
+              ? 'Hermes notifie pour ${lead.fullName}'
+              : 'Hermes non configure - notification ignoree'),
           backgroundColor: notified ? AppColors.success : AppColors.warning,
         ),
       );
@@ -113,11 +113,12 @@ class _LeadsScreenState extends State<LeadsScreen> {
   Widget _buildBody() {
     if (_isLoading) return const ListSkeleton(showSearchBar: true);
     if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchLeads);
-    if (_filteredLeads.isEmpty) { return const EmptyState(
-      title: 'Aucune piste',
-      description: 'Les pistes de locataires potentiels apparaîtront ici.',
-      icon: Icons.person_add_alt_outlined,
-    );
+    if (_leads.isEmpty) {
+      return const EmptyState(
+        title: 'Aucune piste',
+        description: 'Les pistes de locataires potentiels apparaitront ici.',
+        icon: Icons.person_add_alt_outlined,
+      );
     }
 
     final leads = _filteredLeads;
@@ -162,7 +163,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Rechercher par nom…',
+              hintText: 'Rechercher par nom...',
               prefixIcon: const Icon(Icons.search),
               isDense: true,
               border: OutlineInputBorder(
