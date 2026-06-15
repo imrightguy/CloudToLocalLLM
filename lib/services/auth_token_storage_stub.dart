@@ -7,6 +7,11 @@ class AuthTokens {
   final String? refreshToken;
 }
 
+/// Native/desktop platforms have no DOM, so there is no `localStorage` XSS
+/// vector: tokens are persisted via shared_preferences and the refresh token
+/// is still exchanged through the request body.
+const bool kUsesHttpOnlyRefreshCookie = false;
+
 const _accessTokenKey = 'access_token';
 const _refreshTokenKey = 'refresh_token';
 

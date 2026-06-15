@@ -82,6 +82,14 @@ class ApiService {
     _accessToken = tokens.accessToken;
     _refreshToken = tokens.refreshToken;
     _initialized = true;
+
+    // On web the access token only lives in memory and is gone after a reload,
+    // while the refresh token persists as an HttpOnly cookie. Bootstrap a fresh
+    // access token from that cookie so the session survives a page refresh.
+    if (kUsesHttpOnlyRefreshCookie &&
+        (_accessToken == null || _accessToken!.isEmpty)) {
+      await _tryRefresh();
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -100,9 +108,12 @@ class ApiService {
       };
 
   Future<void> _persistTokens(String? access, String? refresh) async {
-    await writeAuthTokens(accessToken: access, refreshToken: refresh);
     _accessToken = access;
-    _refreshToken = refresh;
+    // On web the refresh token is owned by the browser's HttpOnly cookie and
+    // must never be held in JS-reachable memory or storage (XSS). On native it
+    // is kept in memory and persisted via shared_preferences.
+    _refreshToken = kUsesHttpOnlyRefreshCookie ? null : refresh;
+    await writeAuthTokens(accessToken: access, refreshToken: refresh);
   }
 
   Future<void> _clearTokens() async {
@@ -211,13 +222,20 @@ class ApiService {
 
   /// Attempt to refresh the access token. Returns `true` on success.
   Future<bool> _tryRefresh() async {
-    if (_refreshToken == null) return false;
+    // Web carries the refresh token in an HttpOnly cookie the browser attaches
+    // automatically, so there is no in-memory token to gate on. Native must
+    // have a stored refresh token to send in the body.
+    if (!kUsesHttpOnlyRefreshCookie && _refreshToken == null) return false;
     try {
       final uri = Uri.parse('$baseUrl/auth/refresh');
-      final response = await http.post(
+      final response = await client.post(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refreshToken': _refreshToken}),
+        body: jsonEncode(
+          kUsesHttpOnlyRefreshCookie
+              ? <String, dynamic>{}
+              : {'refreshToken': _refreshToken},
+        ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

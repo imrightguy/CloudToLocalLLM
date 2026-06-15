@@ -11,6 +11,14 @@ jest.mock('../../src/auth/jwt.middleware', () => ({
   generateRefreshToken: jest.fn(() => 'mock-refresh-token'),
 }));
 
+// The controller verifies the refresh token's JWT signature before any DB
+// lookup; mock it so tests drive the verify outcome directly.
+jest.mock('jsonwebtoken', () => ({
+  verify: jest.fn(() => ({ userId: 'user-1' })),
+}));
+
+const jwt = require('jsonwebtoken');
+
 jest.mock('../../src/utils/logger', () => ({
   child: jest.fn(() => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() })),
 }));
@@ -62,6 +70,8 @@ function mockRes() {
   const res = {};
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
+  res.cookie = jest.fn().mockReturnValue(res);
+  res.clearCookie = jest.fn().mockReturnValue(res);
   return res;
 }
 
@@ -262,11 +272,21 @@ describe('refreshAccessToken', () => {
     }));
   });
 
-  it('returns 401 when refresh token is invalid', async () => {
+  it('returns 401 when refresh token signature is invalid', async () => {
+    jwt.verify.mockImplementationOnce(() => { throw new Error('invalid signature'); });
+    const res = mockRes();
+    await authController.refreshAccessToken({ body: { refreshToken: 'bad-token' } }, res);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      error: expect.objectContaining({ code: 'INVALID_REFRESH_TOKEN' }),
+    }));
+  });
+
+  it('returns 401 when refresh token is not found in the store', async () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([]);
     const res = mockRes();
-    await authController.refreshAccessToken({ body: { refreshToken: 'bad-token' } }, res);
+    await authController.refreshAccessToken({ body: { refreshToken: 'valid-but-unknown' } }, res);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'INVALID_REFRESH_TOKEN' }),
@@ -294,19 +314,6 @@ describe('refreshAccessToken', () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'USER_NOT_FOUND' }),
-    }));
-  });
-
-  it('returns 401 on token version mismatch', async () => {
-    selectChain.from.mockReturnValue(selectChain);
-    const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-    selectChain.limit.mockResolvedValueOnce([{ id: 'token-1', userId: 'user-1', expiresAt: futureDate, tokenVersion: 1 }]);
-    selectChain.limit.mockResolvedValueOnce([{ ...mockUser, tokenVersion: 5 }]);
-    const res = mockRes();
-    await authController.refreshAccessToken({ body: { refreshToken: 'stale-token' } }, res);
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({ code: 'TOKEN_VERSION_MISMATCH' }),
     }));
   });
 

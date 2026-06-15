@@ -292,7 +292,11 @@ class _RenovationOrdersScreenState extends State<RenovationOrdersScreen> {
           ],
         );
       },
-    );
+    ).then((_) {
+      vendorController.dispose();
+      itemController.dispose();
+      qtyController.dispose();
+    });
   }
 
   Future<void> _createOrder(String vendor, String item, int qty) async {

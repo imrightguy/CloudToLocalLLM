@@ -309,7 +309,7 @@ describe('generateAccessToken', () => {
     expect(jwt.sign).toHaveBeenCalledWith(
       { userId: activeUser.id, email: activeUser.email, role: activeUser.role },
       'test-secret',
-      { expiresIn: '1h' },
+      { expiresIn: '1h', algorithm: 'HS256' },
     );
   });
 });
@@ -325,7 +325,7 @@ describe('generateRefreshToken', () => {
     expect(jwt.sign).toHaveBeenCalledWith(
       { userId: 1, tokenVersion: 3, jti: 'refresh-jti-1' },
       'test-refresh-secret',
-      { expiresIn: '7d' },
+      { expiresIn: '7d', algorithm: 'HS256' },
     );
   });
 
@@ -338,7 +338,7 @@ describe('generateRefreshToken', () => {
     expect(jwt.sign).toHaveBeenCalledWith(
       expect.objectContaining({ tokenVersion: 1, jti: 'refresh-jti-2' }),
       'test-refresh-secret',
-      { expiresIn: '7d' },
+      { expiresIn: '7d', algorithm: 'HS256' },
     );
   });
 
@@ -355,13 +355,13 @@ describe('generateRefreshToken', () => {
       1,
       { userId: 7, tokenVersion: 1, jti: 'refresh-jti-3' },
       'test-refresh-secret',
-      { expiresIn: '7d' },
+      { expiresIn: '7d', algorithm: 'HS256' },
     );
     expect(jwt.sign).toHaveBeenNthCalledWith(
       2,
       { userId: 7, tokenVersion: 1, jti: 'refresh-jti-4' },
       'test-refresh-secret',
-      { expiresIn: '7d' },
+      { expiresIn: '7d', algorithm: 'HS256' },
     );
   });
 });

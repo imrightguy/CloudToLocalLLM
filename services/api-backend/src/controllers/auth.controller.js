@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs');
+const { createHash } = require('node:crypto');
+const jwt = require('jsonwebtoken');
 const {
   eq, and, ne, sql, desc,
 } = require('drizzle-orm');
@@ -10,6 +12,35 @@ const { child } = require('../utils/logger');
 const log = child({ controller: 'auth' });
 
 const COMPANY_NAME = process.env.APP_COMPANY_NAME || 'ImmoGestion';
+
+// ─── Refresh token handling ───────────────────────────────────────────────────
+// Refresh tokens are NEVER stored in clear: a SQL dump must not be enough to
+// hijack a session. We persist the SHA-256 hash and compare hashes on lookup.
+const REFRESH_COOKIE_NAME = 'refreshToken';
+const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** SHA-256 hash of a refresh token, as stored/looked-up in the DB. */
+const hashToken = (token) => createHash('sha256').update(token).digest('hex');
+
+/** Cookie attributes shared by set/clear so the browser can match them. */
+const refreshCookieOptions = () => ({
+  httpOnly: true, // not reachable from JS → immune to XSS token theft
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+  path: '/api/auth', // only sent to /api/auth/refresh and /api/auth/logout
+});
+
+/** Persist the refresh token to an HttpOnly cookie (web clients). */
+const setRefreshCookie = (res, token) => {
+  res.cookie(REFRESH_COOKIE_NAME, token, {
+    ...refreshCookieOptions(),
+    maxAge: REFRESH_TOKEN_TTL_MS,
+  });
+};
+
+const clearRefreshCookie = (res) => {
+  res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions());
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -95,14 +126,16 @@ const register = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Persist refresh token
+    // Persist refresh token (hashed) and mirror it into an HttpOnly cookie.
     await db.insert(refreshTokensTable).values({
       userId: user.id,
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      token: hashToken(refreshToken),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
       ip: req.ip || null,
       userAgent: req.headers['user-agent'] || null,
     });
+
+    setRefreshCookie(res, refreshToken);
 
     return res.status(201).json({
       success: true,
@@ -176,14 +209,16 @@ const login = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Persist refresh token
+    // Persist refresh token (hashed) and mirror it into an HttpOnly cookie.
     await db.insert(refreshTokensTable).values({
       userId: user.id,
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      token: hashToken(refreshToken),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
       ip: req.ip || null,
       userAgent: req.headers['user-agent'] || null,
     });
+
+    setRefreshCookie(res, refreshToken);
 
     // Update lastLogin without blocking a successful login if audit metadata persistence fails.
     try {
@@ -226,7 +261,9 @@ const login = async (req, res) => {
 
 const refreshAccessToken = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    // Web clients send the token via the HttpOnly cookie; native clients,
+    // which can't read it back, still pass it in the body.
+    const refreshToken = (req.cookies && req.cookies[REFRESH_COOKIE_NAME]) || req.body.refreshToken;
 
     if (!refreshToken) {
       return res.status(400).json({
@@ -235,14 +272,28 @@ const refreshAccessToken = async (req, res) => {
       });
     }
 
-    // Look up refresh token in DB
+    // Verify the JWT signature/expiry BEFORE any DB lookup. Without this the
+    // refresh token was treated as an opaque string and never authenticated.
+    try {
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, { algorithms: ['HS256'] });
+    } catch {
+      clearRefreshCookie(res);
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Invalid refresh token', code: 'INVALID_REFRESH_TOKEN' },
+      });
+    }
+
+    // Look up by hash — tokens are stored hashed, never in clear.
+    const tokenHash = hashToken(refreshToken);
     const tokenRows = await db
       .select()
       .from(refreshTokensTable)
-      .where(eq(refreshTokensTable.token, refreshToken))
+      .where(eq(refreshTokensTable.token, tokenHash))
       .limit(1);
 
     if (!tokenRows.length) {
+      clearRefreshCookie(res);
       return res.status(401).json({
         success: false,
         error: { message: 'Invalid refresh token', code: 'INVALID_REFRESH_TOKEN' },
@@ -258,13 +309,14 @@ const refreshAccessToken = async (req, res) => {
         .delete(refreshTokensTable)
         .where(eq(refreshTokensTable.id, tokenRecord.id));
 
+      clearRefreshCookie(res);
       return res.status(401).json({
         success: false,
         error: { message: 'Refresh token has expired', code: 'REFRESH_TOKEN_EXPIRED' },
       });
     }
 
-    // Fetch user and verify active + tokenVersion
+    // Fetch user and verify active
     const userRows = await db
       .select()
       .from(usersTable)
@@ -277,6 +329,12 @@ const refreshAccessToken = async (req, res) => {
       .limit(1);
 
     if (!userRows.length) {
+      // Drop the stale token for the missing/inactive user.
+      await db
+        .delete(refreshTokensTable)
+        .where(eq(refreshTokensTable.id, tokenRecord.id));
+
+      clearRefreshCookie(res);
       return res.status(401).json({
         success: false,
         error: { message: 'User not found or inactive', code: 'USER_NOT_FOUND' },
@@ -285,35 +343,24 @@ const refreshAccessToken = async (req, res) => {
 
     const user = userRows[0];
 
-    // Verify tokenVersion matches (detects password resets / forced logouts)
-    if (user.tokenVersion !== tokenRecord.tokenVersion) {
-      // Token version mismatch — delete this stale token
-      await db
-        .delete(refreshTokensTable)
-        .where(eq(refreshTokensTable.id, tokenRecord.id));
-
-      return res.status(401).json({
-        success: false,
-        error: { message: 'Session invalidated — please log in again', code: 'TOKEN_VERSION_MISMATCH' },
-      });
-    }
-
     // Generate new tokens
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
-    // Rotate: delete old, insert new
+    // Rotate: delete old, insert new (hashed)
     await db
       .delete(refreshTokensTable)
       .where(eq(refreshTokensTable.id, tokenRecord.id));
 
     await db.insert(refreshTokensTable).values({
       userId: user.id,
-      token: newRefreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      token: hashToken(newRefreshToken),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
       ip: req.ip || null,
       userAgent: req.headers['user-agent'] || null,
     });
+
+    setRefreshCookie(res, newRefreshToken);
 
     return res.json({
       success: true,
@@ -340,12 +387,13 @@ const refreshAccessToken = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = (req.cookies && req.cookies[REFRESH_COOKIE_NAME]) || req.body.refreshToken;
 
     if (refreshToken) {
+      // Tokens are stored hashed, so delete by hash.
       await db
         .delete(refreshTokensTable)
-        .where(eq(refreshTokensTable.token, refreshToken));
+        .where(eq(refreshTokensTable.token, hashToken(refreshToken)));
     }
 
     // If authenticated, also invalidate all refresh tokens for the user
@@ -355,10 +403,12 @@ const logout = async (req, res) => {
         .where(eq(refreshTokensTable.userId, req.user.id));
     }
 
+    clearRefreshCookie(res);
     return res.json({ success: true, data: null, message: 'Logged out successfully' });
   } catch (error) {
     log.error('Logout error', { error: error.message });
-    // Always return success on logout so the client can clear tokens
+    // Always clear the cookie and return success so the client can clear tokens
+    clearRefreshCookie(res);
     return res.json({ success: true, data: null, message: 'Logged out successfully' });
   }
 };

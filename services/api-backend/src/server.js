@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const swaggerUi = require('swagger-ui-express');
 const { errorHandler } = require('./utils/apiResponse');
@@ -66,6 +67,7 @@ app.use(express.json({
   verify: (req, _res, buf) => { req.rawBody = buf; },
 }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 app.use(apiLimiter);
 
 app.use((req, res, next) => {

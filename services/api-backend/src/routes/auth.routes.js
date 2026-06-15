@@ -33,9 +33,11 @@ const loginSchema = {
   }),
 };
 
+// Web clients send the refresh token via an HttpOnly cookie (not the body),
+// so it is optional here; the controller resolves cookie-or-body.
 const refreshTokenSchema = {
   body: Joi.object({
-    refreshToken: Joi.string().required(),
+    refreshToken: Joi.string().optional(),
   }),
 };
 

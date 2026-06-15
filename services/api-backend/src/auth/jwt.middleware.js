@@ -12,7 +12,7 @@ const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ success: false, error: { message: 'Access token required', code: 'ACCESS_TOKEN_REQUIRED' } });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
     const rows = await db.select({
       id: usersTable.id,
       email: usersTable.email,
@@ -49,7 +49,7 @@ const optionalAuth = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
       const rows = await db.select().from(usersTable).where(eq(usersTable.id, decoded.userId)).limit(1);
       const [activeUser] = rows;
       if (activeUser && activeUser.isActive) { req.user = activeUser; req.token = token; }
@@ -61,7 +61,7 @@ const optionalAuth = async (req, res, next) => {
 const generateAccessToken = (user) => jwt.sign(
   { userId: user.id, email: user.email, role: user.role },
   process.env.JWT_SECRET,
-  { expiresIn: process.env.JWT_EXPIRES_IN || '24h' },
+  { expiresIn: process.env.JWT_EXPIRES_IN || '24h', algorithm: 'HS256' },
 );
 
 const generateRefreshToken = (user) => jwt.sign(
@@ -71,7 +71,7 @@ const generateRefreshToken = (user) => jwt.sign(
     jti: randomUUID(),
   },
   process.env.JWT_REFRESH_SECRET,
-  { expiresIn: '7d' },
+  { expiresIn: '7d', algorithm: 'HS256' },
 );
 
 module.exports = {

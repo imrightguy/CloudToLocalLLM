@@ -354,7 +354,11 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
           },
         );
       },
-    );
+    ).then((_) {
+      titleController.dispose();
+      descController.dispose();
+      phoneController.dispose();
+    });
   }
 
   Future<void> _createTicket(
