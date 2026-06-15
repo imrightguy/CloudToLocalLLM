@@ -148,48 +148,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ImmoAppBar(title: 'Tableau de bord'),
-      body: Column(
-        children: [
-          // Sections interactives (hors RefreshIndicator pour que les taps fonctionnent)
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _handleRefresh,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.xl + 32,
-                ),
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. Personalised header + quick actions
-                    _buildHeader(),
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // 2. « À traiter » — top priority (pillars-driven)
-                    _buildAttentionBlock(),
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // 3. The three pillars (pillars-driven)
-                    _buildPillarsBlock(),
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // 4. Recent activity (communications-driven)
-                    _buildActivityBlock(),
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // 5. Portfolio overview (buildings-driven)
-                    _buildPortfolioBlock(),
-                  ],
-                ),
-              ),
-            ),
+      appBar: ImmoAppBar(
+        title: 'Tableau de bord',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, size: 20),
+            tooltip: 'Rafraîchir',
+            onPressed: _handleRefresh,
           ),
         ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xl + 32,
+        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            const SizedBox(height: AppSpacing.xl),
+            _buildAttentionBlock(),
+            const SizedBox(height: AppSpacing.xl),
+            _buildPillarsBlock(),
+            const SizedBox(height: AppSpacing.xl),
+            _buildActivityBlock(),
+            const SizedBox(height: AppSpacing.xl),
+            _buildPortfolioBlock(),
+          ],
+        ),
       ),
     );
   }
@@ -613,65 +603,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
     required String semanticLabel,
   }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => onTap(),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, size: 22, color: accentColor),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, size: 22, color: accentColor),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(title, style: AppTypography.cardTitle),
+                    ),
+                    const Icon(Icons.chevron_right,
+                        size: 20, color: AppColors.textMuted),
+                  ],
                 ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Text(title, style: AppTypography.cardTitle),
-                ),
-                const Icon(Icons.chevron_right,
-                    size: 20, color: AppColors.textMuted),
+                const SizedBox(height: AppSpacing.lg),
+                ...metrics.map((m) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              m.label,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            m.value,
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: accentColor,
+                              ),
+                          ),
+                        ],
+                      ),
+                    )),
               ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            ...metrics.map((m) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          m.label,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        m.value,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                          ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
+          ),
         ),
       ),
     );
