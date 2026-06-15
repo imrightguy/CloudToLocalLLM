@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,15 +9,29 @@ import '../services/communication_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
-import '../widgets/building_perf_row.dart';
-import '../widgets/kpi_card.dart';
-import '../widgets/lead_funnel.dart';
-import 'units_screen.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
 import '../widgets/error_state.dart';
 import '../widgets/empty_state.dart';
 
+/// French weekday names, indexed by `DateTime.weekday - 1` (1 = Monday).
+const List<String> _kFrenchWeekdays = [
+  'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche',
+];
+
+/// Cockpit dashboard answering "qu'est-ce qui demande mon attention aujourd'hui ?".
+///
+/// Five stacked sections, each loading/refreshing **independently** so a failure
+/// in one never blocks the others:
+///   1. Personalised header + quick-action shortcuts
+///   2. « À traiter » action banner (top visual priority)  — from pillars
+///   3. The three pillars (clickable)                       — from pillars
+///   4. Recent activity feed                                — from communications
+///   5. Portfolio overview                                  — from buildings
+///
+/// Each data source uses the direct-call pattern (fetch in [initState], own
+/// loading/error/data fields, retry that re-hits only that source). The pillars
+/// fetch feeds both section 2 and section 3.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -27,56 +40,110 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  /// Incremented on pull-to-refresh. Each [_SectionLoader] listens and reloads
-  /// itself independently, forcing a fresh network call.
-  final ValueNotifier<int> _refreshTick = ValueNotifier<int>(0);
-
+  // --- Pillars (drives « À traiter » + the 3 pillars) ------------------------
   PillarsOverview? _pillars;
   bool _pillarsLoading = true;
   Object? _pillarsError;
+
+  // --- Recent activity -------------------------------------------------------
+  List<CommunicationItem>? _activity;
+  bool _activityLoading = true;
+  Object? _activityError;
+
+  // --- Buildings / portfolio -------------------------------------------------
+  List<BuildingItem>? _buildings;
+  bool _buildingsLoading = true;
+  Object? _buildingsError;
 
   @override
   void initState() {
     super.initState();
     _fetchPillars();
+    _fetchActivity();
+    _fetchBuildings();
   }
 
   Future<void> _fetchPillars({bool forceRefresh = false}) async {
     if (!mounted) return;
-    setState(() { _pillarsLoading = true; _pillarsError = null; });
+    setState(() {
+      _pillarsLoading = true;
+      _pillarsError = null;
+    });
     try {
-      final pillars = await AnalyticsService.instance.getPillarsOverview(forceRefresh: forceRefresh);
+      final pillars = await AnalyticsService.instance
+          .getPillarsOverview(forceRefresh: forceRefresh);
       if (!mounted) return;
-      setState(() { _pillars = pillars; _pillarsLoading = false; });
+      setState(() {
+        _pillars = pillars;
+        _pillarsLoading = false;
+      });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _pillarsError = e; _pillarsLoading = false; });
+      setState(() {
+        _pillarsError = e;
+        _pillarsLoading = false;
+      });
     }
   }
 
-  @override
-  void dispose() {
-    _refreshTick.dispose();
-    super.dispose();
+  Future<void> _fetchActivity({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _activityLoading = true;
+      _activityError = null;
+    });
+    try {
+      final items = await CommunicationService.instance.getActivity(limit: 5);
+      if (!mounted) return;
+      setState(() {
+        _activity = items;
+        _activityLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _activityError = e;
+        _activityLoading = false;
+      });
+    }
   }
 
+  Future<void> _fetchBuildings({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() {
+      _buildingsLoading = true;
+      _buildingsError = null;
+    });
+    try {
+      final response = await ApiService.instance.get('/buildings');
+      final data = response['data'] as List<dynamic>;
+      final buildings = data
+          .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+      if (!mounted) return;
+      setState(() {
+        _buildings = buildings;
+        _buildingsLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _buildingsError = e;
+        _buildingsLoading = false;
+      });
+    }
+  }
+
+  /// Pull-to-refresh: force-reload every section in parallel.
   Future<void> _handleRefresh() async {
-    _refreshTick.value++;
-    // Let sections enter their loading state so the indicator feels responsive.
-    await Future<void>.delayed(const Duration(milliseconds: 600));
+    await Future.wait([
+      _fetchPillars(forceRefresh: true),
+      _fetchActivity(forceRefresh: true),
+      _fetchBuildings(forceRefresh: true),
+    ]);
   }
 
-  String _currentPeriodLabel() {
-    final now = DateTime.now();
-    return '${kFrenchMonths[now.month - 1]} ${now.year}';
-  }
-
-  String _formatRevenue(int value) {
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(value % 1000 == 0 ? 0 : 1)}k \$';
-    }
-    return '$value \$';
-  }
+  void _go(String route) => Navigator.of(context).pushNamed(route);
 
   @override
   Widget build(BuildContext context) {
@@ -95,57 +162,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildNewLeadCard(),
-              const SizedBox(height: AppSpacing.lg),
-              _buildPeriodSelector(),
+              // 1. Personalised header + quick actions
+              _buildHeader(),
               const SizedBox(height: AppSpacing.xl),
 
-              // --- Pilliers (Leasing / Maintenance / Rénovation) -----------
-              if (_pillarsLoading)
-                const _PillarsSkeleton()
-              else if (_pillarsError != null)
-                ErrorState(error: _pillarsError!, onRetry: () => _fetchPillars(forceRefresh: true))
-              else if (_pillars != null)
-                _buildPillarsSection(_pillars!),
+              // 2. « À traiter » — top priority (pillars-driven)
+              _buildAttentionBlock(),
               const SizedBox(height: AppSpacing.xl),
 
-              // --- Analytics (KPIs, entonnoir, pipeline, visites, inbox) ---
-              _SectionLoader<FullDashboardData>(
-                refreshTick: _refreshTick,
-                skeleton: const _AnalyticsSkeleton(),
-                fetcher: ({required bool forceRefresh}) => AnalyticsService
-                    .instance
-                    .getDashboard(forceRefresh: forceRefresh),
-                isEmpty: (d) =>
-                    d.kpi == null &&
-                    d.pipeline.stages.isEmpty &&
-                    (d.leadFunnel?.isEmpty ?? true),
-                emptyBuilder: (context) => _buildAnalyticsEmpty(),
-                builder: (context, data) => _buildAnalyticsSections(data),
-              ),
+              // 3. The three pillars (pillars-driven)
+              _buildPillarsBlock(),
               const SizedBox(height: AppSpacing.xl),
 
-              // --- Immeubles (performance + aperçu des vacances) -----------
-              _SectionLoader<List<BuildingItem>>(
-                refreshTick: _refreshTick,
-                skeleton: const _BuildingsSkeleton(),
-                fetcher: _fetchBuildings,
-                isEmpty: (b) => b.isEmpty,
-                emptyBuilder: (context) => _buildBuildingsEmpty(),
-                builder: (context, buildings) =>
-                    _buildBuildingsSections(buildings),
-              ),
+              // 4. Recent activity (communications-driven)
+              _buildActivityBlock(),
               const SizedBox(height: AppSpacing.xl),
 
-              // --- Activité récente ----------------------------------------
-              _SectionLoader<List<CommunicationItem>>(
-                refreshTick: _refreshTick,
-                skeleton: const _ActivitySkeleton(),
-                fetcher: ({required bool forceRefresh}) =>
-                    CommunicationService.instance.getActivity(limit: 5),
-                builder: (context, items) => _buildActivityFeed(items),
-              ),
-              const SizedBox(height: 24),
+              // 5. Portfolio overview (buildings-driven)
+              _buildPortfolioBlock(),
             ],
           ),
         ),
@@ -153,159 +187,327 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Future<List<BuildingItem>> _fetchBuildings(
-      {required bool forceRefresh}) async {
-    final response = await ApiService.instance.get('/buildings');
-    final data = response['data'] as List<dynamic>;
-    return data
-        .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
+  // ===========================================================================
+  // 1. Header
+  // ===========================================================================
 
-  Widget _buildNewLeadCard() {
-    return InkWell(
-      onTap: () => Navigator.of(context).pushNamed('/leads'),
-      borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
-        ),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.primary, AppColors.indigoDark],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.add_circle_outline, color: Colors.white, size: 22),
-            SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Text(
-                'Nouvelle piste',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-            Icon(Icons.arrow_forward_rounded, color: Colors.white70, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget _buildHeader() {
+    final now = DateTime.now();
+    final greeting = now.hour < 18 ? 'Bonjour' : 'Bonsoir';
+    final dateLabel =
+        '${_kFrenchWeekdays[now.weekday - 1]} ${now.day} '
+        '${kFrenchMonths[now.month - 1].toLowerCase()} ${now.year}';
 
-  Widget _buildPeriodSelector() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Période:', style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-        const SizedBox(width: AppSpacing.sm),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-          ),
-          child: Text(
-            _currentPeriodLabel(),
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.primary,
-              fontWeight: FontWeight.w500,
+        Text('$greeting Simon', style: AppTypography.pageTitle),
+        const SizedBox(height: 4),
+        Text(dateLabel, style: AppTypography.caption),
+        const SizedBox(height: AppSpacing.lg),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            _buildQuickAction(
+              icon: Icons.person_add_alt_1_outlined,
+              label: 'Nouvelle piste',
+              route: '/leads',
             ),
-          ),
+            _buildQuickAction(
+              icon: Icons.build_outlined,
+              label: 'Ticket maintenance',
+              route: '/maintenance-tickets',
+            ),
+            _buildQuickAction(
+              icon: Icons.handyman_outlined,
+              label: 'Projet rénovation',
+              route: '/renovation-ops',
+            ),
+          ],
         ),
       ],
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Analytics section (KPIs + funnel + pipeline + visits + inbox metrics)
-  // ---------------------------------------------------------------------------
-
-  Widget _buildAnalyticsSections(FullDashboardData data) {
-    final children = <Widget>[];
-    void add(Widget w) {
-      if (children.isNotEmpty) children.add(const SizedBox(height: AppSpacing.xl));
-      children.add(w);
-    }
-
-    if (data.kpi != null) add(_buildKpiCards(data.kpi!));
-    if (data.leadFunnel != null && data.leadFunnel!.isNotEmpty) {
-      add(LeadFunnelCard(funnelData: data.leadFunnel!));
-    }
-    if (data.pipeline.stages.isNotEmpty) add(_buildPipelineSection(data.pipeline));
-    add(_buildVisitStatsSection(data.visitStats));
-    if (data.inboxToVisitMetrics != null) {
-      add(_buildInboxToVisitMetricsSection(data.inboxToVisitMetrics!));
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: children,
+  Widget _buildQuickAction({
+    required IconData icon,
+    required String label,
+    required String route,
+  }) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+        child: InkWell(
+          onTap: () => _go(route),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 16, color: AppColors.primary),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildAnalyticsEmpty() {
-    return const EmptyState(
-      title: 'Aucune donnée analytique',
-      description:
-          'Les indicateurs apparaîtront une fois les premiers baux et visites enregistrés.',
-      icon: Icons.analytics_outlined,
-      compact: true,
-    );
+  // ===========================================================================
+  // 2. « À traiter » banner (pillars-driven)
+  // ===========================================================================
+
+  Widget _buildAttentionBlock() {
+    if (_pillarsLoading) return const _AttentionSkeleton();
+    if (_pillarsError != null) {
+      return _SectionFrame(
+        title: 'À traiter',
+        child: ErrorState(
+          error: _pillarsError!,
+          compact: true,
+          onRetry: () => _fetchPillars(forceRefresh: true),
+        ),
+      );
+    }
+    return _buildAttentionBanner(_pillars!);
   }
 
-  Widget _buildKpiCards(KpiSummary kpi) {
-    return SizedBox(
-      height: 140,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
+  Widget _buildAttentionBanner(PillarsOverview p) {
+    // Ordered by visual priority: blocked (red) → to-do (orange) → info (blue).
+    final items = <_AttentionItem>[
+      _AttentionItem(
+        icon: Icons.report_problem_outlined,
+        label: 'Projets de rénovation bloqués',
+        count: p.renovation.blockedProjects,
+        color: AppColors.error,
+        route: '/renovation-ops',
+      ),
+      _AttentionItem(
+        icon: Icons.build_outlined,
+        label: 'Tickets de maintenance ouverts',
+        count: p.maintenance.openTickets,
+        color: AppColors.warning,
+        route: '/maintenance-tickets',
+      ),
+      _AttentionItem(
+        icon: Icons.receipt_long_outlined,
+        label: 'Commandes ouvertes',
+        count: p.renovation.openOrders,
+        color: AppColors.warning,
+        route: '/renovation-ops',
+      ),
+      _AttentionItem(
+        icon: Icons.event_outlined,
+        label: 'Visites planifiées cette semaine',
+        count: p.leasing.visitsThisWeek,
+        color: AppColors.primary,
+        route: '/leads',
+      ),
+      _AttentionItem(
+        icon: Icons.people_alt_outlined,
+        label: 'Pistes actives',
+        count: p.leasing.activeLeads,
+        color: AppColors.primary,
+        route: '/leads',
+      ),
+    ].where((i) => i.count > 0).toList();
+
+    final totalToTreat = items.fold<int>(0, (sum, i) => sum + i.count);
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+        border: Border.all(
+          color: items.isEmpty
+              ? AppColors.success.withValues(alpha: 0.4)
+              : AppColors.primary.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+        boxShadow: [AppSpacing.elevationCard],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          KpiCard(
-            label: 'Revenus',
-            value: _formatRevenue(kpi.revenue.current.toInt()),
-            icon: Icons.attach_money,
-            trendPercentage: kpi.revenue.trend,
-            semanticLabel: 'Voir les paiements',
-            onTap: () => Navigator.of(context).pushNamed('/payments'),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.flag_outlined,
+                    size: 20, color: AppColors.primary),
+                const SizedBox(width: AppSpacing.sm),
+                const Text('À traiter', style: AppTypography.sectionHeader),
+                const Spacer(),
+                if (items.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                    ),
+                    child: Text(
+                      '$totalToTreat',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          KpiCard(
-            label: "Taux d'occupation",
-            value: '${kpi.occupancyRate.current.toStringAsFixed(1)}%',
-            icon: Icons.percent,
-            trendPercentage: kpi.occupancyRate.trend,
-            semanticLabel: "Voir les immeubles et le taux d'occupation",
-            onTap: () => Navigator.of(context).pushNamed('/buildings'),
+          if (items.isEmpty)
+            _buildAllClear()
+          else
+            ...List.generate(items.length, (i) {
+              final item = items[i];
+              return Column(
+                children: [
+                  if (i == 0)
+                    const Divider(height: 1, color: AppColors.border),
+                  _buildAttentionRow(item),
+                  if (i < items.length - 1)
+                    const Divider(height: 1, color: AppColors.border),
+                ],
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttentionRow(_AttentionItem item) {
+    return Semantics(
+      button: true,
+      label: '${item.label}: ${item.count}',
+      child: InkWell(
+        onTap: () => _go(item.route),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
           ),
-          const SizedBox(width: AppSpacing.sm),
-          KpiCard(
-            label: 'Baux actifs',
-            value: '${kpi.activeLeases.current.toInt()}',
-            icon: Icons.description,
-            trendPercentage: kpi.activeLeases.trend,
-            semanticLabel: 'Voir les baux actifs',
-            onTap: () => Navigator.of(context).pushNamed('/leases'),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: item.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(item.icon, size: 19, color: item.color),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  item.label,
+                  style: AppTypography.body,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Text(
+                '${item.count}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: item.color,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              const Icon(Icons.chevron_right,
+                  size: 20, color: AppColors.textMuted),
+            ],
           ),
-          const SizedBox(width: AppSpacing.sm),
-          KpiCard(
-            label: 'Pistes ouvertes',
-            value: '${kpi.openLeads.current.toInt()}',
-            icon: Icons.person_add,
-            trendPercentage: kpi.openLeads.trend,
-            semanticLabel: 'Voir les pistes ouvertes',
-            onTap: () => Navigator.of(context).pushNamed('/leads'),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAllClear() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.lg,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.check_circle_outline,
+                size: 22, color: AppColors.success),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          const Expanded(
+            child: Text(
+              'Tout est à jour ✓',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.success,
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  // ===========================================================================
+  // 3. The three pillars (pillars-driven)
+  // ===========================================================================
+
+  Widget _buildPillarsBlock() {
+    if (_pillarsLoading) return const _PillarsSkeleton();
+    if (_pillarsError != null) {
+      return _SectionFrame(
+        title: 'Les 3 piliers',
+        child: ErrorState(
+          error: _pillarsError!,
+          compact: true,
+          onRetry: () => _fetchPillars(forceRefresh: true),
+        ),
+      );
+    }
+    return _buildPillarsSection(_pillars!);
   }
 
   Widget _buildPillarsSection(PillarsOverview pillars) {
@@ -323,11 +525,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               accentColor: AppColors.primary,
               semanticLabel:
                   'Voir le leasing, ${pillars.leasing.activeLeads} pistes actives',
-              onTap: () => Navigator.of(context).pushNamed('/leads'),
+              onTap: () => _go('/leads'),
               metrics: [
                 _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
-                _PillarMetric('Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
-                _PillarMetric('Taux de conversion', pillars.leasing.conversionRate),
+                _PillarMetric(
+                    'Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
+                _PillarMetric(
+                    'Taux de conversion', pillars.leasing.conversionRate),
               ],
             );
             final maintenanceCard = _buildPillarCard(
@@ -336,11 +540,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               accentColor: AppColors.skyBlue,
               semanticLabel:
                   'Voir la maintenance, ${pillars.maintenance.openTickets} tickets ouverts',
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/maintenance-tickets'),
+              onTap: () => _go('/maintenance-tickets'),
               metrics: [
-                _PillarMetric('Tickets ouverts', '${pillars.maintenance.openTickets}'),
-                _PillarMetric('En cours', '${pillars.maintenance.inProgressTickets}'),
+                _PillarMetric(
+                    'Tickets ouverts', '${pillars.maintenance.openTickets}'),
+                _PillarMetric(
+                    'En cours', '${pillars.maintenance.inProgressTickets}'),
                 _PillarMetric(
                   'Résolution moy.',
                   pillars.maintenance.avgResolutionHours != null
@@ -355,11 +560,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               accentColor: AppColors.warning,
               semanticLabel:
                   'Voir la rénovation, ${pillars.renovation.blockedProjects} projets bloqués',
-              onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+              onTap: () => _go('/renovation-ops'),
               metrics: [
-                _PillarMetric('Projets actifs', '${pillars.renovation.activeProjects}'),
+                _PillarMetric(
+                    'Projets actifs', '${pillars.renovation.activeProjects}'),
                 _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
-                _PillarMetric('Commandes ouvertes', '${pillars.renovation.openOrders}'),
+                _PillarMetric(
+                    'Commandes ouvertes', '${pillars.renovation.openOrders}'),
               ],
             );
 
@@ -430,7 +637,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(
                       child: Text(title, style: AppTypography.cardTitle),
                     ),
-                    const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                    const Icon(Icons.chevron_right,
+                        size: 20, color: AppColors.textMuted),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -467,378 +675,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildPipelineSection(PipelineData pipeline) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Pipeline', style: AppTypography.sectionHeader),
-        const SizedBox(height: AppSpacing.md),
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: pipeline.stages.entries.map((entry) {
-            final stage = LeadStage.fromString(entry.key);
-            final count = entry.value;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: AppSpacing.cardDecoration(),
-              child: Column(
-                children: [
-                  Text(
-                    '$count',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Text(stage.label, style: AppTypography.chartAxisLabel),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
+  // ===========================================================================
+  // 4. Recent activity (communications-driven)
+  // ===========================================================================
 
-  Widget _buildVisitStatsSection(VisitStatsData vs) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Statistiques des visites', style: AppTypography.sectionHeader),
-        const SizedBox(height: AppSpacing.md),
-        Row(
-          children: [
-            _buildVisitStatChip(label: 'Total', value: vs.total, color: AppColors.textPrimary),
-            const SizedBox(width: AppSpacing.sm),
-            _buildVisitStatChip(label: 'Terminées', value: vs.completed, color: AppColors.success),
-            const SizedBox(width: AppSpacing.sm),
-            _buildVisitStatChip(label: 'Annulées', value: vs.cancelled, color: AppColors.error),
-            const SizedBox(width: AppSpacing.sm),
-            _buildVisitStatChip(label: 'Absent', value: vs.noShow, color: AppColors.warning),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildVisitStatChip({
-    required String label,
-    required int value,
-    required Color color,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [AppSpacing.elevationCard],
-        ),
-        child: Column(
-          children: [
-            Text(
-              '$value',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+  Widget _buildActivityBlock() {
+    final header = Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Activité récente', style: AppTypography.sectionHeader),
+          GestureDetector(
+            onTap: () => _go('/communications'),
+            child: const Text(
+              'Voir tout',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
-            Text(label, style: AppTypography.chartAxisLabel),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
 
-  Widget _buildInboxToVisitMetricsSection(InboxToVisitMetrics metrics) {
+    Widget body;
+    if (_activityLoading) {
+      body = const _ActivityListSkeleton();
+    } else if (_activityError != null) {
+      body = ErrorState(
+        error: _activityError!,
+        compact: true,
+        onRetry: () => _fetchActivity(forceRefresh: true),
+      );
+    } else if ((_activity ?? const []).isEmpty) {
+      body = const Center(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.lg),
+          child: Text('Aucune activité récente', style: AppTypography.caption),
+        ),
+      );
+    } else {
+      body = Column(
+        children: _activity!.map(_buildActivityRow).toList(),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Flux inbox → visite', style: AppTypography.sectionHeader),
-        const SizedBox(height: AppSpacing.md),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth > 720;
-            final dailyCard = Expanded(
-              child: _buildOperationalMetricsCard(
-                title: '24 dernières heures',
-                subtitle: 'Vue quotidienne',
-                metrics: metrics.daily,
-                accentColor: AppColors.primary,
-              ),
-            );
-            final weeklyCard = Expanded(
-              child: _buildOperationalMetricsCard(
-                title: '7 derniers jours',
-                subtitle: 'Vue hebdomadaire',
-                metrics: metrics.weekly,
-                accentColor: AppColors.skyBlue,
-              ),
-            );
-
-            if (isWide) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  dailyCard,
-                  const SizedBox(width: AppSpacing.md),
-                  weeklyCard,
-                ],
-              );
-            }
-
-            return Column(
-              children: [
-                _buildOperationalMetricsCard(
-                  title: '24 dernières heures',
-                  subtitle: 'Vue quotidienne',
-                  metrics: metrics.daily,
-                  accentColor: AppColors.primary,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _buildOperationalMetricsCard(
-                  title: '7 derniers jours',
-                  subtitle: 'Vue hebdomadaire',
-                  metrics: metrics.weekly,
-                  accentColor: AppColors.skyBlue,
-                ),
-              ],
-            );
-          },
-        ),
-      ],
+      children: [header, body],
     );
   }
 
-  Widget _buildOperationalMetricsCard({
-    required String title,
-    required String subtitle,
-    required OperationalMetricsWindow metrics,
-    required Color accentColor,
-  }) {
+  Widget _buildActivityRow(CommunicationItem item) {
+    final typeColor = _communicationTypeColor(item.type);
+    final typeIcon = _communicationTypeIcon(item.type);
+    final description = item.body.isNotEmpty ? item.body : item.subject;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: AppSpacing.cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: accentColor,
-                  shape: BoxShape.circle,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+        child: InkWell(
+          onTap: () => _go('/communications'),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: typeColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(typeIcon, size: 20, color: typeColor),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(title, style: AppTypography.cardTitle),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              _buildOperationalMetricTile(
-                label: 'Volume boîte',
-                value: metrics.inboxVolume,
-                color: AppColors.primary,
-                icon: Icons.inbox_outlined,
-              ),
-              _buildOperationalMetricTile(
-                label: 'Réponses',
-                value: metrics.replies,
-                color: AppColors.info,
-                icon: Icons.reply_outlined,
-              ),
-              _buildOperationalMetricTile(
-                label: 'Réservations',
-                value: metrics.bookings,
-                color: AppColors.skyBlue,
-                icon: Icons.event_available_outlined,
-              ),
-              _buildOperationalMetricTile(
-                label: 'Terminées',
-                value: metrics.completedVisits,
-                color: AppColors.success,
-                icon: Icons.check_circle_outline,
-              ),
-              _buildOperationalMetricTile(
-                label: 'No-shows',
-                value: metrics.noShows,
-                color: AppColors.error,
-                icon: Icons.cancel_outlined,
-              ),
-              _buildOperationalMetricTile(
-                label: 'Bloquées',
-                value: metrics.stalledConversations,
-                color: AppColors.warning,
-                icon: Icons.hourglass_bottom_outlined,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOperationalMetricTile({
-    required String label,
-    required int value,
-    required Color color,
-    required IconData icon,
-  }) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            '$value',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: color,
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${_communicationTypeLabel(item.type)}: ${item.contactName}',
+                        style: AppTypography.cardTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        description,
+                        style: AppTypography.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  _formatTimeAgo(item.createdAt),
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textMuted),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Buildings section (performance + vacancy summary)
-  // ---------------------------------------------------------------------------
-
-  Widget _buildBuildingsSections(List<BuildingItem> buildings) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BuildingPerformanceCard(
-          buildings: buildings,
-          onViewAll: () {
-            Navigator.of(context).pushNamed('/buildings');
-          },
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        _buildVacancySummary(context, buildings),
-      ],
-    );
-  }
-
-  Widget _buildBuildingsEmpty() {
-    return EmptyState(
-      title: 'Aucun immeuble',
-      description:
-          'Ajoutez votre premier immeuble pour suivre l’occupation et les vacances.',
-      icon: Icons.apartment_outlined,
-      ctaLabel: 'Ajouter un immeuble',
-      ctaIcon: Icons.add,
-      onCtaPressed: () => Navigator.of(context).pushNamed('/buildings'),
-    );
-  }
-
-  Widget _buildActivityFeed(List<CommunicationItem> recentCommunications) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Activité récente', style: AppTypography.sectionHeader),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed('/communications');
-                },
-                child: const Text(
-                  'Voir tout',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (recentCommunications.isEmpty)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
-              child: Text('Aucune activité récente', style: AppTypography.caption),
-            ),
-          )
-        else
-          ...recentCommunications.map((item) {
-            final typeColor = _communicationTypeColor(item.type);
-            final typeIcon = _communicationTypeIcon(item.type);
-            return Container(
-              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-              padding: const EdgeInsets.all(14),
-              decoration: AppSpacing.cardDecoration(),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: typeColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(typeIcon, size: 20, color: typeColor),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${_communicationTypeLabel(item.type)}: ${item.contactName}',
-                          style: AppTypography.cardTitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          item.body.isNotEmpty ? item.body : item.subject,
-                          style: AppTypography.caption,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    _formatTimeAgo(item.createdAt),
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            );
-          }),
-      ],
     );
   }
 
@@ -885,80 +830,151 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final now = DateTime.now();
     final diff = now.difference(dt);
     if (diff.inMinutes < 1) return "À l'instant";
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min';
-    if (diff.inHours < 24) return '${diff.inHours} h';
-    if (diff.inDays < 7) return '${diff.inDays} j';
+    if (diff.inMinutes < 60) return 'il y a ${diff.inMinutes} min';
+    if (diff.inHours < 24) return 'il y a ${diff.inHours} h';
+    if (diff.inDays < 7) return 'il y a ${diff.inDays} j';
     return DateFormat('d MMM').format(dt);
   }
 
-  Widget _buildVacancySummary(BuildContext context, List<BuildingItem> buildings) {
+  // ===========================================================================
+  // 5. Portfolio overview (buildings-driven)
+  // ===========================================================================
+
+  Widget _buildPortfolioBlock() {
+    if (_buildingsLoading) return const _PortfolioSkeleton();
+    if (_buildingsError != null) {
+      return _SectionFrame(
+        title: 'Aperçu du portefeuille',
+        child: ErrorState(
+          error: _buildingsError!,
+          compact: true,
+          onRetry: () => _fetchBuildings(forceRefresh: true),
+        ),
+      );
+    }
+    final buildings = _buildings ?? const <BuildingItem>[];
+    if (buildings.isEmpty) {
+      return _SectionFrame(
+        title: 'Aperçu du portefeuille',
+        child: EmptyState(
+          title: 'Aucun immeuble',
+          description:
+              'Ajoutez votre premier immeuble pour suivre l’occupation et les vacances.',
+          icon: Icons.apartment_outlined,
+          ctaLabel: 'Ajouter un immeuble',
+          ctaIcon: Icons.add,
+          onCtaPressed: () => _go('/buildings'),
+        ),
+      );
+    }
+    return _buildPortfolioSummary(buildings);
+  }
+
+  Widget _buildPortfolioSummary(List<BuildingItem> buildings) {
     int totalUnits = 0;
     int occupiedUnits = 0;
-    int vacantUnits = 0;
     for (final b in buildings) {
       totalUnits += b.totalUnits;
       occupiedUnits += b.occupiedUnits;
-      vacantUnits += b.totalUnits - b.occupiedUnits;
     }
+    final vacantUnits = totalUnits - occupiedUnits;
+    final occupancyRate =
+        totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0.0;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: AppSpacing.cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Aperçu du portefeuille', style: AppTypography.sectionHeader),
+        const SizedBox(height: AppSpacing.md),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: AppSpacing.cardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.door_front_door, color: AppColors.primary, size: 20),
-              SizedBox(width: AppSpacing.sm),
-              Text('Aperçu des vacances', style: AppTypography.sectionHeader),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              Expanded(
-                child: _buildVacancyChip(label: 'Total', count: totalUnits, color: AppColors.textPrimary),
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.apartment_outlined,
+                        size: 22, color: AppColors.primary),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Text(
+                      '${buildings.length} '
+                      '${buildings.length > 1 ? 'immeubles' : 'immeuble'}',
+                      style: AppTypography.cardTitle,
+                    ),
+                  ),
+                  Text(
+                    '${occupancyRate.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: _buildVacancyChip(label: 'Occupées', count: occupiedUnits, color: AppColors.success),
+              const SizedBox(height: 2),
+              const Padding(
+                padding: EdgeInsets.only(left: 52),
+                child: Text("Taux d'occupation global",
+                    style: AppTypography.caption),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: _buildVacancyChip(label: 'Libres', count: vacantUnits, color: AppColors.warning),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildPortfolioStat(
+                        label: 'Unités', count: totalUnits,
+                        color: AppColors.textPrimary),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _buildPortfolioStat(
+                        label: 'Occupées', count: occupiedUnits,
+                        color: AppColors.success),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _buildPortfolioStat(
+                        label: 'Libres', count: vacantUnits,
+                        color: AppColors.warning),
+                  ),
+                ],
               ),
-            ],
-          ),
-          if (buildings.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.lg),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const UnitsScreen()),
-                  );
-                },
-                icon: const Icon(Icons.arrow_forward, size: 16),
-                label: const Text('Voir toutes les unités'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _go('/buildings'),
+                  icon: const Icon(Icons.arrow_forward, size: 16),
+                  label: const Text('Voir tous les immeubles'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildVacancyChip({
+  Widget _buildPortfolioStat({
     required String label,
     required int count,
     required Color color,
@@ -993,116 +1009,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
+// =============================================================================
+// Small models
+// =============================================================================
+
 class _PillarMetric {
   const _PillarMetric(this.label, this.value);
   final String label;
   final String value;
 }
 
-// =============================================================================
-// Generic per-section loader
-// =============================================================================
-
-typedef _SectionFetcher<T> = Future<T> Function({required bool forceRefresh});
-
-/// Loads one dashboard section independently: shows its own skeleton while
-/// loading, its own [ErrorState] (with a working retry that re-hits the
-/// network) on failure, an optional empty state, otherwise the built content.
-///
-/// A failure in one section never blocks the others.
-class _SectionLoader<T> extends StatefulWidget {
-  const _SectionLoader({
-    super.key,
-    required this.fetcher,
-    required this.builder,
-    required this.skeleton,
-    required this.refreshTick,
-    this.isEmpty,
-    this.emptyBuilder,
+class _AttentionItem {
+  const _AttentionItem({
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.color,
+    required this.route,
   });
-
-  final _SectionFetcher<T> fetcher;
-  final Widget Function(BuildContext context, T data) builder;
-  final Widget skeleton;
-
-  /// Bumped by the parent on pull-to-refresh to trigger an independent reload.
-  final ValueListenable<int> refreshTick;
-
-  final bool Function(T data)? isEmpty;
-  final WidgetBuilder? emptyBuilder;
-
-  @override
-  State<_SectionLoader<T>> createState() => _SectionLoaderState<T>();
+  final IconData icon;
+  final String label;
+  final int count;
+  final Color color;
+  final String route;
 }
 
-class _SectionLoaderState<T> extends State<_SectionLoader<T>> {
-  bool _loading = true;
-  Object? _error;
-  T? _data;
+// =============================================================================
+// Shared layout helper
+// =============================================================================
 
-  /// Guards against out-of-order responses when retries overlap.
-  int _requestId = 0;
+/// Wraps a section header above an error/empty/placeholder body so a failing
+/// section keeps its title and visual footprint.
+class _SectionFrame extends StatelessWidget {
+  const _SectionFrame({required this.title, required this.child});
 
-  @override
-  void initState() {
-    super.initState();
-    widget.refreshTick.addListener(_onRefreshTick);
-    _load(forceRefresh: false);
-  }
-
-  @override
-  void dispose() {
-    widget.refreshTick.removeListener(_onRefreshTick);
-    super.dispose();
-  }
-
-  void _onRefreshTick() => _load(forceRefresh: true);
-
-  Future<void> _load({required bool forceRefresh}) async {
-    final requestId = ++_requestId;
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final data = await widget.fetcher(forceRefresh: forceRefresh);
-      if (!mounted || requestId != _requestId) return;
-      setState(() {
-        _data = data;
-        _loading = false;
-      });
-    } catch (e) {
-      if (!mounted || requestId != _requestId) return;
-      setState(() {
-        _error = e;
-        _loading = false;
-      });
-    }
-  }
+  final String title;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return widget.skeleton;
-
-    if (_error != null) {
-      return ErrorState(
-        error: _error!,
-        compact: true,
-        onRetry: () => _load(forceRefresh: true),
-      );
-    }
-
-    final data = _data as T;
-    if (widget.isEmpty?.call(data) ?? false) {
-      return widget.emptyBuilder?.call(context) ?? const SizedBox.shrink();
-    }
-    return widget.builder(context, data);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTypography.sectionHeader),
+        const SizedBox(height: AppSpacing.md),
+        child,
+      ],
+    );
   }
 }
 
 // =============================================================================
 // Per-section skeletons
 // =============================================================================
+
+class _AttentionSkeleton extends StatelessWidget {
+  const _AttentionSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShimmerBox(width: 120, height: 18, radius: 6),
+        SizedBox(height: AppSpacing.md),
+        ShimmerBox(width: double.infinity, height: 180),
+      ],
+    );
+  }
+}
 
 class _PillarsSkeleton extends StatelessWidget {
   const _PillarsSkeleton();
@@ -1143,69 +1118,35 @@ class _PillarsSkeleton extends StatelessWidget {
   }
 }
 
-class _AnalyticsSkeleton extends StatelessWidget {
-  const _AnalyticsSkeleton();
+class _ActivityListSkeleton extends StatelessWidget {
+  const _ActivityListSkeleton();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 140,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: const [
-              ShimmerBox(width: 160, height: 130),
-              SizedBox(width: AppSpacing.sm),
-              ShimmerBox(width: 160, height: 130),
-              SizedBox(width: AppSpacing.sm),
-              ShimmerBox(width: 160, height: 130),
-              SizedBox(width: AppSpacing.sm),
-              ShimmerBox(width: 160, height: 130),
-            ],
-          ),
+      children: List.generate(
+        3,
+        (i) => const Padding(
+          padding: EdgeInsets.only(bottom: AppSpacing.sm),
+          child: SkeletonRow(height: 56),
         ),
-        const SizedBox(height: AppSpacing.xl),
-        const ShimmerBox(width: double.infinity, height: 180),
-      ],
+      ),
     );
   }
 }
 
-class _BuildingsSkeleton extends StatelessWidget {
-  const _BuildingsSkeleton();
+class _PortfolioSkeleton extends StatelessWidget {
+  const _PortfolioSkeleton();
 
   @override
   Widget build(BuildContext context) {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        ShimmerBox(width: 180, height: 18, radius: 6),
+        SizedBox(height: AppSpacing.md),
         ShimmerBox(width: double.infinity, height: 200),
-        SizedBox(height: AppSpacing.xl),
-        ShimmerBox(width: double.infinity, height: 140),
-      ],
-    );
-  }
-}
-
-class _ActivitySkeleton extends StatelessWidget {
-  const _ActivitySkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const ShimmerBox(width: 140, height: 18, radius: 6),
-        const SizedBox(height: AppSpacing.md),
-        ...List.generate(
-          3,
-          (i) => const Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.sm),
-            child: SkeletonRow(height: 56),
-          ),
-        ),
       ],
     );
   }
