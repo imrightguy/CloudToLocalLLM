@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import 'property_photos_screen.dart';
 
 class UnitDetailScreen extends StatelessWidget {
-  const UnitDetailScreen({super.key, required this.unit});
+  const UnitDetailScreen({super.key, required this.unit, this.buildingName});
 
   final UnitItem unit;
+  final String? buildingName;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +120,43 @@ class UnitDetailScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
+
+            // Photos du logement
+            if (unit.id != null && unit.buildingId != null) ...[
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.photo_library_outlined,
+                      color: AppColors.primary),
+                  title: const Text(
+                    'Photos du logement',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  subtitle: const Text('Voir et ajouter des photos'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PropertyPhotosScreen(
+                          buildingId: unit.buildingId!,
+                          buildingName: buildingName ?? 'Bâtiment',
+                          unitId: unit.id,
+                          unitLabel: unit.number,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
 
             // Tenant information
             if (tenantLabel != null && tenantLabel.isNotEmpty) ...[

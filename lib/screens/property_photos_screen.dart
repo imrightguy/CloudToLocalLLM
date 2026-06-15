@@ -301,7 +301,7 @@ class _PropertyPhotosScreenState extends State<PropertyPhotosScreen> {
               right: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,

@@ -17,11 +17,16 @@ const LATE_FEE_DAILY_RATE = 0.001;
 const LATE_FEE_GRACE_DAYS = 3;
 const LATE_FEE_MAX_PERCENT = 0.10;
 
-const toPublicPayment = (payment) => ({
+const toPublicPayment = (payment, extra = {}) => ({
   ...payment,
   amount: payment.amountCents / 100,
   lateFee: payment.lateFeeCents / 100,
   total: (payment.amountCents + payment.lateFeeCents) / 100,
+  amountPaid: payment.paidDate ? (payment.amountCents / 100) : (extra.amountPaid ?? 0),
+  tenantName: extra.tenantName ?? 'Locataire inconnu',
+  unitLabel: extra.unitLabel ?? '—',
+  buildingName: extra.buildingName ?? '—',
+  dueDate: payment.dueDate,
 });
 
 const findPaymentOr404 = async (id) => {
@@ -196,27 +201,42 @@ exports.getPayments = async (req, res) => {
     let dataQuery = db
       .select()
       .from(paymentsTable)
+      .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
+      .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
       .where(and(...conditions.filter(Boolean)))
       .orderBy(orderFn(sortColumn))
       .limit(validLimit)
       .offset(offset);
 
     if (buildingId) {
-      dataQuery = db
-        .select()
-        .from(paymentsTable)
-        .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
-        .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
-        .where(and(eq(unitsTable.buildingId, buildingId), ...conditions.filter(Boolean)))
-        .orderBy(orderFn(sortColumn))
-        .limit(validLimit)
-        .offset(offset);
+      conditions.push(eq(unitsTable.buildingId, buildingId));
+    } else {
+      conditions.push(eq(unitsTable.isActive, true));
     }
+
+    dataQuery = db
+      .select()
+      .from(paymentsTable)
+      .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
+      .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
+      .where(and(...conditions.filter(Boolean)))
+      .orderBy(orderFn(sortColumn))
+      .limit(validLimit)
+      .offset(offset);
 
     const rows = await dataQuery;
     const payments = rows.map((row) => {
       const payment = row.payments || row;
-      return toPublicPayment(payment);
+      const lease = row.leases || {};
+      const unit = row.units || {};
+      return toPublicPayment(payment, {
+        tenantName: lease.tenantFirstName && lease.tenantLastName
+          ? `${lease.tenantFirstName} ${lease.tenantLastName}`
+          : null,
+        unitLabel: unit.label,
+        buildingName: unit.buildingName,
+        amountPaid: payment.paidDate ? payment.amountCents / 100 : 0,
+      });
     });
 
     const totalPages = Math.ceil(total / validLimit);

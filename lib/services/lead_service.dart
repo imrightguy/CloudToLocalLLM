@@ -61,9 +61,11 @@ class LeadService {
     final data = result['data'];
     final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
 
-    final items = (data as List<dynamic>)
-        .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final items = data is List<dynamic>
+        ? (data as List<dynamic>)
+            .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
+            .toList()
+        : <LeadItem>[];
 
     return PaginatedResult<LeadItem>(
       items: items,

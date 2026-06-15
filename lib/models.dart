@@ -1254,13 +1254,9 @@ class LeaseItem {
 
   factory LeaseItem.fromJson(Map<String, dynamic> json) {
     DateTime? parsedStartDate;
-    if (json['startDate'] != null) {
-      try { parsedStartDate = DateTime.parse(json['startDate'] as String); } catch (_) {}
-    }
+    try { parsedStartDate = json['startDate'] != null ? DateTime.parse(json['startDate'].toString()) : null; } catch (_) {}
     DateTime? parsedEndDate;
-    if (json['endDate'] != null) {
-      try { parsedEndDate = DateTime.parse(json['endDate'] as String); } catch (_) {}
-    }
+    try { parsedEndDate = json['endDate'] != null ? DateTime.parse(json['endDate'].toString()) : null; } catch (_) {}
     DateTime? parsedCreatedAt;
     if (json['createdAt'] != null) {
       try { parsedCreatedAt = DateTime.parse(json['createdAt'] as String); } catch (_) {}
@@ -1956,8 +1952,8 @@ class PaymentItem {
       buildingId: json['buildingId'] as String?,
       unitId: json['unitId'] as String?,
       tenantId: json['tenantId'] as String?,
-      amount: (json['amountCents'] as num?)?.toInt() ?? 0,
-      amountPaid: (json['amountPaidCents'] as num?)?.toInt() ?? 0,
+      amount: ((json['amount'] as num?)?.toInt() ?? (json['amountCents'] as num?)?.toInt() ?? 0),
+      amountPaid: ((json['amountPaid'] as num?)?.toInt() ?? (json['amountPaidCents'] as num?)?.toInt() ?? 0),
       dueDate: json['dueDate'] as String? ?? '',
       paidAt: json['paidAt'] as String? ?? '',
       status: PaymentStatus.fromString(json['status'] as String? ?? ''),

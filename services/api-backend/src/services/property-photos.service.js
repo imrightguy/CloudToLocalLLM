@@ -3,11 +3,11 @@
 
 const path = require('path');
 const fs = require('fs/promises');
-const crypto = require('crypto');
+const nodeCrypto = require('crypto');
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
-const { propertyPhotosTable, buildingsTable, unitsTable } = require('../database/schema');
-const { eq, and, desc, asc, inArray } = require('drizzle-orm');
+const { propertyPhotosTable } = require('../database/schema');
+const { eq, and, desc, sql } = require('drizzle-orm');
 
 const UPLOAD_DIR = process.env.PHOTOS_UPLOAD_DIR || '/app/uploads/photos';
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
@@ -33,7 +33,7 @@ async function uploadPhoto(file, metadata) {
   }
 
   const ext = path.extname(file.originalname) || '.jpg';
-  const storedName = `${crypto.randomUUID()}${ext}`;
+  const storedName = `${nodeCrypto.randomUUID()}${ext}`;
   const filePath = path.join(UPLOAD_DIR, storedName);
 
   await fs.writeFile(filePath, file.buffer);
@@ -84,11 +84,11 @@ async function getPhotosByBuilding(buildingId, { useCase, unitId, page = 1, limi
     .limit(validLimit)
     .offset(offset);
 
-  const [{ count }] = await db.select({ count: propertyPhotosTable.id })
+  const [{ count }] = await db.select({ count: sql`count(*)::int` })
     .from(propertyPhotosTable)
     .where(and(...conditions));
 
-  return { photos, total: Number(count), page, limit: validLimit };
+  return { photos, total: count, page, limit: validLimit };
 }
 
 /**
@@ -105,11 +105,11 @@ async function getPhotosByUnit(unitId, { page = 1, limit = 50 } = {}) {
     .limit(validLimit)
     .offset(offset);
 
-  const [{ count }] = await db.select({ count: propertyPhotosTable.id })
+  const [{ count }] = await db.select({ count: sql`count(*)::int` })
     .from(propertyPhotosTable)
     .where(and(eq(propertyPhotosTable.unitId, unitId), eq(propertyPhotosTable.isActive, true)));
 
-  return { photos, total: Number(count), page, limit: validLimit };
+  return { photos, total: count, page, limit: validLimit };
 }
 
 /**

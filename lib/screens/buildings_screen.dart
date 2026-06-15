@@ -5,6 +5,7 @@ import '../models.dart';
 import '../services/api_service.dart';
 import 'units_screen.dart';
 import 'building_form_screen.dart';
+import 'property_photos_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
@@ -389,6 +390,10 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
     return Scaffold(
       appBar: ImmoAppBar(
         title: widget.building.name,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -444,6 +449,25 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Photos section — gallery of building/unit photos
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PropertyPhotosScreen(
+                        buildingId: widget.building.id ?? '',
+                        buildingName: widget.building.name,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.photo_library_outlined),
+                label: const Text('Voir les photos du bâtiment'),
               ),
             ),
             const SizedBox(height: 24),
