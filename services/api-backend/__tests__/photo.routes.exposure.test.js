@@ -14,6 +14,7 @@ jest.mock('../src/auth/jwt.middleware', () => ({
     next();
   },
   authorizeRole: () => (req, res, next) => next(),
+  requireCompanyAccess: (req, res, next) => next(),
   optionalAuth: (req, res, next) => next(),
 }));
 

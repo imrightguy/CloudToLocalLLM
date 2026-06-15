@@ -59,6 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final buildingsData = (buildingsResponse as Map<String, dynamic>)['data'] as List<dynamic>;
 
+      if (!mounted) return;
       setState(() {
         _dashboardData = analytics;
         _pillars = pillars;
@@ -69,6 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _lastError = e;
         _isLoading = false;

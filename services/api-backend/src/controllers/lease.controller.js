@@ -165,13 +165,21 @@ exports.getLeases = async (req, res) => {
     const sortColumn = allowedSortFields[sortBy] || leasesTable.createdAt;
     const orderFn = sortOrder === 'asc' ? asc : desc;
 
-    const leases = await db
+    // Mirror the count query's joins so a buildingId filter (which references
+    // buildingsTable) resolves instead of throwing a SQL error. The joins make
+    // the result rows nested ({ leases, units, buildings }), so we unwrap the
+    // lease row before mapping to the public shape.
+    const rows = await db
       .select()
       .from(leasesTable)
-      .where(and(...conditions.filter(c => c)))
+      .leftJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
+      .leftJoin(buildingsTable, eq(unitsTable.buildingId, buildingsTable.id))
+      .where(whereClause)
       .orderBy(orderFn(sortColumn))
       .limit(validLimit)
       .offset(offset);
+
+    const leases = rows.map((row) => row.leases);
 
     const totalPages = Math.ceil(total / validLimit);
 

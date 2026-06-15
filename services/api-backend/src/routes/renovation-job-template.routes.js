@@ -1,6 +1,6 @@
 const express = require('express');
 const Joi = require('joi');
-const { authenticateToken } = require('../auth/jwt.middleware');
+const { authenticateToken, requireCompanyAccess } = require('../auth/jwt.middleware');
 const validate = require('../middleware/validate');
 const { asyncHandler } = require('../utils/apiResponse');
 const renovationJobTemplateController = require('../controllers/renovation-job-template.controller');
@@ -12,6 +12,7 @@ const companyTemplateParamSchema = { params: Joi.object({ companyId: Joi.string(
 
 router.use(authenticateToken);
 router.use(validate(companyParamSchema));
+router.use(requireCompanyAccess);
 
 router.get('/', asyncHandler(renovationJobTemplateController.listRenovationJobTemplates));
 router.post('/', asyncHandler(renovationJobTemplateController.createRenovationJobTemplate));

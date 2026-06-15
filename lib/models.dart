@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// Safely parse a date value that may be null, malformed, or non-String.
+/// Returns null instead of throwing when parsing fails.
+DateTime? _tryParseDate(dynamic value) {
+  if (value == null) return null;
+  if (value is DateTime) return value;
+  return DateTime.tryParse(value.toString());
+}
+
 // =============================================================================
 // Enums
 // =============================================================================
@@ -142,9 +150,7 @@ class UserItem {
       role: json['role'] as String?,
       company: json['company'] as String?,
       language: json['language'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
+      createdAt: _tryParseDate(json['createdAt']),
     );
   }
 
@@ -269,7 +275,7 @@ class OfferItem {
   factory OfferItem.fromJson(Map<String, dynamic> json) {
     return OfferItem(
       id: json['id'] as String?,
-      amount: (json['amount'] as num).toInt(),
+      amount: (json['amount'] as num?)?.toInt() ?? 0,
       status: json['status'] as String? ?? '',
       sentAt: json['sentAt'] as String? ?? '',
     );
@@ -529,9 +535,7 @@ class LeadItem {
               .toList() ??
           [],
       language: json['language'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
+      createdAt: _tryParseDate(json['createdAt']),
     );
   }
 
@@ -739,9 +743,7 @@ class EmployeeItem {
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       isActive: json['isActive'] as bool? ?? true,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
+      createdAt: _tryParseDate(json['createdAt']),
       buildingAssignments: (json['buildingAssignments'] as List<dynamic>?)
               ?.map((e) =>
                   BuildingAssignment.fromJson(e as Map<String, dynamic>))
@@ -859,9 +861,7 @@ class ScheduleItem {
       dayOfWeek: (json['dayOfWeek'] as num?)?.toInt() ?? 0,
       startTime: json['startTime'] as String? ?? '09:00',
       endTime: json['endTime'] as String? ?? '17:00',
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
+      createdAt: _tryParseDate(json['createdAt']),
     );
   }
 
@@ -1457,12 +1457,8 @@ class DocumentItem {
       unitId: json['unitId'] as String?,
       unitLabel: json['unitLabel'] as String?,
       fileUrl: json['fileUrl'] as String? ?? json['url'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
-          : null,
+      createdAt: _tryParseDate(json['createdAt']),
+      updatedAt: _tryParseDate(json['updatedAt']),
     );
   }
 
@@ -1963,9 +1959,7 @@ class PaymentItem {
       buildingName: json['buildingName'] as String? ?? '',
       periodLabel: json['periodLabel'] as String? ?? '',
       notes: json['notes'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
+      createdAt: _tryParseDate(json['createdAt']),
     );
   }
 

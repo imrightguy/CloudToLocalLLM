@@ -1,22 +1,24 @@
 const plexflowWebhookService = require('../services/plexflow-webhook.service');
+const { safeSecretEqual } = require('../utils/webhookAuth');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'plexflow-webhook' });
 
 /**
  * Validate the shared-secret header PlexFlow sends with each webhook.
- * Mirrors the outbound convention (X-Plexflow-Key). When no secret is
- * configured the webhook is accepted but a warning is logged.
+ * Mirrors the outbound convention (X-Plexflow-Key). Fails closed: when no
+ * secret is configured the webhook is rejected rather than accepted blindly,
+ * and the comparison is constant-time to avoid timing side-channels.
  * @returns {boolean} true when the request is authorized
  */
 function isAuthorized(req) {
   const secret = process.env.PLEXFLOW_WEBHOOK_SECRET || process.env.PLEXFLOW_API_KEY;
   if (!secret) {
-    log.warn('No PLEXFLOW_WEBHOOK_SECRET configured — accepting webhook unauthenticated');
-    return true;
+    log.error('No PLEXFLOW_WEBHOOK_SECRET configured — rejecting webhook');
+    return false;
   }
   const provided = req.get('X-Plexflow-Key') || req.get('x-plexflow-key');
-  return provided === secret;
+  return safeSecretEqual(provided, secret);
 }
 
 // POST /api/webhooks/plexflow (PUBLIC — no JWT)

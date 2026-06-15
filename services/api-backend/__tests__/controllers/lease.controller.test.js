@@ -196,7 +196,10 @@ describe('getLeases', () => {
   it('returns paginated leases with rent conversion', async () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.where.mockResolvedValueOnce([{ count: 1 }]);
-    selectChain.offset.mockResolvedValueOnce([{ id: 'lease-1', rentCents: 150000, depositCents: 150000 }]);
+    // The data query joins units+buildings, so Drizzle returns nested rows.
+    selectChain.offset.mockResolvedValueOnce([
+      { leases: { id: 'lease-1', rentCents: 150000, depositCents: 150000 }, units: null, buildings: null },
+    ]);
     const res = mockRes();
     await leaseController.getLeases({ query: {} }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({

@@ -41,7 +41,8 @@ class ActivityEvent {
       detail:
           (json['detail'] as String?) ?? json['description'] as String? ?? '',
       timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
+          ? (DateTime.tryParse(json['timestamp'].toString()) ??
+              DateTime.now())
           : DateTime.now(),
       relatedId: json['relatedId'] as String? ?? json['leadId'] as String?,
       relatedType: json['relatedType'] as String? ?? inferredRelatedType,

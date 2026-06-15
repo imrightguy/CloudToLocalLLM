@@ -53,11 +53,13 @@ class _LeadsScreenState extends State<LeadsScreen> {
         limit: 100,
         forceRefresh: true,
       );
+      if (!mounted) return;
       setState(() {
         _leads = result.items;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _lastError = e;
         _isLoading = false;

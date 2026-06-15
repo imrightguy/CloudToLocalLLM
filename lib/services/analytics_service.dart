@@ -34,7 +34,8 @@ class WeeklyStats {
   factory WeeklyStats.fromJson(Map<String, dynamic> json) => WeeklyStats(
         period: json['period'] as String? ?? 'week',
         periodStart: json['periodStart'] != null
-            ? DateTime.parse(json['periodStart'] as String)
+            ? (DateTime.tryParse(json['periodStart'].toString()) ??
+                DateTime.now())
             : DateTime.now(),
         newLeads: (json['newLeads'] as num?)?.toInt() ?? 0,
         visitsCompleted: (json['visitsCompleted'] as num?)?.toInt() ?? 0,
@@ -135,7 +136,8 @@ class InboxToVisitMetrics {
   factory InboxToVisitMetrics.fromJson(Map<String, dynamic> json) =>
       InboxToVisitMetrics(
         generatedAt: json['generatedAt'] != null
-            ? DateTime.parse(json['generatedAt'] as String)
+            ? (DateTime.tryParse(json['generatedAt'].toString()) ??
+                DateTime.now())
             : DateTime.now(),
         daily: OperationalMetricsWindow.fromJson(
             (json['daily'] as Map<String, dynamic>?) ?? {}),

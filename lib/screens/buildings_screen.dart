@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../models.dart';
@@ -689,8 +690,8 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
       await ApiService.instance.put('/buildings/units/${widget.unit.id}', {
         'label': _numberController.text.trim(),
         'type': _typeController.text.trim(),
-        'bedrooms': int.parse(_bedroomsController.text.trim()),
-        'rentCents': int.parse(_rentController.text.trim()),
+        'bedrooms': int.tryParse(_bedroomsController.text.trim()) ?? 0,
+        'rentCents': int.tryParse(_rentController.text.trim()) ?? 0,
         'status': _status,
         if (_tenantNameController.text.trim().isNotEmpty)
           'tenantName': _tenantNameController.text.trim(),
@@ -768,6 +769,9 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
                         prefixIcon: Icon(Icons.bed_outlined),
                       ),
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -780,6 +784,9 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
                         prefixIcon: Icon(Icons.attach_money),
                       ),
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                     ),
                   ),
                 ],

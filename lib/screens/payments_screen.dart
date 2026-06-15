@@ -38,12 +38,14 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     });
     try {
       final payments = await PaymentService.instance.getPayments();
+      if (!mounted) return;
       setState(() {
         _payments = payments;
         _filteredPayments = List.of(_payments);
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _lastError = e;
         _isLoading = false;

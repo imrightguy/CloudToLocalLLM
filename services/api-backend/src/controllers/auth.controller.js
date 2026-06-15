@@ -89,10 +89,15 @@ const register = async (req, res) => {
       .where(eq(usersTable.email, email.toLowerCase().trim()))
       .limit(1);
 
+    // Do not reveal whether an email is already registered: returning a
+    // distinct 409/USER_ALREADY_EXISTS lets an attacker enumerate valid
+    // accounts. Respond with a neutral acknowledgement instead. (The legitimate
+    // new-user path below still returns 201 + tokens for auto-login.)
     if (existing.length > 0) {
-      return res.status(409).json({
-        success: false,
-        error: { message: 'A user with this email already exists', code: 'USER_ALREADY_EXISTS' },
+      return res.status(200).json({
+        success: true,
+        data: null,
+        message: 'If this email is available, you will receive a confirmation shortly.',
       });
     }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../models.dart';
@@ -90,11 +91,13 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
         }
       }
 
+      if (!mounted) return;
       setState(() {
         _buildings = buildings;
         _isLoadingOptions = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoadingOptions = false;
@@ -113,6 +116,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
             .map((e) => UnitItem.fromJson(e as Map<String, dynamic>))
             .toList();
       }
+      if (!mounted) return;
       setState(() {
         _units = units;
         _selectedUnitId = null;
@@ -141,9 +145,9 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
         'tenantEmail': _tenantEmailController.text.trim(),
         'tenantPhone': _tenantPhoneController.text.trim(),
         if (_rentController.text.trim().isNotEmpty)
-          'monthlyRent': int.parse(_rentController.text.trim()),
+          'monthlyRent': int.tryParse(_rentController.text.trim()) ?? 0,
         if (_depositController.text.trim().isNotEmpty)
-          'deposit': int.parse(_depositController.text.trim()),
+          'deposit': int.tryParse(_depositController.text.trim()) ?? 0,
         if (_startDate != null)
           'startDate': _startDate!.toIso8601String(),
         if (_endDate != null)
@@ -415,6 +419,9 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                                   hintText: 'Ex: 95000',
                                 ),
                                 keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -428,6 +435,9 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                                   hintText: 'Ex: 95000',
                                 ),
                                 keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                               ),
                             ),
                           ],

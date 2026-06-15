@@ -55,7 +55,7 @@ const { leaseSchemas, uuidParam } = require('../config/validation-schemas');
  *                     meta:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
-router.get('/', authenticateToken, asyncHandler(leaseController.getLeases));
+router.get('/', authenticateToken, validate(leaseSchemas.list), asyncHandler(leaseController.getLeases));
 
 /**
  * @swagger

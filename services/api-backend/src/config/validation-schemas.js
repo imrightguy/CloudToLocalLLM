@@ -103,6 +103,17 @@ const buildingSchemas = {
 };
 
 const leadSchemas = {
+  list: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      stage: Joi.string().valid(...VALID_LEAD_STAGES),
+      buildingId: uuid,
+      search: Joi.string().trim().max(255),
+      sortBy: Joi.string().valid('fullName', 'email', 'stage', 'source', 'createdAt', 'updatedAt'),
+      sortOrder: Joi.string().valid('asc', 'desc'),
+    }),
+  },
   create: {
     body: Joi.object({
       fullName: Joi.string().trim().min(1).max(255).required(),
@@ -192,6 +203,17 @@ const leadSchemas = {
 };
 
 const leaseSchemas = {
+  list: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      status: Joi.string().valid('draft', 'active', 'expired', 'terminated'),
+      buildingId: uuid,
+      unitId: uuid,
+      sortBy: Joi.string().valid('createdAt', 'updatedAt', 'startDate', 'endDate', 'rentCents', 'status'),
+      sortOrder: Joi.string().valid('asc', 'desc'),
+    }),
+  },
   create: {
     body: Joi.object({
       unitId: uuid.required(),

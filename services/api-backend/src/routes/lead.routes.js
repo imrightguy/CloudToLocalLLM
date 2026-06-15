@@ -107,7 +107,7 @@ const { leadSchemas, uuidParam } = require('../config/validation-schemas');
  */
 router.post('/webhook/marketplace', validate(leadSchemas.marketplaceWebhook), asyncHandler(leadController.receiveMarketplaceWebhook));
 
-router.get('/', authenticateToken, asyncHandler(leadController.getLeads));
+router.get('/', authenticateToken, validate(leadSchemas.list), asyncHandler(leadController.getLeads));
 
 /**
  * @swagger

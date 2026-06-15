@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -66,6 +67,10 @@ class ApiService {
 
   static const String baseUrl = AppConfig.apiBaseUrl;
 
+  /// Hard ceiling on any single HTTP round-trip so a stalled connection can
+  /// never leave a request (or the UI awaiting it) pending forever.
+  static const Duration _requestTimeout = Duration(seconds: 30);
+
   @visibleForTesting
   http.Client client = http.Client();
 
@@ -88,7 +93,12 @@ class ApiService {
     // access token from that cookie so the session survives a page refresh.
     if (kUsesHttpOnlyRefreshCookie &&
         (_accessToken == null || _accessToken!.isEmpty)) {
-      await _tryRefresh();
+      // Best-effort bootstrap. _tryRefresh now throws on transient network
+      // errors (so a live request won't log the user out over a blip); during
+      // startup we simply swallow that and let the auth gate decide.
+      try {
+        await _tryRefresh();
+      } catch (_) {/* offline at startup — stay logged out for now */}
     }
   }
 
@@ -153,26 +163,38 @@ class ApiService {
     try {
       switch (method) {
         case 'GET':
-          response = await client.get(uri, headers: _getHeaders());
+          response = await client
+              .get(uri, headers: _getHeaders())
+              .timeout(_requestTimeout);
           break;
         case 'POST':
-          response = await client.post(uri,
-              headers: _getHeaders(), body: jsonEncode(body));
+          response = await client
+              .post(uri, headers: _getHeaders(), body: jsonEncode(body))
+              .timeout(_requestTimeout);
           break;
         case 'PUT':
-          response = await client.put(uri,
-              headers: _getHeaders(), body: jsonEncode(body));
+          response = await client
+              .put(uri, headers: _getHeaders(), body: jsonEncode(body))
+              .timeout(_requestTimeout);
           break;
         case 'PATCH':
-          response = await client.patch(uri,
-              headers: _getHeaders(), body: jsonEncode(body));
+          response = await client
+              .patch(uri, headers: _getHeaders(), body: jsonEncode(body))
+              .timeout(_requestTimeout);
           break;
         case 'DELETE':
-          response = await client.delete(uri, headers: _getHeaders());
+          response = await client
+              .delete(uri, headers: _getHeaders())
+              .timeout(_requestTimeout);
           break;
         default:
           throw ApiException('Unsupported HTTP method: $method');
       }
+    } on TimeoutException {
+      throw const ApiException(
+        'La requête a expiré — réessayez',
+        code: 'REQUEST_TIMEOUT',
+      );
     } catch (e) {
       if (e is ApiException) rethrow;
       throw const ApiException('Erreur réseau — vérifiez votre connexion');
@@ -220,15 +242,24 @@ class ApiService {
     return data;
   }
 
-  /// Attempt to refresh the access token. Returns `true` on success.
+  /// Attempt to refresh the access token.
+  ///
+  /// Returns `true` when a new token was obtained. Returns `false` ONLY when the
+  /// refresh token is genuinely invalid (no stored token, or the refresh
+  /// endpoint answers 401/403) — that is the only case in which the caller
+  /// should force a logout. On a transient failure (timeout, connectivity loss,
+  /// 5xx) it THROWS so the caller propagates the error and keeps the session,
+  /// instead of logging the user out over a momentary blip.
   Future<bool> _tryRefresh() async {
     // Web carries the refresh token in an HttpOnly cookie the browser attaches
     // automatically, so there is no in-memory token to gate on. Native must
     // have a stored refresh token to send in the body.
     if (!kUsesHttpOnlyRefreshCookie && _refreshToken == null) return false;
+
+    http.Response response;
     try {
       final uri = Uri.parse('$baseUrl/auth/refresh');
-      final response = await client.post(
+      response = await client.post(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(
@@ -236,26 +267,56 @@ class ApiService {
               ? <String, dynamic>{}
               : {'refreshToken': _refreshToken},
         ),
+      ).timeout(_requestTimeout);
+    } on TimeoutException {
+      throw const ApiException(
+        'La requête a expiré — réessayez',
+        code: 'REQUEST_TIMEOUT',
       );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      // Network error while refreshing — do NOT purge tokens; surface it so the
+      // session survives the blip.
+      throw const ApiException('Erreur réseau — vérifiez votre connexion');
+    }
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      try {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
-        final tokenData = body['data'] as Map<String, dynamic>?;
-        if (tokenData != null) {
+        final tokenData = body['data'];
+        if (tokenData is Map<String, dynamic>) {
           await _persistTokens(
             tokenData['accessToken'] as String?,
             tokenData['refreshToken'] as String?,
           );
           return true;
         }
-      }
-    } catch (_) {}
-    return false;
+      } catch (_) {/* malformed success → treat as a failed refresh */}
+      return false;
+    }
+
+    // The refresh token itself is rejected → a real, non-recoverable logout.
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      return false;
+    }
+
+    // Any other status (5xx, etc.) is transient — keep the session.
+    throw const ApiException('Erreur réseau — vérifiez votre connexion');
   }
 
   // ---------------------------------------------------------------------------
   // Auth convenience methods
   // ---------------------------------------------------------------------------
+
+  /// Cast a decoded JSON field to a Map, throwing a typed [ApiException] rather
+  /// than an uncatchable TypeError when the server returns an unexpected shape.
+  Map<String, dynamic> _requireMap(Object? value, String field) {
+    if (value is Map<String, dynamic>) return value;
+    throw ApiException(
+      'Réponse inattendue du serveur (champ "$field" manquant ou invalide)',
+      code: 'MALFORMED_RESPONSE',
+    );
+  }
 
   /// POST /auth/login → stores tokens, returns user map.
   Future<UserItem> login(String email, String password) async {
@@ -264,13 +325,13 @@ class ApiService {
       'password': password,
     });
 
-    final data = result['data'] as Map<String, dynamic>;
-    final tokens = data['tokens'] as Map<String, dynamic>;
+    final data = _requireMap(result['data'], 'data');
+    final tokens = _requireMap(data['tokens'], 'tokens');
     await _persistTokens(
       tokens['accessToken'] as String?,
       tokens['refreshToken'] as String?,
     );
-    return UserItem.fromJson(data['user'] as Map<String, dynamic>);
+    return UserItem.fromJson(_requireMap(data['user'], 'user'));
   }
 
   /// POST /auth/register → stores tokens, returns user map.
@@ -291,13 +352,13 @@ class ApiService {
 
     final result = await post('/auth/register', body);
 
-    final data = result['data'] as Map<String, dynamic>;
-    final tokens = data['tokens'] as Map<String, dynamic>;
+    final data = _requireMap(result['data'], 'data');
+    final tokens = _requireMap(data['tokens'], 'tokens');
     await _persistTokens(
       tokens['accessToken'] as String?,
       tokens['refreshToken'] as String?,
     );
-    return UserItem.fromJson(data['user'] as Map<String, dynamic>);
+    return UserItem.fromJson(_requireMap(data['user'], 'user'));
   }
 
   /// POST /auth/logout → clears local tokens.
@@ -313,7 +374,7 @@ class ApiService {
   /// GET /auth/profile → returns user map.
   Future<UserItem> getProfile() async {
     final result = await get('/auth/profile');
-    return UserItem.fromJson(result['data'] as Map<String, dynamic>);
+    return UserItem.fromJson(_requireMap(result['data'], 'data'));
   }
 
   // ---------------------------------------------------------------------------

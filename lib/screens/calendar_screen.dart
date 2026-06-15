@@ -56,11 +56,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final visits = data
           .map((e) => VisitItem.fromJson(e as Map<String, dynamic>))
           .toList();
+      if (!mounted) return;
       setState(() {
         _visits = visits;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;

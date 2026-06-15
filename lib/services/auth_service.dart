@@ -92,7 +92,11 @@ class AuthNotifier extends ChangeNotifier {
     Map<String, dynamic> updates,
   ) async {
     final result = await ApiService.instance.put('/auth/profile', updates);
-    _currentUser = UserItem.fromJson(result['data'] as Map<String, dynamic>);
+    final data = result['data'];
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException('Réponse inattendue du serveur', code: 'MALFORMED_RESPONSE');
+    }
+    _currentUser = UserItem.fromJson(data);
     notifyListeners();
     return _currentUser!;
   }

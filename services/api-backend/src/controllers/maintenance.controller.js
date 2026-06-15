@@ -1,5 +1,6 @@
 const { getMaintenanceCommandCenter } = require('../services/maintenance-command-center.service');
 const maintenanceService = require('../services/maintenance.service');
+const { safeSecretEqual } = require('../utils/webhookAuth');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'maintenance' });
@@ -119,15 +120,20 @@ exports.getOpenCountByBuilding = async (req, res) => {
 
 exports.receiveVapiWebhook = async (req, res) => {
   try {
+    // Fail closed: a missing secret must reject, never bypass authentication.
     const expectedSecret = process.env.VAPI_WEBHOOK_SECRET;
-    if (expectedSecret) {
-      const provided = req.headers['x-vapi-secret'];
-      if (provided !== expectedSecret) {
-        return res.status(401).json({
-          success: false,
-          error: { message: 'Invalid webhook secret', code: 'UNAUTHORIZED' },
-        });
-      }
+    if (!expectedSecret) {
+      log.error('VAPI_WEBHOOK_SECRET not configured — rejecting webhook');
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Webhook secret not configured', code: 'WEBHOOK_SECRET_NOT_CONFIGURED' },
+      });
+    }
+    if (!safeSecretEqual(req.headers['x-vapi-secret'], expectedSecret)) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Invalid webhook secret', code: 'UNAUTHORIZED' },
+      });
     }
 
     const { ticket, created } = await maintenanceService.ingestVapiWebhook(req.body || {});

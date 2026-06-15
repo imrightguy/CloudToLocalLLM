@@ -15,21 +15,21 @@ describe('Photo route validation contract', () => {
     const listRoute = photoRouter.stack.find((layer) => layer.route?.path === '/' && layer.route.methods.get);
 
     expect(listRoute).toBeDefined();
-    expect(listRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
+    expect(listRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', 'requireCompanyAccess', '<anonymous>', '<anonymous>']);
   });
 
   it('protects POST / with authentication and validation before the controller', () => {
     const createRoute = photoRouter.stack.find((layer) => layer.route?.path === '/' && layer.route.methods.post);
 
     expect(createRoute).toBeDefined();
-    expect(createRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
+    expect(createRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', 'requireCompanyAccess', '<anonymous>', '<anonymous>']);
   });
 
   it('protects POST /upload with upload parsing before validation and the controller', () => {
     const uploadRoute = photoRouter.stack.find((layer) => layer.route?.path === '/upload' && layer.route.methods.post);
 
     expect(uploadRoute).toBeDefined();
-    expect(uploadRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', 'parsePropertyPhotoUpload', '<anonymous>', '<anonymous>']);
+    expect(uploadRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', 'requireCompanyAccess', 'parsePropertyPhotoUpload', '<anonymous>', '<anonymous>']);
   });
 
   it('accepts the photo record create payload used by the mobile capture flow', () => {

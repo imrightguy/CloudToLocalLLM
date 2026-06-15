@@ -57,6 +57,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     setState(() => _isLoading = true);
     try {
       await ApiService.instance.patch('/leases/${_lease.id}/status', {'status': 'sent'});
+      if (!mounted) return;
       setState(() => _lease = LeaseItem(
             id: _lease.id,
             buildingId: _lease.buildingId,
@@ -124,6 +125,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     setState(() => _isLoading = true);
     try {
       await ApiService.instance.patch('/leases/${_lease.id}/sign', {});
+      if (!mounted) return;
       setState(() => _lease = LeaseItem(
             id: _lease.id,
             buildingId: _lease.buildingId,
@@ -192,6 +194,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     setState(() => _isLoading = true);
     try {
       await ApiService.instance.patch('/leases/${_lease.id}/status', {'status': 'terminated'});
+      if (!mounted) return;
       setState(() => _lease = LeaseItem(
             id: _lease.id,
             buildingId: _lease.buildingId,

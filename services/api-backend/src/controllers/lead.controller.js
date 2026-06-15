@@ -4,6 +4,7 @@ const {
 const { db } = require('../database/connection');
 const { leadsTable } = require('../database/schema');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
+const { safeSecretEqual } = require('../utils/webhookAuth');
 const { child } = require('../utils/logger');
 const leasingService = require('../services/leasing.service');
 
@@ -333,15 +334,20 @@ exports.updateLeadStatus = async (req, res) => {
 // ─── Marketplace Webhook (Kijiji / Facebook Marketplace → Hermes) ───
 exports.receiveMarketplaceWebhook = async (req, res) => {
   try {
+    // Fail closed: a missing secret must reject, never bypass authentication.
     const expectedSecret = process.env.MARKETPLACE_WEBHOOK_SECRET;
-    if (expectedSecret) {
-      const provided = req.headers['x-marketplace-secret'];
-      if (provided !== expectedSecret) {
-        return res.status(401).json({
-          success: false,
-          error: { message: 'Invalid webhook secret', code: 'UNAUTHORIZED' },
-        });
-      }
+    if (!expectedSecret) {
+      log.error('MARKETPLACE_WEBHOOK_SECRET not configured — rejecting webhook');
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Webhook secret not configured', code: 'WEBHOOK_SECRET_NOT_CONFIGURED' },
+      });
+    }
+    if (!safeSecretEqual(req.headers['x-marketplace-secret'], expectedSecret)) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Invalid webhook secret', code: 'UNAUTHORIZED' },
+      });
     }
 
     const lead = await leasingService.ingestMarketplaceLead(req.body || {});
@@ -398,12 +404,16 @@ exports.notifyHermesForLead = async (req, res) => {
 // ─── Bulk Update Leads ───
 exports.bulkUpdateLeads = async (req, res) => {
   try {
-    const { ids, updates } = req.body;
+    // The route validates { leadIds, updates: { status, ... } }. Accept that
+    // contract — and the legacy { ids, updates: { stage, ... } } shape — then
+    // map each request field to its DB column.
+    const leadIds = req.body.leadIds !== undefined ? req.body.leadIds : req.body.ids;
+    const { updates } = req.body;
 
-    if (!Array.isArray(ids) || ids.length === 0) {
+    if (!Array.isArray(leadIds) || leadIds.length === 0) {
       return res.status(400).json({
         success: false,
-        error: { message: 'ids must be a non-empty array', code: 'VALIDATION_ERROR' },
+        error: { message: 'leadIds must be a non-empty array', code: 'VALIDATION_ERROR' },
       });
     }
 
@@ -414,39 +424,52 @@ exports.bulkUpdateLeads = async (req, res) => {
       });
     }
 
-    // Only allow safe fields in bulk update
-    const allowedFields = ['stage', 'assignedEmployeeId', 'buildingId', 'isActive', 'tags', 'language'];
-    const updateData = { updatedAt: new Date() };
+    // Map allowed request field names → DB columns. The route sends
+    // status/employeeId; callers may also use the column names directly.
+    const fieldToColumn = {
+      status: 'stage',
+      stage: 'stage',
+      qualificationState: 'qualificationState',
+      qualificationReasonCode: 'qualificationReasonCode',
+      qualificationReasonNote: 'qualificationReasonNote',
+      buildingId: 'buildingId',
+      employeeId: 'assignedEmployeeId',
+      assignedEmployeeId: 'assignedEmployeeId',
+      isActive: 'isActive',
+      tags: 'tags',
+      language: 'language',
+    };
 
+    const updateData = { updatedAt: new Date() };
     for (const key of Object.keys(updates)) {
-      if (!allowedFields.includes(key)) {
+      const column = fieldToColumn[key];
+      if (!column) {
         return res.status(400).json({
           success: false,
           error: { message: `Field '${key}' is not allowed for bulk update`, code: 'VALIDATION_ERROR' },
         });
       }
-      updateData[key] = updates[key];
+      updateData[column] = updates[key];
     }
 
-    // Validate stage if present
-    if (updates.stage && !VALID_LEAD_STAGES.includes(updates.stage)) {
+    // Validate the stage value (sent as `status` or `stage`) if present.
+    const stageValue = updates.status ?? updates.stage;
+    if (stageValue && !VALID_LEAD_STAGES.includes(stageValue)) {
       return res.status(400).json({
         success: false,
         error: { message: 'Invalid stage value', code: 'VALIDATION_ERROR' },
       });
     }
 
-    // Execute bulk update — one query per id (Drizzle doesn't have bulk where-in easily)
-    // Use SQL for efficiency
     await db
       .update(leadsTable)
       .set(updateData)
-      .where(sql`${leadsTable.id} = ANY(${ids})`);
+      .where(sql`${leadsTable.id} = ANY(${leadIds})`);
 
     res.json({
       success: true,
-      data: { updatedCount: ids.length },
-      message: `${ids.length} lead(s) updated successfully`,
+      data: { updatedCount: leadIds.length },
+      message: `${leadIds.length} lead(s) updated successfully`,
     });
   } catch (error) {
     log.error('Error bulk updating leads', { error: error.message });

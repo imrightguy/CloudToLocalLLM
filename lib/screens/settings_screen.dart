@@ -83,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     try {
       final profile = await ApiService.instance.getProfile();
+      if (!mounted) return;
       setState(() {
         _firstName = profile.firstName;
         _lastName = profile.lastName;
@@ -93,6 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -129,6 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'phone': _phoneCtrl.text.trim(),
         'company': _companyCtrl.text.trim(),
       });
+      if (!mounted) return;
       setState(() {
         _firstName = _firstNameCtrl.text.trim();
         _lastName = _lastNameCtrl.text.trim();
@@ -146,15 +149,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isSaving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: ${e.toString()}'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 

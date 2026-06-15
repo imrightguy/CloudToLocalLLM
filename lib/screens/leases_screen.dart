@@ -90,6 +90,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
         return bCreated.compareTo(aCreated);
       });
 
+      if (!mounted) return;
       setState(() {
         _allLeases = leases;
         _filteredLeases = leases;
@@ -97,6 +98,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _lastError = e;
         _isLoading = false;

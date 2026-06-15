@@ -44,13 +44,40 @@ const authorizeRole = (roles) => (req, res, next) => {
   next();
 };
 
+// ─── Company access guard (IDOR protection) ──────────────────────────────────
+// This deployment serves a single company. The authorized company id is pinned
+// server-side so an authenticated user cannot pass an arbitrary :companyId in
+// the URL to read or mutate another tenant's data. If/when users gain a
+// per-user companyId, req.user.companyId takes precedence automatically.
+const AUTHORIZED_COMPANY_ID = process.env.APP_COMPANY_ID || '388be569-9d9d-46e2-b548-7bf0167cb11b';
+
+const requireCompanyAccess = (req, res, next) => {
+  const allowed = req.user?.companyId || AUTHORIZED_COMPANY_ID;
+  if (!req.params.companyId || req.params.companyId !== allowed) {
+    return res.status(403).json({
+      success: false,
+      error: { message: 'Accès interdit à cette entreprise', code: 'COMPANY_ACCESS_FORBIDDEN' },
+    });
+  }
+  next();
+};
+
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-      const rows = await db.select().from(usersTable).where(eq(usersTable.id, decoded.userId)).limit(1);
+      // Project the same safe columns as authenticateToken — never load
+      // passwordHash into req.user.
+      const rows = await db.select({
+        id: usersTable.id,
+        email: usersTable.email,
+        firstName: usersTable.firstName,
+        lastName: usersTable.lastName,
+        role: usersTable.role,
+        isActive: usersTable.isActive,
+      }).from(usersTable).where(eq(usersTable.id, decoded.userId)).limit(1);
       const [activeUser] = rows;
       if (activeUser && activeUser.isActive) { req.user = activeUser; req.token = token; }
     }
@@ -75,5 +102,5 @@ const generateRefreshToken = (user) => jwt.sign(
 );
 
 module.exports = {
-  authenticateToken, authorizeRole, optionalAuth, generateAccessToken, generateRefreshToken,
+  authenticateToken, authorizeRole, requireCompanyAccess, optionalAuth, generateAccessToken, generateRefreshToken,
 };

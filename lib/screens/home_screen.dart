@@ -688,6 +688,7 @@ class _HomeTabState extends State<_HomeTab> {
         return b.createdAt!.compareTo(a.createdAt!);
       });
 
+      if (!mounted) return;
       setState(() {
         _recentCommunications = communications.take(3).toList();
         _upcomingVisits = futureVisits;
@@ -695,6 +696,7 @@ class _HomeTabState extends State<_HomeTab> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _lastError = e;
         _isLoading = false;

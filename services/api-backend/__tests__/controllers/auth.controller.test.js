@@ -116,15 +116,19 @@ describe('register', () => {
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
-  it('returns 409 when email already exists', async () => {
+  it('returns a neutral acknowledgement when email already exists (no enumeration)', async () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([{ id: 'existing' }]);
     const res = mockRes();
     await authController.register({ body: { email: 'test@test.com', password: 'pass123', firstName: 'J', lastName: 'D' } }, res);
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({ code: 'USER_ALREADY_EXISTS' }),
-    }));
+    // Must NOT reveal that the account exists: neutral 200, no USER_ALREADY_EXISTS,
+    // no tokens, no error code an attacker could use to enumerate emails.
+    expect(res.status).toHaveBeenCalledWith(200);
+    const payload = res.json.mock.calls[0][0];
+    expect(payload.success).toBe(true);
+    expect(payload.data).toBeNull();
+    expect(payload.error).toBeUndefined();
+    expect(JSON.stringify(payload)).not.toContain('USER_ALREADY_EXISTS');
   });
 
   it('registers a new user successfully', async () => {
