@@ -1,178 +1,86 @@
-# DESIGN SYSTEM — ImmoCRM → ImmoGestion
+# ImmoGestion — Design System v3
 
-Tu es Opus 4.8. Tu travailles dans C:/Users/SimonGravel/ImmoGestion/. Branche: agent/spark/immogestion-v3.
+SaaS immobilier B2B. Interface épurée, crédible, premium.
 
-## Objectif
-Appliquer le design system d'ImmoCRM (zinc/slate/indigo, sobre, professionnel, inspiré Linear/Vercel) à toute l'interface Flutter d'ImmoGestion. Supprimer tout style Material Design coloré ou enfantin (teal, couleurs vives).
+## Palette
 
-## Design System CIBLE (ImmoCRM)
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `primary` | `#4F46E5` (indigo) | `#818CF8` | Actions, liens, accent principal |
+| `primaryContainer` | `#E0E7FF` | `#1E1B4B` | Surfaces accentuées |
+| `secondary` | `#6B7280` | `#9CA3AF` | Texte secondaire, icônes |
+| `background` | `#F9FAFB` | `#0F172A` | Fond de page |
+| `surface` | `#FFFFFF` | `#1E293B` | Cartes, conteneurs |
+| `surfaceVariant` | `#F3F4F6` | `#334155` | Surfaces alternatives |
+| `border` | `#E5E7EB` | `#1E293B` | Séparateurs, bordures |
+| `success` | `#16A34A` | `#4ADE80` | Paiements, occupation |
+| `warning` | `#D97706` | `#FBBF24` | Alertes, attention |
+| `error` | `#DC2626` | `#F87171` | Erreurs, retards |
+| `info` | `#4F46E5` | `#818CF8` | Information neutre |
 
-ImmoCRM utilise Tailwind avec ce design system sombre :
-```
-Surfaces : zinc-950 (page) > zinc-900 (carte) > zinc-800 (inset)
-Bordures : zinc-800 (défaut) / zinc-700 (forte, hover)
-Texte    : zinc-100 (titre) / zinc-200 (corps) / zinc-400 (secondaire) / zinc-500 (muet)
-Accent   : indigo-500 (#6366f1) — action principale
-           amber (chaud), emerald (succès), red (danger), violet (à confirmer)
-Police   : Inter
-```
+## Typographie
 
-## Ce que tu dois faire
+| Niveau | Taille | Poids | Usage |
+|---|---|---|---|
+| `displayLarge` | 32px | 700 | Titre de page |
+| `headlineMedium` | 24px | 600 | En-tête de section |
+| `titleLarge` | 18px | 600 | Titre de carte |
+| `bodyLarge` | 16px | 400 | Corps de texte |
+| `bodyMedium` | 14px | 400 | Texte standard |
+| `labelLarge` | 13px | 500 | Labels, métadonnées |
+| `labelSmall` | 11px | 600 | Badges, chips |
 
-### 1. RÉÉCRIRE `lib/theme/app_colors.dart` — Palette zinc/slate/indigo
+Police : **Inter** (via Google Fonts). Fallback : système.
 
-**Mode SOMBRE (principal, comme ImmoCRM) :**
-```
-Fond de page    : zinc-950  #09090b
-Fond carte      : zinc-900  #18181b
-Fond inset      : zinc-800  #27272a
-Bordure défaut  : zinc-800  #27272a
-Bordure forte   : zinc-700  #3f3f46
-Texte primaire  : zinc-100  #f4f4f5
-Texte secondaire: zinc-400  #a1a1aa
-Texte muet      : zinc-500  #71717a
-Accent (action) : indigo-500 #6366f1
-Accent hover    : indigo-400 #818cf8
-Succès          : emerald-500 #10b981
-Avertissement   : amber-500  #f59e0b
-Erreur          : red-500    #ef4444
-Info            : indigo-400 #818cf8
-```
+## Espacement
 
-**Mode CLAIR (sobre, professionnel) :**
-```
-Fond de page    : slate-50   #f8fafc
-Fond carte      : white      #ffffff
-Fond inset      : slate-100  #f1f5f9
-Bordure défaut  : slate-200  #e2e8f0
-Bordure forte   : slate-300  #cbd5e1
-Texte primaire  : slate-900  #0f172a
-Texte secondaire: slate-500  #64748b
-Texte muet      : slate-400  #94a3b8
-Accent (action) : indigo-600 #4f46e5
-Accent hover    : indigo-500 #6366f1
-Succès          : emerald-600 #059669
-Avertissement   : amber-600  #d97706
-Erreur          : red-600    #dc2626
-Info            : indigo-500 #6366f1
-```
+| Token | Valeur | Usage |
+|---|---|---|
+| `xs` | 4px | Micro-gap |
+| `sm` | 8px | Gap interne |
+| `md` | 16px | Gap standard |
+| `lg` | 24px | Gap de section |
+| `xl` | 32px | Gap large |
+| `xxl` | 48px | Séparation majeure |
 
-**Supprimer TOUT ce qui est teal :**
-- `primary`, `primaryLight`, `primarySurface` → remplacer par indigo
-- `chartLine1`, `chartLine2`, `chartBar`, `chartBarHighlight`, `chartArea` → remplacer par indigo/zinc
-- `funnelNouveau` à `funnelBailSigne` → remplacer par palette zinc/indigo sobre
-- `skyBlue` → remplacer par indigo tint
-- `stageNouveau` à `stageBailSigne` → remplacer par palette sobre
-- `visitConfirmed`, `visitCompleted`, etc. → garder mais ajuster aux nouvelles couleurs
-- `rankGold`, `rankSilver`, `rankBronze` → garder (métaux, intemporels)
+## Rayons d'angle
 
-**Garder les noms de constantes** pour ne pas casser les imports dans les 30+ fichiers qui utilisent `AppColors.primary`, `AppColors.success`, etc. Change juste les valeurs hex.
+| Token | Valeur | Usage |
+|---|---|---|
+| `radiusSm` | 6px | Chips, petits conteneurs |
+| `radiusMd` | 10px | Cartes, inputs |
+| `radiusLg` | 14px | Modales, sheets |
+| `radiusFull` | 999px | Pills, badges |
 
-### 2. RÉÉCRIRE `lib/main.dart` — Thèmes
+## Composants
 
-**Supprimer `primarySwatch: Colors.teal`** dans les deux thèmes. Remplacer par `colorSchemeSeed: AppColors.primary` (indigo).
+### StatusBadge
+Pill coloré avec label + icône optionnelle. 5 variants : success, warning, danger, info, neutral. Adaptatif clair/sombre.
 
-**Thème CLAIR :**
-```dart
-ThemeData(
-  colorSchemeSeed: AppColors.primary,
-  brightness: Brightness.light,
-  useMaterial3: true,
-  fontFamily: AppTypography.fontFamily,
-  scaffoldBackgroundColor: AppColors.background,
-  appBarTheme: AppBarTheme(
-    elevation: 0,
-    backgroundColor: AppColors.surface,
-    foregroundColor: AppColors.textPrimary,
-    surfaceTintColor: AppColors.surface,
-  ),
-  cardTheme: CardThemeData(
-    elevation: 0,  // Linear/Vercel style — flat cards with border, not shadow
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-      side: BorderSide(color: AppColors.border),
-    ),
-  ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-    ),
-  ),
-)
-```
+### KpiCard
+Carte horizontale scrollable : icône + valeur + trend + label. 140px hauteur.
 
-**Thème SOMBRE :**
-```dart
-ThemeData(
-  colorSchemeSeed: AppColors.primary,
-  brightness: Brightness.dark,
-  useMaterial3: true,
-  fontFamily: AppTypography.fontFamily,
-  scaffoldBackgroundColor: AppColors.background,
-  appBarTheme: AppBarTheme(
-    elevation: 0,
-    backgroundColor: AppColors.surface,
-    foregroundColor: AppColors.textPrimary,
-    surfaceTintColor: AppColors.surface,
-  ),
-  cardTheme: CardThemeData(
-    elevation: 0,
-    color: AppColors.surface,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-      side: BorderSide(color: AppColors.border),
-    ),
-  ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-    ),
-  ),
-  dividerTheme: DividerThemeData(
-    color: AppColors.border,
-    thickness: 1,
-  ),
-)
-```
+### PillarCard
+Carte verticale : icône dans conteneur accentué + titre + 3 métriques clé/valeur.
 
-### 3. METTRE À JOUR `lib/theme/app_spacing.dart`
+### DashboardSkeleton / ListSkeleton
+Shimmer animé (gradient horizontal, 1200ms loop). Mime la forme du contenu réel.
 
-Ajouter les radius Linear-style :
-```dart
-static const double radiusControl = 6.0;  // boutons, inputs
-static const double radiusCard = 8.0;     // cartes
-static const double radiusOverlay = 12.0; // modales, dropdowns
-```
+### ErrorState
+Icône + titre + description user-friendly + bouton Réessayer. Détecte `ApiException.statusCode` pour message contextualisé.
 
-Remplacer `elevationCard` et `elevationCardHover` par des ombres plus subtiles (Linear style) ou les supprimer (cartes flat avec border).
+### EmptyState
+Icône + titre + sous-titre + CTA optionnel.
 
-### 4. SUPPRIMER tout style enfantin dans les widgets
+## Modes
 
-Parcours ces fichiers et supprime/remplace :
-- **`lib/widgets/kpi_card.dart`** — remplacer les couleurs vives par indigo/zinc sobre
-- **`lib/widgets/lead_funnel.dart`** — remplacer les couleurs funnel arc-en-ciel par dégradé indigo
-- **`lib/widgets/building_perf_row.dart`** — vérifier les couleurs
-- **`lib/widgets/immo_app_bar.dart`** — vérifier qu'il utilise `AppColors.surface` et `AppColors.textPrimary`
-- **`lib/screens/dashboard_screen.dart`** — vérifier `_buildPillarsSection` (les couleurs accent des 3 piliers)
-- **`lib/screens/leads_screen.dart`** — vérifier les badges de statut
-- **`lib/screens/maintenance_screen.dart`** — vérifier les badges urgence/statut
+- **Clair** : fond `#F9FAFB`, cartes `#FFFFFF`, bordures `#E5E7EB`
+- **Sombre** : fond `#0F172A`, cartes `#1E293B`, bordures `#1E293B`
+- **Détection** : `ThemeMode.system` — suit le réglage OS automatiquement
 
-### 5. VÉRIFICATION
+## Accessibilité
 
-Après toutes les modifications :
-1. `flutter analyze` — 0 nouvelle erreur
-2. `flutter build web` — réussi
-3. Liste chaque fichier modifié avec un résumé des changements
-
-## RÈGLES
-- Lis chaque fichier avant de le modifier
-- Ne casse rien d'existant
-- Garde les noms de constantes AppColors — change juste les valeurs
-- Pas de commentaires dans le code
-- Si un widget utilise une couleur en dur (ex: `Color(0xFF0F766E)`), remplace par la constante AppColors appropriée
+- Contraste minimum 4.5:1 (WCAG AA) sur tout texte
+- Cibles tactiles ≥ 44px (Material guidelines)
+- Focus visible sur tous les inputs
+- Labels textuels sur toutes les icônes (Tooltip)
