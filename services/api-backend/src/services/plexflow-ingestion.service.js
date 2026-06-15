@@ -3,11 +3,9 @@
 // Utilise plexflowService.compareWithLocal() pour le gap analysis.
 
 const plexflowService = require('./plexflow.service');
-const buildingService = require('./building.service');
-const leaseService = require('./lease.service');
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
-const { unitsTable } = require('../database/schema');
+const { unitsTable, leasesTable, buildingsTable } = require('../database/schema');
 const { eq, and } = require('drizzle-orm');
 const { invalidate } = require('../utils/cache');
 
@@ -27,14 +25,23 @@ async function ingestMissingData(buildingId) {
   // Créer les unités manquantes
   for (const unit of gap.missingUnits) {
     try {
-      await buildingService.createUnit(buildingId, {
-        label: unit.label || 'Unité sans nom',
-        floor: unit.floor,
-        rooms: unit.rooms,
-        rent: unit.rent,
-        bedrooms: unit.bedrooms,
-        bathrooms: unit.bathrooms,
-      });
+      const label = unit.label || 'Unité sans nom';
+      const rentCents = unit.rent != null ? Math.round(unit.rent * 100) : 0;
+      const insert = {
+        buildingId: gap.localBuildingId || buildingId,
+        label,
+        rentCents,
+        status: 'vacant',
+      };
+      if (unit.floor != null) insert.floor = unit.floor;
+      if (unit.rooms != null) insert.rooms = unit.rooms;
+      if (unit.bedrooms != null) insert.bedrooms = unit.bedrooms;
+      if (unit.bathrooms != null) insert.bathrooms = unit.bathrooms;
+      if (unit.plexflowId) {
+        insert.amenities = { plexflowId: unit.plexflowId };
+      }
+
+      await db.insert(unitsTable).values(insert);
       results.createdUnits++;
     } catch (error) {
       results.errors.push({ type: 'unit', label: unit.label, error: error.message });
@@ -44,14 +51,47 @@ async function ingestMissingData(buildingId) {
   // Créer les baux manquants
   for (const lease of gap.missingLeases) {
     try {
-      await leaseService.createLease({
-        buildingId,
-        unitLabel: lease.unitLabel,
-        tenantName: lease.tenantName,
-        rent: lease.rent,
-        startDate: lease.startDate,
-        endDate: lease.endDate,
-      });
+      // Trouver l'unité locale correspondante
+      const [localUnit] = await db
+        .select()
+        .from(unitsTable)
+        .where(and(
+          eq(unitsTable.buildingId, gap.localBuildingId || buildingId),
+          eq(unitsTable.isActive, true),
+        ))
+        .limit(200);
+
+      const match = localUnit?.find(u =>
+        u.label && plexflowService.normLabel(u.label) === plexflowService.normLabel(lease.unitLabel || '')
+      );
+
+      if (!match) {
+        results.errors.push({ type: 'lease', unitLabel: lease.unitLabel, error: 'Unité locale non trouvée' });
+        continue;
+      }
+
+      const tenantName = lease.tenantName || 'Locataire inconnu';
+      const [firstName, ...lastParts] = tenantName.split(' ');
+      const lastName = lastParts.join(' ') || firstName;
+
+      const rentCents = lease.rent != null ? Math.round(lease.rent * 100) : 0;
+      const startDate = lease.startDate ? new Date(lease.startDate) : new Date();
+      const endDate = lease.endDate ? new Date(lease.endDate) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+
+      const insert = {
+        unitId: match.id,
+        buildingId: gap.localBuildingId || buildingId,
+        tenantFirstName: firstName,
+        tenantLastName: lastName,
+        tenantPhone: null,
+        rentCents,
+        startDate,
+        endDate,
+        status: 'active',
+        terms: lease.plexflowId ? { plexflowId: lease.plexflowId } : {},
+      };
+
+      await db.insert(leasesTable).values(insert);
       results.createdLeases++;
     } catch (error) {
       results.errors.push({ type: 'lease', unitLabel: lease.unitLabel, error: error.message });
@@ -64,7 +104,10 @@ async function ingestMissingData(buildingId) {
       const existingUnits = await db
         .select()
         .from(unitsTable)
-        .where(and(eq(unitsTable.buildingId, buildingId), eq(unitsTable.isActive, true)))
+        .where(and(
+          eq(unitsTable.buildingId, gap.localBuildingId || buildingId),
+          eq(unitsTable.isActive, true),
+        ))
         .limit(200);
 
       const match = existingUnits.find(u =>
