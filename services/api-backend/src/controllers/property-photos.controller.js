@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
  * Multipart: file + buildingId, unitId?, useCase, roomContext?, capturedAt?, displayOrder?
  */
 exports.upload = async (req, res) => {
-  const file = req.file;
+  const file = req.photoUpload;
   if (!file) {
     return res.status(400).json({ success: false, error: { message: 'Aucun fichier fourni', code: 'NO_FILE' } });
   }
@@ -20,7 +20,12 @@ exports.upload = async (req, res) => {
     return res.status(400).json({ success: false, error: { message: 'buildingId requis', code: 'MISSING_BUILDING_ID' } });
   }
 
-  const photo = await propertyPhotosService.uploadPhoto(file, {
+  const photo = await propertyPhotosService.uploadPhoto({
+    originalname: file.originalFilename || file.newFilename || 'photo.jpg',
+    buffer: require('fs').readFileSync(file.filepath),
+    mimetype: file.mimetype || 'image/jpeg',
+    size: file.size || 0,
+  }, {
     companyId: req.user?.companyId || 'default',
     buildingId,
     unitId: unitId || null,
@@ -29,7 +34,7 @@ exports.upload = async (req, res) => {
     capturedAt: capturedAt || null,
     displayOrder: parseInt(displayOrder) || 0,
     documentRefId: documentRefId || null,
-    metadata: metadata ? (typeof metadata === 'string' ? JSON.parse(metadata) : metadata) : {},
+    metadata: metadata || {},
     userId: req.user?.id || null,
   });
 
