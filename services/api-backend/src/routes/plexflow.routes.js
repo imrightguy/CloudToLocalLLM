@@ -81,6 +81,45 @@ router.get('/units/:id/tenants', authenticateToken, validate(plexflowSchemas.idP
 
 /**
  * @swagger
+ * /api/plexflow/buildings/{id}/gap-analysis:
+ *   get:
+ *     tags: [PlexFlow]
+ *     summary: Analyse des écarts entre PlexFlow et la DB locale
+ *     description: Compare le snapshot PlexFlow d'un bâtiment avec les données locales.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Rapport d'écarts (unités/baux/locataires manquants)
+ */
+router.get('/buildings/:id/gap-analysis', authenticateToken, validate(plexflowSchemas.idParam), asyncHandler(plexflowController.getGapAnalysis));
+
+/**
+ * @swagger
+ * /api/plexflow/buildings/{id}/ingest:
+ *   post:
+ *     tags: [PlexFlow]
+ *     summary: Ingérer les données PlexFlow manquantes dans la DB locale
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Rapport d'ingestion (créations/mises à jour/erreurs)
+ */
+router.post('/buildings/:id/ingest', authenticateToken, validate(plexflowSchemas.idParam), asyncHandler(plexflowController.ingestMissing));
+
+/**
+ * @swagger
  * /api/plexflow/sync:
  *   post:
  *     tags: [PlexFlow]

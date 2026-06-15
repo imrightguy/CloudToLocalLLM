@@ -455,6 +455,62 @@ async function notifyAdminsForEvent(type, title, message, data = {}) {
   }
 }
 
+// ─── Nouveau ticket de maintenance (Voice AI / temps réel) ───
+
+const URGENCY_LABELS = {
+  basse: 'Basse',
+  moyenne: 'Moyenne',
+  haute: 'Haute',
+  urgence: 'Urgence',
+};
+
+/**
+ * Pousse une notification aux admins lors de la création d'un ticket de
+ * maintenance (typiquement depuis le Voice AI). Crée une notification en base
+ * (consommable par un endpoint SSE/polling côté admin) et journalise l'événement.
+ * Ne lève jamais : la création du ticket ne doit pas échouer si la notif échoue.
+ * @param {object} ticket - Ticket de maintenance créé.
+ * @returns {Promise<{success: boolean, notifications?: number, reason?: string}>}
+ */
+async function notifyNewMaintenanceTicket(ticket) {
+  try {
+    if (!ticket || !ticket.id) {
+      return { success: false, reason: 'INVALID_TICKET' };
+    }
+
+    const urgencyLabel = URGENCY_LABELS[ticket.urgency] || 'Moyenne';
+    const title = `🔧 Nouveau ticket maintenance — ${urgencyLabel}`;
+    const callerInfo = ticket.tenantName || ticket.callerPhone || 'Locataire inconnu';
+    const message = `${ticket.title || 'Demande de maintenance'} • ${callerInfo}`;
+
+    logger.info('[notification.service] Nouveau ticket de maintenance', {
+      ticketId: ticket.id,
+      urgency: ticket.urgency,
+      source: ticket.source,
+      buildingId: ticket.buildingId || null,
+    });
+
+    const notifications = await notifyAdminsForEvent(
+      'maintenance_ticket',
+      title,
+      message,
+      {
+        ticketId: ticket.id,
+        buildingId: ticket.buildingId || null,
+        unitId: ticket.unitId || null,
+        urgency: ticket.urgency,
+        source: ticket.source,
+        callerPhone: ticket.callerPhone || null,
+      },
+    );
+
+    return { success: true, notifications: notifications.length };
+  } catch (error) {
+    logger.error('[notification.service] notifyNewMaintenanceTicket error:', error);
+    return { success: false, reason: 'NOTIFY_FAILED' };
+  }
+}
+
 module.exports = {
   initMailer,
   sendEmail,
@@ -463,4 +519,5 @@ module.exports = {
   sendNoShowAlert,
   createNotificationForEvent,
   notifyAdminsForEvent,
+  notifyNewMaintenanceTicket,
 };

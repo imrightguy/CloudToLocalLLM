@@ -2,8 +2,9 @@ const {
   eq, and, desc, ilike, inArray, sql,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
-const { maintenanceTicketsTable, unitsTable } = require('../database/schema');
+const { maintenanceTicketsTable, unitsTable, buildingsTable } = require('../database/schema');
 const logger = require('../utils/logger');
+const notificationService = require('./notification.service');
 
 const VALID_URGENCIES = ['basse', 'moyenne', 'haute', 'urgence'];
 const VALID_STATUSES = ['ouvert', 'en_cours', 'resolu'];
@@ -147,6 +148,13 @@ async function createTicket(data = {}) {
     })
     .returning();
 
+  // Notifier les admins en temps réel pour les tickets créés par Voice AI.
+  if (data.source === 'voice_ai') {
+    notificationService
+      .notifyNewMaintenanceTicket(ticket)
+      .catch((err) => logger.warn('[maintenance.service] Échec notification:', err.message));
+  }
+
   return ticket;
 }
 
@@ -280,6 +288,69 @@ async function getOpenTicketCountByBuilding(buildingIds = []) {
   }
 }
 
+/**
+ * Regroupe les tickets ouverts (statut 'ouvert' ou 'en_cours') par bâtiment,
+ * avec le nom du bâtiment et la répartition par urgence. Utilisé par le
+ * tableau de bord (« Tickets par bâtiment »).
+ * @returns {Promise<Array<{
+ *   buildingId: string|null,
+ *   buildingName: string,
+ *   total: number,
+ *   urgence: number, haute: number, moyenne: number, basse: number
+ * }>>}
+ */
+async function getOpenTicketBreakdownByBuilding() {
+  try {
+    const rows = await db
+      .select({
+        buildingId: maintenanceTicketsTable.buildingId,
+        buildingName: buildingsTable.name,
+        urgency: maintenanceTicketsTable.urgency,
+        count: sql`count(*)::int`,
+      })
+      .from(maintenanceTicketsTable)
+      .leftJoin(buildingsTable, eq(maintenanceTicketsTable.buildingId, buildingsTable.id))
+      .where(and(
+        eq(maintenanceTicketsTable.isActive, true),
+        inArray(maintenanceTicketsTable.status, ['ouvert', 'en_cours']),
+      ))
+      .groupBy(
+        maintenanceTicketsTable.buildingId,
+        buildingsTable.name,
+        maintenanceTicketsTable.urgency,
+      );
+
+    const byBuilding = new Map();
+    for (const row of rows) {
+      const key = row.buildingId || 'unassigned';
+      if (!byBuilding.has(key)) {
+        byBuilding.set(key, {
+          buildingId: row.buildingId || null,
+          buildingName: row.buildingName || (row.buildingId ? '—' : 'Non assigné'),
+          total: 0,
+          urgence: 0,
+          haute: 0,
+          moyenne: 0,
+          basse: 0,
+        });
+      }
+      const entry = byBuilding.get(key);
+      const count = Number(row.count) || 0;
+      entry.total += count;
+      if (VALID_URGENCIES.includes(row.urgency)) {
+        entry[row.urgency] += count;
+      } else {
+        entry.moyenne += count;
+      }
+    }
+
+    return Array.from(byBuilding.values()).sort((a, b) => b.total - a.total);
+  } catch (error) {
+    logger.error('[maintenance.service] getOpenTicketBreakdownByBuilding error:', error);
+    return [];
+  }
+}
+
 module.exports = {
   VALID_URGENCIES,
   VALID_STATUSES,
@@ -291,4 +362,5 @@ module.exports = {
   updateTicket,
   ingestVapiWebhook,
   getOpenTicketCountByBuilding,
+  getOpenTicketBreakdownByBuilding,
 };

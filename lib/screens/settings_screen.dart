@@ -7,6 +7,7 @@ import '../services/notification_preferences_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
+import 'plexflow_gap_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -429,6 +430,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           )),
                       const SizedBox(height: 8),
                       _buildAppearanceCard(),
+                      const SizedBox(height: 24),
+                      const Text('Intégrations',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          )),
+                      const SizedBox(height: 8),
+                      _buildIntegrationsCard(),
                       const SizedBox(height: 24),
                       const Text('Compte',
                           style: TextStyle(
@@ -901,6 +911,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // ---------------------------------------------------------------------------
   // Account card
   // ---------------------------------------------------------------------------
+
+  Widget _buildIntegrationsCard() {
+    return Container(
+      width: double.infinity,
+      decoration: _cardDecoration(),
+      child: Column(
+        children: [
+          _settingsTile(
+            icon: Icons.sync_alt,
+            title: 'PlexFlow — Analyse des écarts',
+            subtitle: 'Comparer et importer les données PlexFlow',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const PlexFlowGapScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildAccountCard() {
     return Container(

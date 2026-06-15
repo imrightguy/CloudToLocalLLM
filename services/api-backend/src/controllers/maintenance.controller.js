@@ -104,6 +104,19 @@ exports.updateTicket = async (req, res) => {
   }
 };
 
+exports.getOpenCountByBuilding = async (req, res) => {
+  try {
+    const data = await maintenanceService.getOpenTicketBreakdownByBuilding();
+    return res.json({ success: true, data });
+  } catch (error) {
+    log.error('Error fetching open ticket count by building', { error: error.message });
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Erreur interne du serveur', code: 'MAINTENANCE_OPEN_COUNT_FAILED' },
+    });
+  }
+};
+
 exports.receiveVapiWebhook = async (req, res) => {
   try {
     const expectedSecret = process.env.VAPI_WEBHOOK_SECRET;

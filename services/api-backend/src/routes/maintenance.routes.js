@@ -217,6 +217,25 @@ router.post('/webhook/vapi', validate(maintenanceSchemas.vapiWebhook), asyncHand
  *       404:
  *         description: Ticket not found
  */
+/**
+ * @swagger
+ * /api/maintenance/tickets/open-count-by-building:
+ *   get:
+ *     tags: [Maintenance]
+ *     summary: Open ticket counts grouped by building
+ *     description: >
+ *       Returns the number of open tickets ('ouvert' or 'en_cours') per building,
+ *       with the building name and a per-urgency breakdown. Powers the
+ *       "Tickets par bâtiment" dashboard section.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Per-building open ticket breakdown
+ */
+// Doit précéder '/tickets/:id', sinon ':id' capture 'open-count-by-building'.
+router.get('/tickets/open-count-by-building', authenticateToken, asyncHandler(maintenanceController.getOpenCountByBuilding));
+
 router.get('/tickets/:id', authenticateToken, validate(maintenanceSchemas.ticketId), asyncHandler(maintenanceController.getTicketById));
 router.put('/tickets/:id', authenticateToken, validate(maintenanceSchemas.updateTicket), asyncHandler(maintenanceController.updateTicket));
 

@@ -35,4 +35,24 @@ class PlexFlowService {
     final result = await ApiService.instance.post('/plexflow/sync', null);
     return (result['data'] as Map<String, dynamic>?) ?? const {};
   }
+
+  /// GET /plexflow/buildings/:id/gap-analysis
+  ///
+  /// Compare le snapshot PlexFlow d'un bâtiment avec la DB locale et retourne
+  /// les unités/baux/locataires manquants ainsi que les enregistrements en trop.
+  Future<Map<String, dynamic>> getGapAnalysis(String buildingId) async {
+    final result =
+        await ApiService.instance.get('/plexflow/buildings/$buildingId/gap-analysis');
+    return (result['data'] as Map<String, dynamic>?) ?? const {};
+  }
+
+  /// POST /plexflow/buildings/:id/ingest
+  ///
+  /// Crée localement les données PlexFlow manquantes du bâtiment et retourne le
+  /// rapport d'ingestion (créations, mises à jour, erreurs).
+  Future<Map<String, dynamic>> ingestMissing(String buildingId) async {
+    final result = await ApiService.instance
+        .post('/plexflow/buildings/$buildingId/ingest', null);
+    return (result['data'] as Map<String, dynamic>?) ?? const {};
+  }
 }

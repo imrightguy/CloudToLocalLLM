@@ -22,6 +22,7 @@ const maintenanceRoutes = require('./maintenance.routes');
 const photoRoutes = require('./photo.routes');
 const renovationJobTemplateRoutes = require('./renovation-job-template.routes');
 const plexflowRoutes = require('./plexflow.routes');
+const voiceRoutes = require('./voice.routes');
 
 const router = express.Router();
 
@@ -68,6 +69,7 @@ router.use('/renewals', renewalRoutes);
 router.use('/renovations', renovationRoutes);
 router.use('/maintenance', maintenanceRoutes);
 router.use('/plexflow', plexflowRoutes);
+router.use('/webhooks/twilio/voice', voiceRoutes);
 router.use('/companies/:companyId/photos', photoRoutes);
 router.use('/companies/:companyId/renovation-job-templates', renovationJobTemplateRoutes);
 

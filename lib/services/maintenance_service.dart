@@ -489,4 +489,16 @@ class MaintenanceService {
         await ApiService.instance.put('/maintenance/tickets/$id', data);
     return MaintenanceTicket.fromJson(result['data'] as Map<String, dynamic>);
   }
+
+  /// GET /maintenance/tickets/open-count-by-building?buildingIds=...
+  Future<Map<String, int>> getOpenTicketCountByBuilding(
+    List<String> buildingIds,
+  ) async {
+    if (buildingIds.isEmpty) return {};
+    final query = buildingIds.map((id) => Uri.encodeComponent(id)).join(',');
+    final result = await ApiService.instance
+        .get('/maintenance/tickets/open-count-by-building?buildingIds=$query');
+    final data = result['data'] as Map<String, dynamic>? ?? {};
+    return data.map((key, value) => MapEntry(key, (value as num).toInt()));
+  }
 }
