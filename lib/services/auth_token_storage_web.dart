@@ -9,17 +9,17 @@ class AuthTokens {
   final String? refreshToken;
 }
 
-/// On web the refresh token is held by the backend in an HttpOnly cookie
-/// (unreadable from JavaScript) and the access token lives only in memory.
-/// Nothing auth-related is written to `localStorage`, which any injected
-/// script could read — closing the XSS token-theft vector.
+/// On web the access token lives only in memory (never persisted).
+/// The refresh token is stored in `sessionStorage` — it survives a page
+/// reload but is cleared when the tab closes. This is a pragmatic middle
+/// ground: better than localStorage (XSS-readable forever) but still allows
+/// the session to survive a hard refresh.
 ///
-/// NOTE: The Dart `http` package does NOT automatically attach cookies to
-/// requests. Until the HTTP client is migrated to one that supports
-/// credentials (e.g. `package:fetch` or `dart:html` HttpRequest), the
-/// refresh token is still sent in the request body on web. The cookie is
-/// still set by the backend as defense-in-depth for future clients.
+/// The backend also sets an HttpOnly cookie as defense-in-depth for future
+/// clients that support `credentials: 'include'`.
 const bool kUsesHttpOnlyRefreshCookie = false;
+
+const _refreshTokenKey = 'rt';
 
 /// Keys that older, XSS-exposed builds wrote to `localStorage`. We purge them
 /// on load so previously-leaked tokens stop lingering in the browser.
@@ -37,19 +37,27 @@ void _purgeLegacyTokens() {
 }
 
 Future<AuthTokens> readAuthTokens() async {
-  // Nothing is persisted on web; also scrub any tokens left by older builds.
   _purgeLegacyTokens();
-  return const AuthTokens();
+  // Access token: memory only (never persisted on web).
+  // Refresh token: sessionStorage (survives reload, cleared on tab close).
+  final refreshToken = html.window.sessionStorage[_refreshTokenKey];
+  return AuthTokens(refreshToken: refreshToken?.isNotEmpty == true ? refreshToken : null);
 }
 
 Future<void> writeAuthTokens({
   String? accessToken,
   String? refreshToken,
 }) async {
-  // No-op on web: the access token stays in memory, the refresh token in the
-  // HttpOnly cookie set by the backend.
+  // Access token stays in memory only (ApiService._accessToken).
+  // Refresh token goes to sessionStorage so the session survives a reload.
+  if (refreshToken != null && refreshToken.isNotEmpty) {
+    html.window.sessionStorage[_refreshTokenKey] = refreshToken;
+  } else {
+    html.window.sessionStorage.remove(_refreshTokenKey);
+  }
 }
 
 Future<void> clearAuthTokens() async {
   _purgeLegacyTokens();
+  html.window.sessionStorage.remove(_refreshTokenKey);
 }
