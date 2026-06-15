@@ -286,6 +286,76 @@ class _SkeletonRowState extends State<SkeletonRow>
   }
 }
 
+/// A standalone, self-animating shimmer block.
+///
+/// Unlike [_ShimmerBox] (which receives its gradient from a parent
+/// [AnimatedBuilder]), this widget drives its own animation, so it can be
+/// dropped anywhere — e.g. as a per-section dashboard skeleton.
+class ShimmerBox extends StatefulWidget {
+  const ShimmerBox({
+    super.key,
+    this.width,
+    required this.height,
+    this.radius = AppSpacing.radiusCard,
+  });
+
+  final double? width;
+  final double height;
+  final double radius;
+
+  @override
+  State<ShimmerBox> createState() => _ShimmerBoxAnimatedState();
+}
+
+class _ShimmerBoxAnimatedState extends State<ShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: -2.0, end: 2.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.radius),
+            gradient: LinearGradient(
+              begin: Alignment(_animation.value, 0),
+              end: Alignment(_animation.value + 2, 0),
+              colors: const [
+                AppColors.surfaceVariant,
+                AppColors.border,
+                AppColors.surfaceVariant,
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Internal building block
 // ---------------------------------------------------------------------------
