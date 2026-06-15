@@ -59,4 +59,14 @@ class AppColors {
   static const Color visitScheduled = Color(0xFF6366F1);
   static const Color warningDark = Color(0xFFB45309);
   static const Color errorLight = Color(0xFFFCA5A5);
+
+  // Light theme palette
+  static const Color backgroundLight = Color(0xFFF4F4F5);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color surfaceVariantLight = Color(0xFFF4F4F5);
+  static const Color borderLight = Color(0xFFE4E4E7);
+  static const Color textPrimaryLight = Color(0xFF18181B);
+  static const Color textSecondaryLight = Color(0xFF52525B);
+  static const Color textMutedLight = Color(0xFF71717A);
+  static const Color primarySurfaceLight = Color(0xFFEEF2FF);
 }

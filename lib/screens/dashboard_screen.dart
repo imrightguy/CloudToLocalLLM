@@ -13,6 +13,9 @@ import '../widgets/kpi_card.dart';
 import '../widgets/lead_funnel.dart';
 import 'units_screen.dart';
 import '../widgets/immo_app_bar.dart';
+import '../widgets/loading_state.dart';
+import '../widgets/error_state.dart';
+import '../widgets/empty_state.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,7 +26,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _lastError;
 
   FullDashboardData? _dashboardData;
   PillarsOverview? _pillars;
@@ -39,7 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _fetchDashboard() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _lastError = null;
     });
     try {
       final results = await Future.wait([
@@ -67,7 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _lastError = e;
         _isLoading = false;
       });
     }
@@ -95,119 +98,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const ImmoAppBar(title: 'Tableau de bord'),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'quick_actions_fab',
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        shape: const StadiumBorder(),
-        onPressed: () {
-          Navigator.of(context).pushNamed('/communications');
-        },
-        icon: const Icon(Icons.add_circle_outline),
-        label: const Text('Nouvelle piste', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-      ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    }
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Erreur de chargement',
-                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchDashboard,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final hasNoData = _kpi == null &&
-        _buildings.isEmpty &&
-        (_dashboardData?.pipeline.stages.isEmpty ?? true);
-
-    if (hasNoData) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.analytics_outlined, size: 48, color: AppColors.textMuted),
-            const SizedBox(height: 16),
-            const Text(
-              'Aucune donnée disponible',
-              style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 8),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 48),
-              child: Text(
-                'Les données apparaîtront une fois les premiers baux et immeubles ajoutés.',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed('/buildings');
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-              ),
-              child: const Text('Ajouter un immeuble'),
-            ),
-          ],
-        ),
+    if (_isLoading) return const DashboardSkeleton();
+    if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchDashboard);
+    if (_buildings.isEmpty && _kpi == null && (_dashboardData?.pipeline.stages.isEmpty ?? true)) {
+      return EmptyState(
+        title: 'Aucune donnée disponible',
+        description:
+            'Les données apparaîtront une fois les premiers baux et immeubles ajoutés.',
+        icon: Icons.analytics_outlined,
+        ctaLabel: 'Ajouter un immeuble',
+        onCtaPressed: () => Navigator.of(context).pushNamed('/buildings'),
       );
     }
 
     return RefreshIndicator(
       onRefresh: _fetchDashboard,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xl + 32,
+        ),
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildNewLeadCard(),
+            const SizedBox(height: AppSpacing.lg),
             _buildPeriodSelector(),
             const SizedBox(height: AppSpacing.xl),
 
@@ -254,6 +177,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             _buildVacancySummary(context),
             const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNewLeadCard() {
+    return InkWell(
+      onTap: () => Navigator.of(context).pushNamed('/leads'),
+      borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.primary, AppColors.indigoDark],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.add_circle_outline, color: Colors.white, size: 22),
+            SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                'Nouvelle piste',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_forward_rounded, color: Colors.white70, size: 18),
           ],
         ),
       ),

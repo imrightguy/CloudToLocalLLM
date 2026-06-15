@@ -6,6 +6,9 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../widgets/immo_app_bar.dart';
+import '../widgets/loading_state.dart';
+import '../widgets/error_state.dart';
+import '../widgets/empty_state.dart';
 import 'payment_detail_screen.dart';
 
 class PaymentsScreen extends StatefulWidget {
@@ -19,7 +22,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   List<PaymentItem> _payments = [];
   List<PaymentItem> _filteredPayments = [];
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _lastError;
   PaymentStatus? _filterStatus;
 
   @override
@@ -31,7 +34,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _lastError = null;
     });
     try {
       final payments = await PaymentService.instance.getPayments();
@@ -42,7 +45,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _lastError = e;
         _isLoading = false;
       });
     }
@@ -82,30 +85,13 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: AppSpacing.lg),
-            const Text('Impossible de charger les paiements',
-                style: AppTypography.body),
-            const SizedBox(height: AppSpacing.sm),
-            Text(_errorMessage!,
-                style: AppTypography.caption, textAlign: TextAlign.center),
-            const SizedBox(height: AppSpacing.lg),
-            ElevatedButton.icon(
-              onPressed: _loadData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-            ),
-          ],
-        ),
-      );
+    if (_isLoading) return const ListSkeleton(showSearchBar: false);
+    if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _loadData);
+    if (_filteredPayments.isEmpty) { return const EmptyState(
+      title: 'Aucun paiement',
+      description: 'Les paiements de loyer apparaîtront ici.',
+      icon: Icons.receipt_long_outlined,
+    );
     }
 
     return RefreshIndicator(

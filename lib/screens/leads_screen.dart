@@ -7,6 +7,9 @@ import '../services/lead_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/immo_app_bar.dart';
+import '../widgets/loading_state.dart';
+import '../widgets/error_state.dart';
+import '../widgets/empty_state.dart';
 
 class LeadsScreen extends StatefulWidget {
   const LeadsScreen({super.key});
@@ -17,7 +20,7 @@ class LeadsScreen extends StatefulWidget {
 
 class _LeadsScreenState extends State<LeadsScreen> {
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _lastError;
   List<LeadItem> _leads = [];
 
   LeadStage? _stageFilter;
@@ -40,7 +43,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
   Future<void> _fetchLeads() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _lastError = null;
     });
     try {
       final result = await LeadService.instance.getLeads(
@@ -55,7 +58,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _lastError = e;
         _isLoading = false;
       });
     }
@@ -108,38 +111,13 @@ class _LeadsScreenState extends State<LeadsScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            const Text(
-              'Impossible de charger les pistes',
-              style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchLeads,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-            ),
-          ],
-        ),
-      );
+    if (_isLoading) return const ListSkeleton(showSearchBar: true);
+    if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchLeads);
+    if (_filteredLeads.isEmpty) { return const EmptyState(
+      title: 'Aucune piste',
+      description: 'Les pistes de locataires potentiels apparaîtront ici.',
+      icon: Icons.person_add_alt_outlined,
+    );
     }
 
     final leads = _filteredLeads;

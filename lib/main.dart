@@ -50,6 +50,9 @@ Future<void> main() async {
 class ImmoGestionApp extends StatefulWidget {
   const ImmoGestionApp({super.key});
 
+  static final ValueNotifier<ThemeMode> themeModeNotifier =
+      ValueNotifier(ThemeMode.system);
+
   @override
   State<ImmoGestionApp> createState() => _ImmoGestionAppState();
 }
@@ -62,6 +65,19 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
   void initState() {
     super.initState();
     _initApp();
+    ImmoGestionApp.themeModeNotifier.addListener(_onThemeModeChanged);
+  }
+
+  @override
+  void dispose() {
+    ImmoGestionApp.themeModeNotifier.removeListener(_onThemeModeChanged);
+    super.dispose();
+  }
+
+  void _onThemeModeChanged() {
+    setState(() {
+      _themeMode = ImmoGestionApp.themeModeNotifier.value;
+    });
   }
 
   Future<void> _initApp() async {
@@ -71,6 +87,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     await CacheService.instance.init();
     await AuthNotifier.instance.init();
     _themeMode = await ApiService.instance.getThemeMode();
+    ImmoGestionApp.themeModeNotifier.value = _themeMode;
     if (mounted) {
       setState(() => _isInitialized = true);
     }
@@ -106,7 +123,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     return MaterialApp(
       title: 'ImmoGestion',
       themeMode: _themeMode,
-      theme: _buildDarkTheme(),
+      theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       debugShowCheckedModeBanner: false,
       home: _isInitialized
@@ -185,6 +202,44 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     }
 
     return null;
+  }
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      colorSchemeSeed: AppColors.primary,
+      brightness: Brightness.light,
+      useMaterial3: true,
+      fontFamily: AppTypography.fontFamily,
+      scaffoldBackgroundColor: AppColors.backgroundLight,
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: AppColors.surfaceLight,
+        foregroundColor: AppColors.textPrimaryLight,
+        surfaceTintColor: AppColors.surfaceLight,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: AppColors.surfaceLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+          side: const BorderSide(color: AppColors.borderLight),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusControl),
+          ),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.borderLight,
+        thickness: 1,
+      ),
+    );
   }
 
   ThemeData _buildDarkTheme() {

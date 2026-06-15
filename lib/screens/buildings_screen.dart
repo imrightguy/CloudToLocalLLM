@@ -6,6 +6,9 @@ import '../services/api_service.dart';
 import 'units_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../widgets/loading_state.dart';
+import '../widgets/error_state.dart';
+import '../widgets/empty_state.dart';
 import '../theme/app_spacing.dart';
 
 class BuildingsScreen extends StatefulWidget {
@@ -19,7 +22,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   List<BuildingItem> _buildings = [];
   List<BuildingItem> _filteredBuildings = [];
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _lastError;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -50,7 +53,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   Future<void> _fetchBuildings() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _lastError = null;
     });
     try {
       final response = await ApiService.instance.get('/buildings');
@@ -65,7 +68,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _lastError = e;
         _isLoading = false;
       });
     }
@@ -101,44 +104,16 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+    if (_isLoading) return const ListSkeleton(showSearchBar: true);
+    if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchBuildings);
+    if (_filteredBuildings.isEmpty) { return const EmptyState(
+      title: 'Aucun immeuble',
+      description: 'Ajoutez votre premier immeuble pour commencer à gérer votre parc immobilier.',
+      icon: Icons.apartment_outlined,
+      ctaLabel: 'Ajouter un immeuble',
+    );
     }
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Impossible de charger les immeubles',
-                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _errorMessage!,
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchBuildings,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+
     return RefreshIndicator(
       onRefresh: _fetchBuildings,
       child: SingleChildScrollView(

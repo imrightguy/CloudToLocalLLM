@@ -96,11 +96,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     unselectedLabelTextStyle: const TextStyle(
                       color: AppColors.textMuted,
                     ),
+                    indicatorColor: AppColors.primary.withValues(alpha: 0.12),
                     destinations: [
                       for (final entry in _navigationEntries)
                         NavigationRailDestination(
-                          icon: Icon(entry.icon),
-                          selectedIcon: Icon(entry.icon),
+                          icon: Tooltip(
+                            message: entry.label,
+                            child: Icon(entry.icon),
+                          ),
+                          selectedIcon: Tooltip(
+                            message: entry.label,
+                            child: Icon(entry.icon),
+                          ),
                           label: Text(entry.label),
                         ),
                     ],

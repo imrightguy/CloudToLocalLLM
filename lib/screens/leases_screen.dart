@@ -6,6 +6,9 @@ import 'lease_detail_screen.dart';
 import 'lease_form_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../widgets/loading_state.dart';
+import '../widgets/error_state.dart';
+import '../widgets/empty_state.dart';
 import '../theme/app_spacing.dart';
 
 class LeasesScreen extends StatefulWidget {
@@ -19,7 +22,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
   List<LeaseItem> _allLeases = [];
   List<LeaseItem> _filteredLeases = [];
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _lastError;
   final TextEditingController _searchController = TextEditingController();
 
   LeaseStatus? _filterStatus;
@@ -62,7 +65,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
   Future<void> _fetchLeases() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
+      _lastError = null;
     });
     try {
       final results = await Future.wait([
@@ -94,7 +97,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _lastError = e;
         _isLoading = false;
       });
     }
@@ -125,46 +128,14 @@ class _LeasesScreenState extends State<LeasesScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Impossible de charger les baux',
-                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchLeases,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
-              ),
-            ),
-          ],
-        ),
-      );
+    if (_isLoading) return const ListSkeleton(showSearchBar: true);
+    if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchLeases);
+    if (_filteredLeases.isEmpty) { return const EmptyState(
+      title: 'Aucun bail',
+      description: 'Les baux apparaîtront une fois les premiers immeubles et locataires ajoutés.',
+      icon: Icons.description_outlined,
+      ctaLabel: 'Ajouter un bail',
+    );
     }
 
     return RefreshIndicator(
