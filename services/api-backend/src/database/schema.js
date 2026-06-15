@@ -274,6 +274,7 @@ const maintenanceTicketsTable = pgTable('maintenance_tickets', {
   urgency: text('urgency').notNull().default('moyenne'), // basse | moyenne | haute | urgence
   status: text('status').notNull().default('ouvert'), // ouvert | en_cours | resolu
   source: text('source').notNull().default('manual'), // manual | vapi | sms | phone
+  // No FK: there is no `tenants` table — tenant identity is denormalized onto units/leases.
   tenantId: uuid('tenant_id'),
   tenantName: text('tenant_name'),
   callerPhone: text('caller_phone'),
@@ -354,9 +355,9 @@ const leadsTable = pgTable('leads', {
   notes: text('notes'),
   tags: jsonb('tags').default('[]'),
   language: text('language').default('fr'), // fr | en
-  assignedEmployeeId: uuid('assigned_employee_id').references(() => employeesTable.id),
-  buildingId: uuid('building_id').references(() => buildingsTable.id),
-  unitId: uuid('unit_id').references(() => unitsTable.id),
+  assignedEmployeeId: uuid('assigned_employee_id').references(() => employeesTable.id, { onDelete: 'set null' }),
+  buildingId: uuid('building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
+  unitId: uuid('unit_id').references(() => unitsTable.id, { onDelete: 'set null' }),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -613,6 +614,8 @@ const paymentsTable = pgTable('payments', {
 }, (table) => ({
   leaseIdx: index('payments_lease_id_idx').on(table.leaseId),
   statusIdx: index('payments_status_idx').on(table.status),
+  dueDateIdx: index('idx_payments_due_date').on(table.dueDate),
+  leaseDueIdx: index('idx_payments_lease_due').on(table.leaseId, table.dueDate),
 }));
 
 // ─── Renewal Offers ───

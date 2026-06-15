@@ -120,7 +120,7 @@ describe('register', () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([{ id: 'existing' }]);
     const res = mockRes();
-    await authController.register({ body: { email: 'test@test.com', password: 'pass123', firstName: 'J', lastName: 'D' } }, res);
+    await authController.register({ body: { email: 'test@test.com', password: 'Pass123!', firstName: 'J', lastName: 'D' } }, res);
     // Must NOT reveal that the account exists: neutral 200, no USER_ALREADY_EXISTS,
     // no tokens, no error code an attacker could use to enumerate emails.
     expect(res.status).toHaveBeenCalledWith(200);
@@ -141,7 +141,7 @@ describe('register', () => {
     });
     const res = mockRes();
     await authController.register({
-      body: { email: 'new@test.com', password: 'pass123', firstName: 'John', lastName: 'Doe', phone: '+15145551234' },
+      body: { email: 'new@test.com', password: 'Pass123!', firstName: 'John', lastName: 'Doe', phone: '+15145551234' },
       ip: '127.0.0.1',
       headers: { 'user-agent': 'test' },
     }, res);
@@ -164,7 +164,7 @@ describe('register', () => {
       }),
     });
     const res = mockRes();
-    await authController.register({ body: { email: 'fail@test.com', password: 'pass123', firstName: 'J', lastName: 'D' } }, res);
+    await authController.register({ body: { email: 'fail@test.com', password: 'Pass123!', firstName: 'J', lastName: 'D' } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'USER_CREATION_FAILED' }),
@@ -469,7 +469,7 @@ describe('changePassword', () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([]);
     const res = mockRes();
-    await authController.changePassword({ body: { currentPassword: 'old', newPassword: 'newpass123' }, user: { id: 'nonexistent' } }, res);
+    await authController.changePassword({ body: { currentPassword: 'old', newPassword: 'Newpass123!' }, user: { id: 'nonexistent' } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'USER_NOT_FOUND' }),
@@ -481,7 +481,7 @@ describe('changePassword', () => {
     selectChain.limit.mockResolvedValueOnce([{ id: 'user-1', passwordHash: 'hash', tokenVersion: 1 }]);
     bcrypt.compare.mockResolvedValueOnce(false);
     const res = mockRes();
-    await authController.changePassword({ body: { currentPassword: 'wrong', newPassword: 'newpass123' }, user: { id: 'user-1' } }, res);
+    await authController.changePassword({ body: { currentPassword: 'wrong', newPassword: 'Newpass123!' }, user: { id: 'user-1' } }, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'INVALID_CURRENT_PASSWORD' }),
@@ -492,12 +492,12 @@ describe('changePassword', () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([{ id: 'user-1', passwordHash: 'hash', tokenVersion: 1 }]);
     const res = mockRes();
-    await authController.changePassword({ body: { currentPassword: 'oldpass', newPassword: 'newpass1234' }, user: { id: 'user-1' } }, res);
+    await authController.changePassword({ body: { currentPassword: 'oldpass', newPassword: 'Newpass1234!' }, user: { id: 'user-1' } }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
       message: expect.stringContaining('Password changed'),
     }));
-    expect(bcrypt.hash).toHaveBeenCalledWith('newpass1234', expect.any(Number));
+    expect(bcrypt.hash).toHaveBeenCalledWith('Newpass1234!', expect.any(Number));
     expect(mockDb.delete).toHaveBeenCalled();
   });
 });

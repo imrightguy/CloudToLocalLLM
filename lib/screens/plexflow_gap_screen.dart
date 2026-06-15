@@ -20,7 +20,7 @@ class _PlexFlowGapScreenState extends State<PlexFlowGapScreen> {
   bool _isLoading = true;
   Object? _lastError;
   List<Map<String, dynamic>> _buildings = [];
-  Map<String, Map<String, dynamic>> _gapCache = {};
+  final Map<String, Map<String, dynamic>> _gapCache = {};
   String? _selectedBuildingId;
   bool _isIngesting = false;
 
@@ -240,7 +240,10 @@ class _PlexFlowGapScreenState extends State<PlexFlowGapScreen> {
 
   String _gapItemLabel(dynamic item) {
     final m = item as Map<String, dynamic>? ?? {};
-    return m['label'] as String? ?? m['name'] as String? ?? m['unitLabel'] as String? ?? '—';
+    final unit = m['label'] as String? ?? m['unitLabel'] as String?;
+    final tenant = m['name'] as String? ?? m['tenantName'] as String?;
+    if (unit != null && tenant != null) return '$unit — $tenant';
+    return unit ?? tenant ?? '—';
   }
 }
 

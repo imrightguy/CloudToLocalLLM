@@ -12,7 +12,8 @@ x-logging: &default-logging
 services:
   # ── PostgreSQL Database ────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    # Pinned to a precise patch tag for reproducible builds (avoid floating `16-alpine`).
+    image: postgres:16.4-alpine
     container_name: immogestion-db
     restart: unless-stopped
     environment:
@@ -21,6 +22,9 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # NOTE: docker-entrypoint-initdb.d runs the SQL files ONLY on first init of an
+      # empty data volume. Subsequent schema changes are applied by `scripts/migrate.js`
+      # (npm run migrate), which tracks applied files in the _applied_migrations table.
       - ./migrations:/docker-entrypoint-initdb.d:ro
     ports:
       # Only exposed on localhost — Cloudflare Tunnel handles public access
@@ -47,6 +51,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       DB_HOST: postgres
+      # DEMO_MODE: currently NOT read by the API code. Reserved for future demo-data
+      # gating; seeding is done explicitly via `npm run seed` (scripts/seed-demo.js).
       DEMO_MODE: ${DEMO_MODE:-true}
       # NOTE: DATABASE_URL should be set in .env.production with postgres://user:***@postgres:5432/immogestion
       # (using "postgres" as hostname, not localhost, since they share a Docker network)
@@ -75,7 +81,7 @@ services:
 
   # ── Automated PostgreSQL Backup ───────────────────────────────────
   backup:
-    image: postgres:16-alpine
+    image: postgres:16.4-alpine
     container_name: immogestion-backup
     restart: unless-stopped
     entrypoint: >
@@ -90,6 +96,7 @@ services:
       "
     environment:
       DB_HOST: postgres
+      # DEMO_MODE: not consumed by backup.sh; kept only for parity with the api service.
       DEMO_MODE: ${DEMO_MODE:-true}
       DB_PORT: 5432
       DB_USER: ${DB_USER:-postgres}
@@ -123,13 +130,20 @@ services:
       retries: 3
       start_period: 10s
     logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - internal
 
   # ── Cloudflare Tunnel ──────────────────────────────────────────────
   # Requires CLOUDFLARE_TUNNEL_TOKEN in .env.production
   tunnel:
-    image: cloudflare/cloudflared:latest
+    # Pinned to a release tag instead of `latest` for reproducible deploys.
+    # Verify/update the tag (or pin a sha256 digest) against the registry before deploy:
+    # https://github.com/cloudflare/cloudflared/releases
+    image: cloudflare/cloudflared:2024.10.1
     container_name: immogestion-tunnel
     restart: unless-stopped
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required}

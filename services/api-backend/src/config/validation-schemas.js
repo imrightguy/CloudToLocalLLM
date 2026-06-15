@@ -9,13 +9,7 @@ const {
   buildingSchema,
   updateBuildingSchema,
 } = require('../models/building');
-const {
-  tenantChecklistStartSchema,
-  tenantChecklistResumeSchema,
-  tenantChecklistPauseSchema,
-  tenantChecklistSubmitSchema,
-  tenantChecklistSummaryParamsSchema,
-} = require('../models/tenant-checklist');
+// DEPRECATED: tenant_checklist_* tables dropped in migration 021 — no route wires these schemas.
 const {
   photoRecordCreateSchema,
   photoRecordUploadSchema,
@@ -246,26 +240,7 @@ const leaseSchemas = {
   },
 };
 
-const tenantChecklistSchemas = {
-  start: {
-    body: tenantChecklistStartSchema,
-  },
-  resume: {
-    params: Joi.object({ id: uuid }),
-    body: tenantChecklistResumeSchema,
-  },
-  pause: {
-    params: Joi.object({ id: uuid }),
-    body: tenantChecklistPauseSchema,
-  },
-  submit: {
-    params: Joi.object({ id: uuid }),
-    body: tenantChecklistSubmitSchema,
-  },
-  summary: {
-    params: tenantChecklistSummaryParamsSchema,
-  },
-};
+// DEPRECATED: tenant_checklist_* tables dropped in migration 021 — schemas removed (no route used them).
 
 const employeeSchemas = {
   create: {
@@ -1081,7 +1056,6 @@ module.exports = {
   buildingSchemas,
   leadSchemas,
   leaseSchemas,
-  tenantChecklistSchemas,
   photoRecordSchemas,
   employeeSchemas,
   visitSchemas,

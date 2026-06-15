@@ -60,35 +60,20 @@ class ImmoGestionApp extends StatefulWidget {
 
 class _ImmoGestionAppState extends State<ImmoGestionApp> {
   bool _isInitialized = false;
-  ThemeMode _themeMode = ThemeMode.system;
 
   @override
   void initState() {
     super.initState();
     _initApp();
-    ImmoGestionApp.themeModeNotifier.addListener(_onThemeModeChanged);
-  }
-
-  @override
-  void dispose() {
-    ImmoGestionApp.themeModeNotifier.removeListener(_onThemeModeChanged);
-    super.dispose();
-  }
-
-  void _onThemeModeChanged() {
-    setState(() {
-      _themeMode = ImmoGestionApp.themeModeNotifier.value;
-    });
   }
 
   Future<void> _initApp() async {
-    await initializeDateFormatting('fr', null);
-    await initializeDateFormatting('fr_CA', null);
+    // Date formatting is already initialized in main() before runApp().
     await ApiService.instance.init();
     await CacheService.instance.init();
     await AuthNotifier.instance.init();
-    _themeMode = await ApiService.instance.getThemeMode();
-    ImmoGestionApp.themeModeNotifier.value = _themeMode;
+    ImmoGestionApp.themeModeNotifier.value =
+        await ApiService.instance.getThemeMode();
     if (mounted) {
       setState(() => _isInitialized = true);
     }
@@ -121,21 +106,23 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ImmoGestion',
-      themeMode: _themeMode,
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      debugShowCheckedModeBanner: false,
-      home: _isInitialized
-          ? ListenableBuilder(
-              listenable: AuthNotifier.instance,
-              builder: (context, _) {
-                return _buildStartScreen(currentBrowserLocation());
-              },
-            )
-          : const _SplashScreen(),
-      routes: {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ImmoGestionApp.themeModeNotifier,
+      builder: (context, themeMode, _) => MaterialApp(
+        title: 'ImmoGestion',
+        themeMode: themeMode,
+        theme: _buildLightTheme(),
+        darkTheme: _buildDarkTheme(),
+        debugShowCheckedModeBanner: false,
+        home: _isInitialized
+            ? ListenableBuilder(
+                listenable: AuthNotifier.instance,
+                builder: (context, _) {
+                  return _buildStartScreen(currentBrowserLocation());
+                },
+              )
+            : const _SplashScreen(),
+        routes: {
         '/dashboard': _protectedRoute((context) => const DashboardScreen()),
         '/calendar': _protectedRoute((context) => const CalendarScreen()),
         '/visits': _protectedRoute((context) => const VisitsScreen()),
@@ -155,8 +142,9 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         '/messages':
             _protectedRoute((context) => const CommunicationsScreen()),
         '/settings': _protectedRoute((context) => const SettingsScreen()),
-      },
-      onGenerateRoute: _buildDynamicRoute,
+        },
+        onGenerateRoute: _buildDynamicRoute,
+      ),
     );
   }
 

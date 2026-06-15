@@ -277,15 +277,19 @@ const setCacheHeaders = (res, options = {}) => {
     maxAge = 3600, // 1 hour default
     mustRevalidate = false,
     isPrivate = false,
+    noStore = false, // dynamic data: opt out of caching entirely
   } = options;
 
-  res.set('Cache-Control', [
-    `max-age=${maxAge}`,
-    isPrivate ? 'private' : 'public',
-    mustRevalidate ? 'must-revalidate' : '',
-    'no-cache',
-    'no-store',
-  ].filter(Boolean).join(', '));
+  // no-store and max-age are mutually exclusive: pick one based on context.
+  const directives = noStore
+    ? ['no-store', 'no-cache', 'must-revalidate']
+    : [
+      `max-age=${maxAge}`,
+      isPrivate ? 'private' : 'public',
+      mustRevalidate ? 'must-revalidate' : '',
+    ];
+
+  res.set('Cache-Control', directives.filter(Boolean).join(', '));
 };
 
 /**
@@ -294,8 +298,13 @@ const setCacheHeaders = (res, options = {}) => {
  * @param {Object} options - CORS options
  */
 const setCORSHeaders = (res, options = {}) => {
+  // Default to the configured allow-list (first origin) rather than '*' to avoid an
+  // accidental wildcard. Callers may still pass an explicit origin.
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+    : [];
   const {
-    origin = '*',
+    origin = allowedOrigins[0] || 'null',
     methods = 'GET, POST, PUT, DELETE, PATCH',
     headers = 'Content-Type, Authorization, X-Requested-With',
     credentials = false,

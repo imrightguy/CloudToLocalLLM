@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../services/visit_service.dart';
 import 'visit_form_screen.dart';
 import '../theme/app_colors.dart';
+import '../widgets/error_state.dart';
 import '../widgets/immo_app_bar.dart';
 
 enum _CalendarView { month, week }
@@ -23,7 +24,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime _selectedDay = DateTime.now();
   List<VisitItem> _visits = [];
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _errorMessage;
   String? _statusFilter;
   String? _buildingFilter;
   String? _employeeFilter;
@@ -64,7 +65,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = e;
         _isLoading = false;
       });
     }
@@ -177,41 +178,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Impossible de charger le calendrier',
-                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchVisits,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Réessayer'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.surface,
-              ),
-            ),
-          ],
-        ),
+      return ErrorState(
+        error: _errorMessage!,
+        title: 'Impossible de charger le calendrier',
+        onRetry: _fetchVisits,
       );
     }
 

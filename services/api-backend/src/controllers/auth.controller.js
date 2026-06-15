@@ -44,6 +44,26 @@ const clearRefreshCookie = (res) => {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+/**
+ * Enforce a minimum password policy: ≥8 chars, at least one uppercase letter,
+ * one digit, and one special character. Returns an error string, or null if OK.
+ */
+const validatePasswordComplexity = (password) => {
+  if (typeof password !== 'string' || password.length < 8) {
+    return 'Password must be at least 8 characters';
+  }
+  if (!/[A-Z]/.test(password)) {
+    return 'Password must contain at least one uppercase letter';
+  }
+  if (!/[0-9]/.test(password)) {
+    return 'Password must contain at least one digit';
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return 'Password must contain at least one special character';
+  }
+  return null;
+};
+
 /** Strip passwordHash from a user row and attach the single-company profile contract. */
 const sanitizeUser = (user) => {
   if (!user) {return null;}
@@ -79,6 +99,14 @@ const register = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: { message: 'Email, password, firstName, and lastName are required', code: 'MISSING_REQUIRED_FIELDS' },
+      });
+    }
+
+    const passwordError = validatePasswordComplexity(password);
+    if (passwordError) {
+      return res.status(400).json({
+        success: false,
+        error: { message: passwordError, code: 'WEAK_PASSWORD' },
       });
     }
 
@@ -530,10 +558,11 @@ const changePassword = async (req, res) => {
       });
     }
 
-    if (newPassword.length < 8) {
+    const passwordError = validatePasswordComplexity(newPassword);
+    if (passwordError) {
       return res.status(400).json({
         success: false,
-        error: { message: 'New password must be at least 8 characters', code: 'WEAK_PASSWORD' },
+        error: { message: passwordError, code: 'WEAK_PASSWORD' },
       });
     }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../constants/fr_dates.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../services/analytics_service.dart';
@@ -80,11 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _currentPeriodLabel() {
     final now = DateTime.now();
-    const months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-    ];
-    return '${months[now.month - 1]} ${now.year}';
+    return '${kFrenchMonths[now.month - 1]} ${now.year}';
   }
 
   KpiSummary? get _kpi => _dashboardData?.kpi;

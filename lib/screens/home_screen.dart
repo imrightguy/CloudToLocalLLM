@@ -421,86 +421,6 @@ class _PrimaryFlowCard extends StatelessWidget {
   }
 }
 
-class _CompanyAccessMissingState extends StatelessWidget {
-  const _CompanyAccessMissingState({
-    required this.userName,
-    required this.onRefresh,
-    required this.onLogout,
-  });
-
-  final String userName;
-  final Future<void> Function() onRefresh;
-  final Future<void> Function() onLogout;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.apartment_outlined,
-                      size: 42,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Accès à une compagnie requis',
-                    style: AppTypography.sectionHeader.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '$userName a bien un compte, mais aucun accès à une compagnie n\'est encore configuré. Demandez à un administrateur de vous ajouter à une compagnie ou complétez la configuration initiale pour continuer.',
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () => onRefresh(),
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Réessayer'),
-                      ),
-                      TextButton.icon(
-                        onPressed: () => onLogout(),
-                        icon: const Icon(Icons.logout_rounded),
-                        label: const Text('Se déconnecter'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Extracted home tab content so it can live inside IndexedStack.
 class _HomeTab extends StatefulWidget {
   const _HomeTab();
@@ -512,7 +432,6 @@ class _HomeTab extends StatefulWidget {
 class _HomeTabState extends State<_HomeTab> {
   bool _isLoading = true;
   Object? _lastError;
-  bool _missingCompanyAccess = false;
 
   // User profile
   String _userName = 'Utilisateur';
@@ -538,7 +457,6 @@ class _HomeTabState extends State<_HomeTab> {
     setState(() {
       _isLoading = true;
       _lastError = null;
-      _missingCompanyAccess = false;
     });
     try {
       final profileResult = await ApiService.instance.get('/auth/profile');
@@ -857,13 +775,6 @@ class _HomeTabState extends State<_HomeTab> {
 
   Widget _buildBody() {
     if (_isLoading) return const DashboardSkeleton();
-    if (_missingCompanyAccess) {
-      return _CompanyAccessMissingState(
-        userName: _userName,
-        onRefresh: _fetchHomeData,
-        onLogout: () => AuthNotifier.instance.logout(),
-      );
-    }
     if (_lastError != null) {
       return ErrorState(error: _lastError!, onRetry: _fetchHomeData);
     }

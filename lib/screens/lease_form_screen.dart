@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/error_state.dart';
 
 class LeaseFormScreen extends StatefulWidget {
   const LeaseFormScreen({super.key, this.lease});
@@ -22,7 +23,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
   List<BuildingItem> _buildings = [];
   List<UnitItem> _units = [];
   bool _isLoadingOptions = true;
-  String? _error;
+  Object? _error;
 
   // Form fields
   String? _selectedBuildingId;
@@ -99,7 +100,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.toString();
+        _error = e;
         _isLoadingOptions = false;
       });
     }
@@ -205,27 +206,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
       body: _isLoadingOptions
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            size: 48, color: AppColors.error),
-                        const SizedBox(height: 16),
-                        Text(_error!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppColors.textSecondary)),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _fetchOptions,
-                          child: const Text('Réessayer'),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+              ? ErrorState(error: _error!, onRetry: _fetchOptions)
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
                   child: Form(

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/fr_dates.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -181,12 +182,8 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
               final idx = spot.x.toInt();
               if (idx < 0 || idx >= data.length) return null;
               final point = data[idx];
-              const frenchMonthNames = [
-                'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-              ];
               return LineTooltipItem(
-                '${point.revenue} \$\n${frenchMonthNames[point.month - 1]} ${point.year}',
+                '${point.revenue} \$\n${kFrenchMonths[point.month - 1]} ${point.year}',
                 const TextStyle(
                   fontSize: 12,
                   color: AppColors.textPrimary,

@@ -8,6 +8,23 @@ const CACHE_TTL_SECONDS = 3600;
 const REQUEST_TIMEOUT_MS = 8000;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  API PlexFlow réelle
+//
+//  PlexFlow n'expose qu'UN SEUL endpoint REST public:
+//      GET /property/vacant-units   (auth via en-tête X-Plexflow-Key)
+//
+//  Chaque unité retournée porte ~38 champs. Les bâtiments, unités, baux et
+//  locataires sont TOUS dérivés de cette réponse — il n'existe pas de
+//  /buildings, /units ni /leases côté PlexFlow.
+//
+//  Les montants sont EN CENTS (currentRentTotalCents 84500 = 845,00 $) et sont
+//  convertis en dollars ici, une fois, avant de quitter le service.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const VACANT_UNITS_PATH = '/property/vacant-units';
+const VACANT_UNITS_CACHE_KEY = 'plexflow:vacant-units';
+
 function isConfigured() {
   return Boolean(process.env.PLEXFLOW_API_URL);
 }
@@ -16,8 +33,12 @@ function asArray(raw) {
   if (Array.isArray(raw)) {
     return raw;
   }
-  if (raw && Array.isArray(raw.data)) {
-    return raw.data;
+  if (raw && typeof raw === 'object') {
+    for (const key of ['data', 'units', 'vacantUnits', 'results']) {
+      if (Array.isArray(raw[key])) {
+        return raw[key];
+      }
+    }
   }
   return [];
 }
@@ -57,56 +78,28 @@ async function plexflowGet(path) {
   }
 }
 
-async function cachedGet(cacheKey, path) {
-  const cached = cache.get(cacheKey);
+/**
+ * Récupère (et met en cache) la liste brute des unités vacantes PlexFlow.
+ * Source unique de toutes les données PlexFlow exposées par ce service.
+ */
+async function getVacantUnits() {
+  const cached = cache.get(VACANT_UNITS_CACHE_KEY);
   if (cached !== undefined) {
     return cached;
   }
-  const raw = await plexflowGet(path);
+  const raw = await plexflowGet(VACANT_UNITS_PATH);
   if (raw === null) {
     // Échec/timeout de l'API PlexFlow: ne pas cacher pour éviter de figer
     // des données vides pendant tout le TTL. On réessaiera au prochain appel.
     return [];
   }
   const data = asArray(raw);
-  cache.set(cacheKey, data, CACHE_TTL_SECONDS);
+  cache.set(VACANT_UNITS_CACHE_KEY, data, CACHE_TTL_SECONDS);
   return data;
 }
 
-async function getBuildings() {
-  return cachedGet('plexflow:buildings', '/buildings');
-}
-
-async function getUnits(buildingId) {
-  const encoded = encodeURIComponent(buildingId);
-  return cachedGet(`plexflow:units:${buildingId}`, `/buildings/${encoded}/units`);
-}
-
-async function getLeases(unitId) {
-  const encoded = encodeURIComponent(unitId);
-  return cachedGet(`plexflow:leases:${unitId}`, `/units/${encoded}/leases`);
-}
-
-async function getTenants(unitId) {
-  const encoded = encodeURIComponent(unitId);
-  return cachedGet(`plexflow:tenants:${unitId}`, `/units/${encoded}/tenants`);
-}
-
-async function syncAll() {
-  invalidate('plexflow:*');
-  const buildings = await getBuildings();
-  return {
-    configured: isConfigured(),
-    syncedAt: new Date().toISOString(),
-    buildingCount: buildings.length,
-  };
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-//  Gap analysis — comparaison PlexFlow ↔ DB locale
-//
-//  Les enregistrements PlexFlow utilisent des noms de champs inconnus/variables.
-//  On extrait défensivement chaque valeur via une liste d'alias.
+//  Helpers d'extraction / normalisation
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Premier alias non vide d'un objet.
@@ -131,19 +124,25 @@ function leaseKey(unitLabel, tenantName) {
   return `${normLabel(unitLabel)}|${normLabel(tenantName)}`;
 }
 
-function numOrNull(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
+// Convertit un montant en cents (PlexFlow) vers des dollars. null si absent/invalide.
+function centsToAmount(cents) {
+  if (cents === undefined || cents === null || cents === '') {
+    return null;
+  }
+  const n = Number(cents);
+  return Number.isFinite(n) ? n / 100 : null;
 }
 
-function plexBuildingId(b) { return pick(b, ['id', 'plexflowId', 'buildingId', '_id']); }
-function plexUnitId(u) { return pick(u, ['id', 'plexflowId', 'unitId', '_id']); }
-function plexUnitLabel(u) { return pick(u, ['label', 'unitNumber', 'number', 'name']); }
-function plexLeaseId(l) { return pick(l, ['id', 'plexflowId', 'leaseId', '_id']); }
-function plexTenantId(t) { return pick(t, ['id', 'plexflowId', 'tenantId', '_id']); }
+// Valeur d'affichage (string) ou null.
+function asLabel(value) {
+  return value === undefined || value === null || value === '' ? null : String(value);
+}
 
 // Nom complet à partir d'un champ direct ou de prénom/nom séparés.
 function fullName(obj) {
+  if (typeof obj === 'string') {
+    return obj.trim() || undefined;
+  }
   const direct = pick(obj, ['name', 'fullName', 'tenantName', 'displayName']);
   if (direct) {
     return String(direct).trim();
@@ -162,6 +161,175 @@ function jsonField(value, key) {
   }
   return undefined;
 }
+
+/**
+ * Normalise un bâtiment à partir d'une unité vacante PlexFlow.
+ * Plusieurs unités partagent le même propertyId → un seul bâtiment.
+ */
+function normalizeBuilding(raw) {
+  const id = pick(raw, ['propertyId']);
+  return {
+    id: asLabel(id),
+    name: asLabel(pick(raw, ['propertyNickname', 'propertyAddress'])),
+    address: asLabel(pick(raw, ['propertyAddress'])),
+    addressDetails: asLabel(pick(raw, ['propertyAddressDetails'])),
+  };
+}
+
+/**
+ * Normalise une unité vacante PlexFlow vers une forme stable et en dollars.
+ */
+function normalizeUnit(raw) {
+  return {
+    id: asLabel(pick(raw, ['unitId'])),
+    buildingId: asLabel(pick(raw, ['propertyId'])),
+    label: asLabel(pick(raw, ['unitNickname', 'apptNb', 'unitAddress'])),
+    apptNb: asLabel(pick(raw, ['apptNb'])),
+    address: asLabel(pick(raw, ['unitAddress'])),
+    floor: pick(raw, ['floorLevel']) ?? null,
+    surfaceArea: pick(raw, ['surfaceArea']) ?? null,
+    unitType: pick(raw, ['unitType']) ?? null,
+    rentId: asLabel(pick(raw, ['rentId'])),
+    rentStatus: pick(raw, ['rentStatus']) ?? null,
+    // Montants convertis cents → dollars.
+    rent: centsToAmount(raw && raw.currentRentTotalCents),
+    scheduledRent: centsToAmount(raw && raw.scheduledRentTotalCents),
+    rentBeforeDiscount: centsToAmount(raw && raw.rentBeforeDiscount),
+    marketPrice: centsToAmount(raw && raw.marketPrice),
+    marketRenewalPrice: centsToAmount(raw && raw.marketRenewalPrice),
+    markedWontRenew: (raw && raw.markedWontRenew) ?? null,
+    statuses: (raw && raw.statuses) ?? null,
+    dateTenantLeaving: (raw && raw.dateTenantLeaving) ?? null,
+    dateTenantEntering: (raw && raw.dateTenantEntering) ?? null,
+    dateAvailableForMaintenance: (raw && raw.dateAvailableForMaintenance) ?? null,
+    dateAvailableForRent: (raw && raw.dateAvailableForRent) ?? null,
+    subaccount: (raw && raw.subaccount) ?? null,
+  };
+}
+
+// Extrait des locataires (entrants/sortants) d'une unité vacante.
+function extractTenants(raw, unit, directions) {
+  const out = [];
+  const add = (list, direction) => {
+    if (!Array.isArray(list)) {
+      return;
+    }
+    for (const t of list) {
+      const name = fullName(t) || null;
+      const isObj = t && typeof t === 'object';
+      if (!name && !isObj) {
+        continue;
+      }
+      out.push({
+        id: isObj ? asLabel(pick(t, ['tenantId', 'id', '_id'])) : null,
+        name,
+        phone: isObj ? (pick(t, ['phone', 'phoneNumber', 'mobile']) ?? null) : null,
+        email: isObj ? (pick(t, ['email']) ?? null) : null,
+        direction,
+        _unitId: unit.id,
+        _unitLabel: unit.label,
+      });
+    }
+  };
+  if (directions.includes('entering')) {
+    add(raw.tenantsEntering, 'entering');
+  }
+  if (directions.includes('leaving')) {
+    add(raw.tenantsLeaving, 'leaving');
+  }
+  return out;
+}
+
+// Dérive un bail (locataire entrant) d'une unité vacante, s'il y en a un.
+function leasesFromUnit(raw, unit) {
+  const entering = Array.isArray(raw.tenantsEntering) ? raw.tenantsEntering : [];
+  if (entering.length === 0) {
+    return [];
+  }
+  const tenantName = entering.map((t) => fullName(t)).filter(Boolean).join(', ') || null;
+  return [{
+    id: unit.rentId,
+    unitId: unit.id,
+    unitLabel: unit.label,
+    tenantName,
+    rent: unit.scheduledRent ?? unit.rent,
+    startDate: unit.dateTenantEntering,
+    endDate: unit.dateTenantLeaving,
+    status: unit.rentStatus,
+  }];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  API publique du service — tout dérive de /property/vacant-units
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function getBuildings() {
+  const rawUnits = await getVacantUnits();
+  const byId = new Map();
+  for (const raw of rawUnits) {
+    const building = normalizeBuilding(raw);
+    if (building.id === null) {
+      continue;
+    }
+    const existing = byId.get(building.id);
+    if (existing) {
+      existing.vacantUnitCount += 1;
+    } else {
+      byId.set(building.id, { ...building, vacantUnitCount: 1 });
+    }
+  }
+  return Array.from(byId.values());
+}
+
+async function getUnits(buildingId) {
+  const target = String(buildingId);
+  const rawUnits = await getVacantUnits();
+  return rawUnits
+    .filter((raw) => asLabel(pick(raw, ['propertyId'])) === target)
+    .map(normalizeUnit);
+}
+
+async function getLeases(unitId) {
+  const target = String(unitId);
+  const rawUnits = await getVacantUnits();
+  const leases = [];
+  for (const raw of rawUnits) {
+    if (asLabel(pick(raw, ['unitId'])) !== target) {
+      continue;
+    }
+    const unit = normalizeUnit(raw);
+    leases.push(...leasesFromUnit(raw, unit));
+  }
+  return leases;
+}
+
+async function getTenants(unitId) {
+  const target = String(unitId);
+  const rawUnits = await getVacantUnits();
+  const tenants = [];
+  for (const raw of rawUnits) {
+    if (asLabel(pick(raw, ['unitId'])) !== target) {
+      continue;
+    }
+    const unit = normalizeUnit(raw);
+    tenants.push(...extractTenants(raw, unit, ['entering', 'leaving']));
+  }
+  return tenants;
+}
+
+async function syncAll() {
+  invalidate('plexflow:*');
+  const buildings = await getBuildings();
+  return {
+    configured: isConfigured(),
+    syncedAt: new Date().toISOString(),
+    buildingCount: buildings.length,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Gap analysis — comparaison PlexFlow ↔ DB locale
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Bâtiment local lié à un bâtiment PlexFlow.
@@ -194,51 +362,42 @@ async function findLocalBuilding(plexflowBuildingId) {
 }
 
 /**
- * Snapshot complet d'un bâtiment PlexFlow: building + units + leases + tenants.
- * Les leases/tenants sont aplatis et annotés avec l'unité PlexFlow d'origine.
+ * Snapshot complet d'un bâtiment PlexFlow: building + units + leases + tenants,
+ * dérivé entièrement de /property/vacant-units (filtré par propertyId).
  */
 async function getFullSnapshot(buildingId) {
   if (!isConfigured()) {
     return { configured: false, error: 'PlexFlow indisponible' };
   }
 
-  const buildings = await getBuildings();
-  const building = buildings.find((b) => String(plexBuildingId(b)) === String(buildingId)) || null;
+  const target = String(buildingId);
+  const all = await getVacantUnits();
+  const rawUnits = all.filter((raw) => asLabel(pick(raw, ['propertyId'])) === target);
+  const building = rawUnits.length > 0 ? normalizeBuilding(rawUnits[0]) : null;
 
-  const units = await getUnits(buildingId);
-
+  const units = [];
   const leases = [];
   const tenants = [];
 
-  await Promise.all(units.map(async (unit) => {
-    const unitId = plexUnitId(unit);
-    if (unitId === undefined) {
-      return;
-    }
-    const unitLabel = plexUnitLabel(unit) || null;
-    const [unitLeases, unitTenants] = await Promise.all([
-      getLeases(unitId),
-      getTenants(unitId),
-    ]);
-    for (const lease of unitLeases) {
-      leases.push({ ...lease, _unitPlexflowId: unitId, _unitLabel: unitLabel });
-    }
-    for (const tenant of unitTenants) {
-      tenants.push({ ...tenant, _unitPlexflowId: unitId, _unitLabel: unitLabel });
-    }
-  }));
+  for (const raw of rawUnits) {
+    const unit = normalizeUnit(raw);
+    units.push(unit);
+    leases.push(...leasesFromUnit(raw, unit));
+    tenants.push(...extractTenants(raw, unit, ['entering']));
+  }
 
   return {
     configured: true,
     buildingId,
     building,
-    buildingName: building ? (pick(building, ['name', 'label']) || null) : null,
+    buildingName: building ? building.name : null,
     buildingInfo: building ? {
-      name: pick(building, ['name', 'label']) || null,
-      address: pick(building, ['address', 'street', 'addressLine1']) || null,
-      city: pick(building, ['city']) || null,
-      province: pick(building, ['province', 'state']) || null,
-      postalCode: pick(building, ['postalCode', 'zip', 'postal_code']) || null,
+      name: building.name,
+      address: building.address,
+      addressDetails: building.addressDetails,
+      city: null,
+      province: null,
+      postalCode: null,
     } : null,
     units,
     leases,
@@ -294,19 +453,21 @@ async function compareWithLocal(buildingId) {
   // ── Unités manquantes ──
   const missingUnits = [];
   for (const unit of snapshot.units) {
-    const pid = plexUnitId(unit);
-    const label = plexUnitLabel(unit);
-    const known = (pid !== undefined && localUnitPlexIds.has(String(pid)))
+    const pid = unit.id;
+    const label = unit.label;
+    const known = (pid !== null && localUnitPlexIds.has(String(pid)))
       || (label && localUnitLabels.has(normLabel(label)));
     if (!known) {
       missingUnits.push({
-        plexflowId: pid !== undefined ? String(pid) : null,
+        plexflowId: pid !== null ? String(pid) : null,
         label: label || null,
-        floor: pick(unit, ['floor', 'level']) ?? null,
-        rooms: pick(unit, ['rooms', 'bedrooms', 'numberOfRooms']) ?? null,
-        rent: numOrNull(pick(unit, ['rent', 'rentAmount', 'monthlyRent'])),
-        bedrooms: pick(unit, ['bedrooms', 'rooms']) ?? null,
-        bathrooms: pick(unit, ['bathrooms']) ?? null,
+        floor: unit.floor ?? null,
+        rooms: null,
+        rent: unit.rent ?? null,
+        bedrooms: null,
+        bathrooms: null,
+        surfaceArea: unit.surfaceArea ?? null,
+        unitType: unit.unitType ?? null,
       });
     }
   }
@@ -314,20 +475,20 @@ async function compareWithLocal(buildingId) {
   // ── Baux manquants ──
   const missingLeases = [];
   for (const lease of snapshot.leases) {
-    const pid = plexLeaseId(lease);
-    const tenantName = fullName(lease) || null;
-    const unitLabel = lease._unitLabel || pick(lease, ['unitLabel', 'unit']) || null;
-    const known = (pid !== undefined && localLeasePlexIds.has(String(pid)))
+    const pid = lease.id;
+    const tenantName = lease.tenantName || null;
+    const unitLabel = lease.unitLabel || null;
+    const known = (pid !== null && pid !== undefined && localLeasePlexIds.has(String(pid)))
       || localLeaseKeys.has(leaseKey(unitLabel, tenantName));
     if (!known) {
       missingLeases.push({
-        plexflowId: pid !== undefined ? String(pid) : null,
-        unitPlexflowId: lease._unitPlexflowId !== undefined ? String(lease._unitPlexflowId) : null,
+        plexflowId: (pid !== null && pid !== undefined) ? String(pid) : null,
+        unitPlexflowId: lease.unitId !== null && lease.unitId !== undefined ? String(lease.unitId) : null,
         unitLabel,
         tenantName,
-        rent: numOrNull(pick(lease, ['rent', 'rentAmount', 'monthlyRent'])),
-        startDate: pick(lease, ['startDate', 'start', 'beginDate']) ?? null,
-        endDate: pick(lease, ['endDate', 'end', 'expiryDate']) ?? null,
+        rent: lease.rent ?? null,
+        startDate: lease.startDate ?? null,
+        endDate: lease.endDate ?? null,
       });
     }
   }
@@ -336,18 +497,18 @@ async function compareWithLocal(buildingId) {
   // occupée par un tenant du même nom)
   const missingTenants = [];
   for (const tenant of snapshot.tenants) {
-    const pid = plexTenantId(tenant);
-    const name = fullName(tenant) || null;
+    const pid = tenant.id;
+    const name = tenant.name || null;
     const unitLabel = tenant._unitLabel || null;
     const localUnit = localUnits.find((u) => u.label && normLabel(u.label) === normLabel(unitLabel || ''));
     const known = Boolean(localUnit && localUnit.tenantName && name
       && normLabel(localUnit.tenantName) === normLabel(name));
     if (!known) {
       missingTenants.push({
-        plexflowId: pid !== undefined ? String(pid) : null,
+        plexflowId: (pid !== null && pid !== undefined) ? String(pid) : null,
         name,
-        phone: pick(tenant, ['phone', 'phoneNumber', 'mobile']) ?? null,
-        email: pick(tenant, ['email']) ?? null,
+        phone: tenant.phone ?? null,
+        email: tenant.email ?? null,
         unitLabel,
       });
     }
@@ -357,17 +518,14 @@ async function compareWithLocal(buildingId) {
   const plexUnitIds = new Set();
   const plexUnitLabels = new Set();
   for (const unit of snapshot.units) {
-    const pid = plexUnitId(unit);
-    if (pid !== undefined) { plexUnitIds.add(String(pid)); }
-    const label = plexUnitLabel(unit);
-    if (label) { plexUnitLabels.add(normLabel(label)); }
+    if (unit.id !== null) { plexUnitIds.add(String(unit.id)); }
+    if (unit.label) { plexUnitLabels.add(normLabel(unit.label)); }
   }
   const plexLeaseIds = new Set();
   const plexLeaseKeys = new Set();
   for (const lease of snapshot.leases) {
-    const pid = plexLeaseId(lease);
-    if (pid !== undefined) { plexLeaseIds.add(String(pid)); }
-    plexLeaseKeys.add(leaseKey(lease._unitLabel, fullName(lease)));
+    if (lease.id !== null && lease.id !== undefined) { plexLeaseIds.add(String(lease.id)); }
+    plexLeaseKeys.add(leaseKey(lease.unitLabel, lease.tenantName));
   }
 
   const extraInLocal = [];
@@ -417,6 +575,7 @@ async function compareWithLocal(buildingId) {
 
 module.exports = {
   isConfigured,
+  getVacantUnits,
   getBuildings,
   getUnits,
   getLeases,

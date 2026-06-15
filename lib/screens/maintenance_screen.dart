@@ -289,6 +289,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
     final descController = TextEditingController();
     final phoneController = TextEditingController();
     String urgency = 'moyenne';
+    bool isSubmitting = false;
 
     showDialog<void>(
       context: context,
@@ -337,16 +338,19 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                   child: const Text('Annuler'),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    if (titleController.text.trim().isEmpty) return;
-                    Navigator.of(dialogContext).pop();
-                    await _createTicket(
-                      titleController.text.trim(),
-                      descController.text.trim(),
-                      phoneController.text.trim(),
-                      urgency,
-                    );
-                  },
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          if (titleController.text.trim().isEmpty) return;
+                          setDialogState(() => isSubmitting = true);
+                          Navigator.of(dialogContext).pop();
+                          await _createTicket(
+                            titleController.text.trim(),
+                            descController.text.trim(),
+                            phoneController.text.trim(),
+                            urgency,
+                          );
+                        },
                   child: const Text('Créer'),
                 ),
               ],

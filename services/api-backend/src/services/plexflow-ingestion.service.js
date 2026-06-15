@@ -52,7 +52,7 @@ async function ingestMissingData(buildingId) {
   for (const lease of gap.missingLeases) {
     try {
       // Trouver l'unité locale correspondante
-      const [localUnit] = await db
+      const candidateUnits = await db
         .select()
         .from(unitsTable)
         .where(and(
@@ -61,7 +61,7 @@ async function ingestMissingData(buildingId) {
         ))
         .limit(200);
 
-      const match = localUnit?.find(u =>
+      const match = candidateUnits.find(u =>
         u.label && plexflowService.normLabel(u.label) === plexflowService.normLabel(lease.unitLabel || ''),
       );
 

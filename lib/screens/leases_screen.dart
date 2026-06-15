@@ -106,24 +106,26 @@ class _LeasesScreenState extends State<LeasesScreen> {
     }
   }
 
+  void _openLeaseForm() {
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (_) => const LeaseFormScreen(),
+        fullscreenDialog: true,
+      ),
+    )
+        .then((_) {
+      if (mounted) _fetchLeases();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ImmoAppBar(title: 'Baux', actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context)
-                  .push(
-                MaterialPageRoute(
-                  builder: (_) => const LeaseFormScreen(),
-                  fullscreenDialog: true,
-                ),
-              )
-                  .then((_) {
-                if (mounted) _fetchLeases();
-              });
-            },
+            onPressed: _openLeaseForm,
           ),
         ]),
       body: _buildBody(),
@@ -133,11 +135,12 @@ class _LeasesScreenState extends State<LeasesScreen> {
   Widget _buildBody() {
     if (_isLoading) return const ListSkeleton(showSearchBar: true);
     if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchLeases);
-    if (_filteredLeases.isEmpty) { return const EmptyState(
+    if (_filteredLeases.isEmpty) { return EmptyState(
       title: 'Aucun bail',
       description: 'Les baux apparaîtront une fois les premiers immeubles et locataires ajoutés.',
       icon: Icons.description_outlined,
       ctaLabel: 'Ajouter un bail',
+      onCtaPressed: _openLeaseForm,
     );
     }
 

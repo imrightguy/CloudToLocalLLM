@@ -245,6 +245,7 @@ class _RenovationOrdersScreenState extends State<RenovationOrdersScreen> {
     final vendorController = TextEditingController();
     final itemController = TextEditingController();
     final qtyController = TextEditingController(text: '1');
+    bool isSubmitting = false;
 
     showDialog<void>(
       context: context,
@@ -280,10 +281,12 @@ class _RenovationOrdersScreenState extends State<RenovationOrdersScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
+                if (isSubmitting) return;
                 final item = itemController.text.trim();
                 final vendor = vendorController.text.trim();
                 final qty = int.tryParse(qtyController.text.trim()) ?? 0;
                 if (item.isEmpty || vendor.isEmpty || qty <= 0) return;
+                isSubmitting = true;
                 Navigator.of(dialogContext).pop();
                 await _createOrder(vendor, item, qty);
               },

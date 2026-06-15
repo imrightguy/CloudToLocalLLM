@@ -19,6 +19,8 @@ exports.createLead = async (req, res) => {
       notes, tags, language, assignedEmployeeId, buildingId, unitId,
     } = req.body;
 
+    // Defense-in-depth: Joi (leadSchemas.create) guards the HTTP route, but the
+    // controller is also unit-tested/invoked directly, so keep an explicit guard.
     if (!fullName || !fullName.trim()) {
       return res.status(400).json({
         success: false,

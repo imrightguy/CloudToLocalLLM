@@ -5,6 +5,7 @@ import '../models.dart';
 import '../services/communication_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../widgets/error_state.dart';
 import 'visit_form_screen.dart';
 
 class SmsConversationScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class SmsConversationScreen extends StatefulWidget {
 class _SmsConversationScreenState extends State<SmsConversationScreen> {
   List<SmsMessage> _messages = [];
   bool _isLoading = true;
-  String? _errorMessage;
+  Object? _errorMessage;
   bool _isSending = false;
   final TextEditingController _replyController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -69,7 +70,7 @@ class _SmsConversationScreenState extends State<SmsConversationScreen> {
       _scrollToBottom();
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = e;
         _isLoading = false;
       });
     }
@@ -214,26 +215,7 @@ class _SmsConversationScreenState extends State<SmsConversationScreen> {
   }
 
   Widget _buildErrorState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-          const SizedBox(height: 16),
-          Text(
-            _errorMessage!,
-            style: const TextStyle(color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _fetchMessages,
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Réessayer'),
-          ),
-        ],
-      ),
-    );
+    return ErrorState(error: _errorMessage!, onRetry: _fetchMessages);
   }
 
   Widget _buildMessageList() {

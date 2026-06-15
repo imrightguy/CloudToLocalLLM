@@ -281,7 +281,7 @@ describe('errorHandler', () => {
 });
 
 describe('setCacheHeaders', () => {
-  it('sets default cache headers (max-age=3600, public, no-cache, no-store)', () => {
+  it('sets cacheable default headers (max-age=3600, public) without contradictory no-store', () => {
     const res = { set: jest.fn() };
 
     setCacheHeaders(res);
@@ -290,8 +290,18 @@ describe('setCacheHeaders', () => {
     expect(call[0]).toBe('Cache-Control');
     expect(call[1]).toContain('max-age=3600');
     expect(call[1]).toContain('public');
-    expect(call[1]).toContain('no-cache');
+    // max-age and no-store are mutually exclusive — the default must not mix them.
+    expect(call[1]).not.toContain('no-store');
+  });
+
+  it('emits no-store (and no max-age) when noStore is true', () => {
+    const res = { set: jest.fn() };
+
+    setCacheHeaders(res, { noStore: true });
+
+    const call = res.set.mock.calls[0];
     expect(call[1]).toContain('no-store');
+    expect(call[1]).not.toContain('max-age');
   });
 
   it('sets private when isPrivate is true', () => {
@@ -324,12 +334,23 @@ describe('setCacheHeaders', () => {
 });
 
 describe('setCORSHeaders', () => {
-  it('sets default CORS headers', () => {
+  it('defaults the origin to the ALLOWED_ORIGINS allow-list, never a wildcard', () => {
     const res = { set: jest.fn() };
+    const prev = process.env.ALLOWED_ORIGINS;
+    process.env.ALLOWED_ORIGINS = 'https://app.example.com,https://admin.example.com';
 
-    setCORSHeaders(res);
+    try {
+      setCORSHeaders(res);
+    } finally {
+      if (prev === undefined) {
+        delete process.env.ALLOWED_ORIGINS;
+      } else {
+        process.env.ALLOWED_ORIGINS = prev;
+      }
+    }
 
-    expect(res.set).toHaveBeenCalledWith('Access-Control-Allow-Origin', '*');
+    expect(res.set).toHaveBeenCalledWith('Access-Control-Allow-Origin', 'https://app.example.com');
+    expect(res.set).not.toHaveBeenCalledWith('Access-Control-Allow-Origin', '*');
     expect(res.set).toHaveBeenCalledWith('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
     expect(res.set).toHaveBeenCalledWith('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     expect(res.set).toHaveBeenCalledWith('Access-Control-Max-Age', 86400);

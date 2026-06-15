@@ -108,6 +108,43 @@ class ApiService {
 
   bool get hasToken => _accessToken != null && _accessToken!.isNotEmpty;
 
+  /// True only when we hold an access token that is present AND not expired.
+  /// Used by the auth guard so an expired token no longer flashes a protected
+  /// screen before the redirect to login.
+  bool get hasValidToken {
+    if (_accessToken == null || _accessToken!.isEmpty) return false;
+    final expiry = _accessTokenExpiry(_accessToken!);
+    // If we can't read an exp claim, fall back to presence (don't lock the user out).
+    if (expiry == null) return true;
+    return DateTime.now().isBefore(expiry);
+  }
+
+  /// Decode the `exp` claim (seconds since epoch) from a JWT without verifying
+  /// the signature. Returns null if the token is malformed or has no exp.
+  static DateTime? _accessTokenExpiry(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) return null;
+    try {
+      var payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
+      switch (payload.length % 4) {
+        case 2:
+          payload += '==';
+          break;
+        case 3:
+          payload += '=';
+          break;
+      }
+      final decoded = jsonDecode(utf8.decode(base64.decode(payload)));
+      final exp = decoded is Map<String, dynamic> ? decoded['exp'] : null;
+      if (exp is int) {
+        return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   String get accessToken => _accessToken ?? '';
 
   Map<String, String> getHeaders() => _getHeaders();
