@@ -24,7 +24,7 @@ class AuthNotifier extends ChangeNotifier {
   UserItem? _currentUser;
 
   /// `true` when a present, non-expired access token is held in memory.
-  bool get isLoggedIn => ApiService.instance.hasValidToken;
+  bool get isLoggedIn => ApiService.instance.hasToken;
 
   /// Cached user profile fetched from /auth/profile.
   UserItem? get currentUser => _currentUser;

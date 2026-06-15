@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -67,10 +66,6 @@ class ApiService {
 
   static const String baseUrl = AppConfig.apiBaseUrl;
 
-  /// Hard ceiling on any single HTTP round-trip so a stalled connection can
-  /// never leave a request (or the UI awaiting it) pending forever.
-  static const Duration _requestTimeout = Duration(seconds: 30);
-
   @visibleForTesting
   http.Client client = http.Client();
 
@@ -87,19 +82,6 @@ class ApiService {
     _accessToken = tokens.accessToken;
     _refreshToken = tokens.refreshToken;
     _initialized = true;
-
-    // On web the access token only lives in memory and is gone after a reload,
-    // while the refresh token persists as an HttpOnly cookie. Bootstrap a fresh
-    // access token from that cookie so the session survives a page refresh.
-    if (kUsesHttpOnlyRefreshCookie &&
-        (_accessToken == null || _accessToken!.isEmpty)) {
-      // Best-effort bootstrap. _tryRefresh now throws on transient network
-      // errors (so a live request won't log the user out over a blip); during
-      // startup we simply swallow that and let the auth gate decide.
-      try {
-        await _tryRefresh();
-      } catch (_) {/* offline at startup — stay logged out for now */}
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -107,43 +89,6 @@ class ApiService {
   // ---------------------------------------------------------------------------
 
   bool get hasToken => _accessToken != null && _accessToken!.isNotEmpty;
-
-  /// True only when we hold an access token that is present AND not expired.
-  /// Used by the auth guard so an expired token no longer flashes a protected
-  /// screen before the redirect to login.
-  bool get hasValidToken {
-    if (_accessToken == null || _accessToken!.isEmpty) return false;
-    final expiry = _accessTokenExpiry(_accessToken!);
-    // If we can't read an exp claim, fall back to presence (don't lock the user out).
-    if (expiry == null) return true;
-    return DateTime.now().isBefore(expiry);
-  }
-
-  /// Decode the `exp` claim (seconds since epoch) from a JWT without verifying
-  /// the signature. Returns null if the token is malformed or has no exp.
-  static DateTime? _accessTokenExpiry(String token) {
-    final parts = token.split('.');
-    if (parts.length != 3) return null;
-    try {
-      var payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
-      switch (payload.length % 4) {
-        case 2:
-          payload += '==';
-          break;
-        case 3:
-          payload += '=';
-          break;
-      }
-      final decoded = jsonDecode(utf8.decode(base64.decode(payload)));
-      final exp = decoded is Map<String, dynamic> ? decoded['exp'] : null;
-      if (exp is int) {
-        return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
-      }
-      return null;
-    } catch (_) {
-      return null;
-    }
-  }
 
   String get accessToken => _accessToken ?? '';
 
@@ -155,12 +100,9 @@ class ApiService {
       };
 
   Future<void> _persistTokens(String? access, String? refresh) async {
-    _accessToken = access;
-    // On web the refresh token is owned by the browser's HttpOnly cookie and
-    // must never be held in JS-reachable memory or storage (XSS). On native it
-    // is kept in memory and persisted via shared_preferences.
-    _refreshToken = kUsesHttpOnlyRefreshCookie ? null : refresh;
     await writeAuthTokens(accessToken: access, refreshToken: refresh);
+    _accessToken = access;
+    _refreshToken = refresh;
   }
 
   Future<void> _clearTokens() async {
@@ -200,38 +142,26 @@ class ApiService {
     try {
       switch (method) {
         case 'GET':
-          response = await client
-              .get(uri, headers: _getHeaders())
-              .timeout(_requestTimeout);
+          response = await client.get(uri, headers: _getHeaders());
           break;
         case 'POST':
-          response = await client
-              .post(uri, headers: _getHeaders(), body: jsonEncode(body))
-              .timeout(_requestTimeout);
+          response = await client.post(uri,
+              headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'PUT':
-          response = await client
-              .put(uri, headers: _getHeaders(), body: jsonEncode(body))
-              .timeout(_requestTimeout);
+          response = await client.put(uri,
+              headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'PATCH':
-          response = await client
-              .patch(uri, headers: _getHeaders(), body: jsonEncode(body))
-              .timeout(_requestTimeout);
+          response = await client.patch(uri,
+              headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'DELETE':
-          response = await client
-              .delete(uri, headers: _getHeaders())
-              .timeout(_requestTimeout);
+          response = await client.delete(uri, headers: _getHeaders());
           break;
         default:
           throw ApiException('Unsupported HTTP method: $method');
       }
-    } on TimeoutException {
-      throw const ApiException(
-        'La requête a expiré — réessayez',
-        code: 'REQUEST_TIMEOUT',
-      );
     } catch (e) {
       if (e is ApiException) rethrow;
       throw const ApiException('Erreur réseau — vérifiez votre connexion');
@@ -279,81 +209,35 @@ class ApiService {
     return data;
   }
 
-  /// Attempt to refresh the access token.
-  ///
-  /// Returns `true` when a new token was obtained. Returns `false` ONLY when the
-  /// refresh token is genuinely invalid (no stored token, or the refresh
-  /// endpoint answers 401/403) — that is the only case in which the caller
-  /// should force a logout. On a transient failure (timeout, connectivity loss,
-  /// 5xx) it THROWS so the caller propagates the error and keeps the session,
-  /// instead of logging the user out over a momentary blip.
+  /// Attempt to refresh the access token. Returns `true` on success.
   Future<bool> _tryRefresh() async {
-    // Web carries the refresh token in an HttpOnly cookie the browser attaches
-    // automatically, so there is no in-memory token to gate on. Native must
-    // have a stored refresh token to send in the body.
-    if (!kUsesHttpOnlyRefreshCookie && _refreshToken == null) return false;
-
-    http.Response response;
+    if (_refreshToken == null) return false;
     try {
       final uri = Uri.parse('$baseUrl/auth/refresh');
-      response = await client.post(
+      final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(
-          kUsesHttpOnlyRefreshCookie
-              ? <String, dynamic>{}
-              : {'refreshToken': _refreshToken},
-        ),
-      ).timeout(_requestTimeout);
-    } on TimeoutException {
-      throw const ApiException(
-        'La requête a expiré — réessayez',
-        code: 'REQUEST_TIMEOUT',
+        body: jsonEncode({'refreshToken': _refreshToken}),
       );
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      // Network error while refreshing — do NOT purge tokens; surface it so the
-      // session survives the blip.
-      throw const ApiException('Erreur réseau — vérifiez votre connexion');
-    }
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      try {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
-        final tokenData = body['data'];
-        if (tokenData is Map<String, dynamic>) {
+        final tokenData = body['data'] as Map<String, dynamic>?;
+        if (tokenData != null) {
           await _persistTokens(
             tokenData['accessToken'] as String?,
             tokenData['refreshToken'] as String?,
           );
           return true;
         }
-      } catch (_) {/* malformed success → treat as a failed refresh */}
-      return false;
-    }
-
-    // The refresh token itself is rejected → a real, non-recoverable logout.
-    if (response.statusCode == 401 || response.statusCode == 403) {
-      return false;
-    }
-
-    // Any other status (5xx, etc.) is transient — keep the session.
-    throw const ApiException('Erreur réseau — vérifiez votre connexion');
+      }
+    } catch (_) {}
+    return false;
   }
 
   // ---------------------------------------------------------------------------
   // Auth convenience methods
   // ---------------------------------------------------------------------------
-
-  /// Cast a decoded JSON field to a Map, throwing a typed [ApiException] rather
-  /// than an uncatchable TypeError when the server returns an unexpected shape.
-  Map<String, dynamic> _requireMap(Object? value, String field) {
-    if (value is Map<String, dynamic>) return value;
-    throw ApiException(
-      'Réponse inattendue du serveur (champ "$field" manquant ou invalide)',
-      code: 'MALFORMED_RESPONSE',
-    );
-  }
 
   /// POST /auth/login → stores tokens, returns user map.
   Future<UserItem> login(String email, String password) async {
@@ -362,13 +246,13 @@ class ApiService {
       'password': password,
     });
 
-    final data = _requireMap(result['data'], 'data');
-    final tokens = _requireMap(data['tokens'], 'tokens');
+    final data = result['data'] as Map<String, dynamic>;
+    final tokens = data['tokens'] as Map<String, dynamic>;
     await _persistTokens(
       tokens['accessToken'] as String?,
       tokens['refreshToken'] as String?,
     );
-    return UserItem.fromJson(_requireMap(data['user'], 'user'));
+    return UserItem.fromJson(data['user'] as Map<String, dynamic>);
   }
 
   /// POST /auth/register → stores tokens, returns user map.
@@ -389,13 +273,13 @@ class ApiService {
 
     final result = await post('/auth/register', body);
 
-    final data = _requireMap(result['data'], 'data');
-    final tokens = _requireMap(data['tokens'], 'tokens');
+    final data = result['data'] as Map<String, dynamic>;
+    final tokens = data['tokens'] as Map<String, dynamic>;
     await _persistTokens(
       tokens['accessToken'] as String?,
       tokens['refreshToken'] as String?,
     );
-    return UserItem.fromJson(_requireMap(data['user'], 'user'));
+    return UserItem.fromJson(data['user'] as Map<String, dynamic>);
   }
 
   /// POST /auth/logout → clears local tokens.
@@ -411,7 +295,7 @@ class ApiService {
   /// GET /auth/profile → returns user map.
   Future<UserItem> getProfile() async {
     final result = await get('/auth/profile');
-    return UserItem.fromJson(_requireMap(result['data'], 'data'));
+    return UserItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   // ---------------------------------------------------------------------------
