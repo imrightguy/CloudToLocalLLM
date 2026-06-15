@@ -31,6 +31,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   /// itself independently, forcing a fresh network call.
   final ValueNotifier<int> _refreshTick = ValueNotifier<int>(0);
 
+  PillarsOverview? _pillars;
+  bool _pillarsLoading = true;
+  Object? _pillarsError;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPillars();
+  }
+
+  Future<void> _fetchPillars({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    setState(() { _pillarsLoading = true; _pillarsError = null; });
+    try {
+      final pillars = await AnalyticsService.instance.getPillarsOverview(forceRefresh: forceRefresh);
+      if (!mounted) return;
+      setState(() { _pillars = pillars; _pillarsLoading = false; });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _pillarsError = e; _pillarsLoading = false; });
+    }
+  }
+
   @override
   void dispose() {
     _refreshTick.dispose();
@@ -78,14 +101,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: AppSpacing.xl),
 
               // --- Pilliers (Leasing / Maintenance / Rénovation) -----------
-              _SectionLoader<PillarsOverview>(
-                refreshTick: _refreshTick,
-                skeleton: const _PillarsSkeleton(),
-                fetcher: ({required bool forceRefresh}) => AnalyticsService
-                    .instance
-                    .getPillarsOverview(forceRefresh: forceRefresh),
-                builder: (context, pillars) => _buildPillarsSection(pillars),
-              ),
+              if (_pillarsLoading)
+                const _PillarsSkeleton()
+              else if (_pillarsError != null)
+                ErrorState(error: _pillarsError!, onRetry: () => _fetchPillars(forceRefresh: true))
+              else if (_pillars != null)
+                _buildPillarsSection(_pillars!),
               const SizedBox(height: AppSpacing.xl),
 
               // --- Analytics (KPIs, entonnoir, pipeline, visites, inbox) ---
