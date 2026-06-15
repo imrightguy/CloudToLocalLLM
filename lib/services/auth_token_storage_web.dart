@@ -13,7 +13,13 @@ class AuthTokens {
 /// (unreadable from JavaScript) and the access token lives only in memory.
 /// Nothing auth-related is written to `localStorage`, which any injected
 /// script could read — closing the XSS token-theft vector.
-const bool kUsesHttpOnlyRefreshCookie = true;
+///
+/// NOTE: The Dart `http` package does NOT automatically attach cookies to
+/// requests. Until the HTTP client is migrated to one that supports
+/// credentials (e.g. `package:fetch` or `dart:html` HttpRequest), the
+/// refresh token is still sent in the request body on web. The cookie is
+/// still set by the backend as defense-in-depth for future clients.
+const bool kUsesHttpOnlyRefreshCookie = false;
 
 /// Keys that older, XSS-exposed builds wrote to `localStorage`. We purge them
 /// on load so previously-leaked tokens stop lingering in the browser.
