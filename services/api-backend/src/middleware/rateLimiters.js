@@ -15,9 +15,10 @@ function normalizedEmailFromRequest(req) {
 const authLimiter = rateLimit({
   windowMs: AUTH_WINDOW_MS,
   max: AUTH_MAX_ATTEMPTS,
-  keyGenerator: (req) => {
+  keyGenerator: (req, res) => {
     const email = normalizedEmailFromRequest(req);
-    return email ? `${req.ip}:${email}` : req.ip;
+    const ip = rateLimit.ipKeyGenerator(req, res);
+    return email ? `${ip}:${email}` : ip;
   },
   message: {
     success: false,
