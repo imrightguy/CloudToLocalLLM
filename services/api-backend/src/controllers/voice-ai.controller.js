@@ -26,18 +26,14 @@ exports.handleIncomingCall = async (req, res) => {
 
     logger.info(`[voice-ai.controller] Appel entrant: ${CallSid} de ${From}`);
 
-    // Répondre immédiatement à Twilio avec un message d'attente
-    // Le pipeline STT→LLM→ticket tourne en arrière-plan
+    // Accueillir l'appelant et enregistrer sa demande. Le pipeline
+    // STT→LLM→ticket est déclenché une seule fois, depuis handleRecording,
+    // une fois l'enregistrement disponible (évite les tickets en double).
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say language="fr-CA" voice="alice">Bienvenue chez ImmoGestion. Veuillez décrire votre problème de maintenance après le bip sonore.</Say>
   <Record maxLength="120" playBeep="true" action="/webhooks/twilio/voice/recording" method="POST" />
 </Response>`;
-
-    // Lancer le pipeline en arrière-plan (ne pas bloquer la réponse Twilio)
-    voiceAiService.handleIncomingCall(CallSid, From, To).catch((error) => {
-      logger.error('[voice-ai.controller] Erreur pipeline:', error.message);
-    });
 
     return res.status(200).type('text/xml').send(twiml);
   } catch (error) {

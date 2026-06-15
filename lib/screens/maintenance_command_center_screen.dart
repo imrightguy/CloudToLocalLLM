@@ -17,7 +17,7 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
   bool _isLoading = true;
   String? _errorMessage;
   MaintenanceCommandCenterData _data = _emptyData();
-  Map<String, int> _ticketCountsByBuilding = {};
+  List<BuildingTicketCount> _ticketCountsByBuilding = const [];
 
   static MaintenanceCommandCenterData _emptyData() {
     return const MaintenanceCommandCenterData(
@@ -60,7 +60,7 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
         _fetchTicketCounts(),
       ]);
       final data = results[0] as MaintenanceCommandCenterData;
-      final counts = results[1] as Map<String, int>;
+      final counts = results[1] as List<BuildingTicketCount>;
       if (!mounted) return;
       setState(() {
         _data = data;
@@ -71,20 +71,18 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
       if (!mounted) return;
       setState(() {
         _data = _emptyData();
-        _ticketCountsByBuilding = {};
+        _ticketCountsByBuilding = const [];
         _errorMessage = error.toString();
         _isLoading = false;
       });
     }
   }
 
-  Future<Map<String, int>> _fetchTicketCounts() async {
+  Future<List<BuildingTicketCount>> _fetchTicketCounts() async {
     try {
-      final buildingIds = _data.properties.map((p) => p.buildingId).toList();
-      if (buildingIds.isEmpty) return {};
-      return await MaintenanceService.instance.getOpenTicketCountByBuilding(buildingIds);
+      return await MaintenanceService.instance.getOpenTicketCountByBuilding();
     } catch (_) {
-      return {};
+      return const [];
     }
   }
 
@@ -196,6 +194,20 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
                       _ErrorBanner(message: _errorMessage!),
                     ],
                     const SizedBox(height: AppSpacing.lg),
+                    if (_ticketCountsByBuilding.isNotEmpty) ...[
+                      const _SectionHeader(
+                        title: 'Tickets de maintenance par bâtiment',
+                        subtitle: 'Tickets ouverts et en cours regroupés par immeuble.',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      ..._ticketCountsByBuilding.map(
+                        (count) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: _TicketCountCard(count: count),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                    ],
                     if (_hasNoData) _buildEmptyState(context) else ...[
                       const _SectionHeader(
                         title: 'Indicateurs clés',
@@ -221,25 +233,6 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xl),
-                      if (_ticketCountsByBuilding.isNotEmpty) ...[
-                        const _SectionHeader(
-                          title: 'Tickets de maintenance par bâtiment',
-                          subtitle: 'Tickets ouverts et en cours regroupés par immeuble.',
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        ..._data.properties.map((property) {
-                          final count = _ticketCountsByBuilding[property.buildingId] ?? 0;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                            child: _TicketCountCard(
-                              buildingName: property.buildingName,
-                              buildingId: property.buildingId,
-                              ticketCount: count,
-                            ),
-                          );
-                        }),
-                        const SizedBox(height: AppSpacing.xl),
-                      ],
                       const _SectionHeader(
                         title: 'Propriétés',
                         subtitle: 'Chaque carte regroupe la charge de rénovation, la capacité et les prochains jalons.',
@@ -913,49 +906,38 @@ class _InfoBlock extends StatelessWidget {
 }
 
 class _TicketCountCard extends StatelessWidget {
-  const _TicketCountCard({
-    required this.buildingName,
-    required this.buildingId,
-    required this.ticketCount,
-  });
+  const _TicketCountCard({required this.count});
 
-  final String buildingName;
-  final String buildingId;
-  final int ticketCount;
+  final BuildingTicketCount count;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
+    final hasTickets = count.total > 0;
+    final accent = hasTickets ? AppColors.error : AppColors.success;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [AppSpacing.elevationCard],
       ),
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).pushNamed('/maintenance-tickets');
-        },
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: ticketCount > 0
-                      ? AppColors.error.withValues(alpha: 0.1)
-                      : AppColors.success.withValues(alpha: 0.1),
+                  color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  ticketCount > 0
-                      ? Icons.build_outlined
-                      : Icons.check_circle_outline,
-                  color: ticketCount > 0 ? AppColors.error : AppColors.success,
+                  hasTickets ? Icons.build_outlined : Icons.check_circle_outline,
+                  color: accent,
                   size: 20,
                 ),
               ),
@@ -965,51 +947,99 @@ class _TicketCountCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      buildingName,
+                      count.buildingName,
                       style: const TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      ticketCount > 0
-                          ? '$ticketCount ticket${ticketCount > 1 ? 's' : ''} ouvert${ticketCount > 1 ? 's' : ''}'
+                      hasTickets
+                          ? '${count.total} ticket${count.total > 1 ? 's' : ''} ouvert${count.total > 1 ? 's' : ''}'
                           : 'Aucun ticket ouvert',
                       style: TextStyle(
                         fontSize: 13,
-                        color: ticketCount > 0
-                            ? AppColors.error
-                            : AppColors.textSecondary,
+                        color: hasTickets ? AppColors.error : AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (ticketCount > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$ticketCount',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.error,
-                    ),
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
                 ),
-              const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                child: Text(
+                  '${count.total}',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: accent),
+                ),
+              ),
             ],
           ),
-        ),
+          if (hasTickets) ...[
+            const SizedBox(height: 12),
+            _UrgencyBar(count: count),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (count.urgence > 0)
+                  _StatusChip(label: 'Urgence ${count.urgence}', color: AppColors.error),
+                if (count.haute > 0)
+                  _StatusChip(label: 'Haute ${count.haute}', color: AppColors.warning),
+                if (count.moyenne > 0)
+                  _StatusChip(label: 'Moyenne ${count.moyenne}', color: AppColors.info),
+                if (count.basse > 0)
+                  _StatusChip(label: 'Basse ${count.basse}', color: AppColors.success),
+              ],
+            ),
+          ],
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: const Text('Voir'),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+/// Barre d'urgence empilée (urgence / haute / moyenne / basse) proportionnelle.
+class _UrgencyBar extends StatelessWidget {
+  const _UrgencyBar({required this.count});
+
+  final BuildingTicketCount count;
+
+  @override
+  Widget build(BuildContext context) {
+    final segments = <Widget>[
+      if (count.urgence > 0)
+        Expanded(flex: count.urgence, child: const ColoredBox(color: AppColors.error)),
+      if (count.haute > 0)
+        Expanded(flex: count.haute, child: const ColoredBox(color: AppColors.warning)),
+      if (count.moyenne > 0)
+        Expanded(flex: count.moyenne, child: const ColoredBox(color: AppColors.info)),
+      if (count.basse > 0)
+        Expanded(flex: count.basse, child: const ColoredBox(color: AppColors.success)),
+    ];
+    if (segments.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(height: 8, child: Row(children: segments)),
     );
   }
 }

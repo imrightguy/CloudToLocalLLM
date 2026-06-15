@@ -1538,11 +1538,14 @@ class CommunicationItem {
         .split(RegExp(r'\s+'))
         .where((part) => part.isNotEmpty)
         .toList();
+    final phoneDigits = contactPhone.replaceAll(RegExp(r'\D'), '');
     final initials = nameParts.length >= 2
         ? '${nameParts[0][0]}${nameParts[1][0]}'
         : nameParts.isNotEmpty
             ? nameParts[0].substring(0, nameParts[0].length > 1 ? 2 : 1)
-            : '?';
+            : phoneDigits.isNotEmpty
+                ? phoneDigits.substring(phoneDigits.length - 2)
+                : '#';
 
     return CommunicationItem(
       id: json['id'] as String?,

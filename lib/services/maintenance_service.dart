@@ -417,6 +417,39 @@ class MaintenanceTicket {
   }
 }
 
+/// Nombre de tickets ouverts pour un bâtiment, avec répartition par urgence.
+class BuildingTicketCount {
+  const BuildingTicketCount({
+    required this.buildingId,
+    required this.buildingName,
+    required this.total,
+    required this.urgence,
+    required this.haute,
+    required this.moyenne,
+    required this.basse,
+  });
+
+  final String? buildingId;
+  final String buildingName;
+  final int total;
+  final int urgence;
+  final int haute;
+  final int moyenne;
+  final int basse;
+
+  factory BuildingTicketCount.fromJson(Map<String, dynamic> json) {
+    return BuildingTicketCount(
+      buildingId: json['buildingId'] as String?,
+      buildingName: json['buildingName'] as String? ?? '—',
+      total: (json['total'] as num?)?.toInt() ?? 0,
+      urgence: (json['urgence'] as num?)?.toInt() ?? 0,
+      haute: (json['haute'] as num?)?.toInt() ?? 0,
+      moyenne: (json['moyenne'] as num?)?.toInt() ?? 0,
+      basse: (json['basse'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
 class MaintenanceService {
   MaintenanceService._();
   static final MaintenanceService instance = MaintenanceService._();
@@ -490,15 +523,15 @@ class MaintenanceService {
     return MaintenanceTicket.fromJson(result['data'] as Map<String, dynamic>);
   }
 
-  /// GET /maintenance/tickets/open-count-by-building?buildingIds=...
-  Future<Map<String, int>> getOpenTicketCountByBuilding(
-    List<String> buildingIds,
-  ) async {
-    if (buildingIds.isEmpty) return {};
-    final query = buildingIds.map((id) => Uri.encodeComponent(id)).join(',');
+  /// GET /maintenance/tickets/open-count-by-building
+  /// Retourne les tickets ouverts/en cours regroupés par bâtiment, avec le nom
+  /// du bâtiment et la répartition par urgence.
+  Future<List<BuildingTicketCount>> getOpenTicketCountByBuilding() async {
     final result = await ApiService.instance
-        .get('/maintenance/tickets/open-count-by-building?buildingIds=$query');
-    final data = result['data'] as Map<String, dynamic>? ?? {};
-    return data.map((key, value) => MapEntry(key, (value as num).toInt()));
+        .get('/maintenance/tickets/open-count-by-building');
+    final data = result['data'] as List<dynamic>? ?? const [];
+    return data
+        .map((e) => BuildingTicketCount.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

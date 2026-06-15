@@ -311,7 +311,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () => Navigator.of(context).pushNamed('/leads'),
               metrics: [
                 _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
-                _PillarMetric('Visites cette semaine', '${pillars.leasing.visitsThisWeek}'),
+                _PillarMetric('Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
                 _PillarMetric('Taux de conversion', pillars.leasing.conversionRate),
               ],
             );

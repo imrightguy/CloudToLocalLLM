@@ -90,6 +90,11 @@ class CommunicationService {
     int page = 1,
     int limit = 50,
   }) async {
+    // Guard: an empty contactId would collapse the URL to
+    // `/sms/conversation/?...` and return 404 (empty path segment).
+    if (contactId.trim().isEmpty) {
+      return [];
+    }
     final query = 'page=$page&limit=$limit';
     final result = await ApiService.instance
         .get('/sms/conversation/$contactId?$query');

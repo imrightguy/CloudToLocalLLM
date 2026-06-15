@@ -33,10 +33,10 @@ async function ingestMissingData(buildingId) {
         rentCents,
         status: 'vacant',
       };
-      if (unit.floor != null) insert.floor = unit.floor;
-      if (unit.rooms != null) insert.rooms = unit.rooms;
-      if (unit.bedrooms != null) insert.bedrooms = unit.bedrooms;
-      if (unit.bathrooms != null) insert.bathrooms = unit.bathrooms;
+      if (unit.floor != null) {insert.floor = unit.floor;}
+      if (unit.rooms != null) {insert.rooms = unit.rooms;}
+      if (unit.bedrooms != null) {insert.bedrooms = unit.bedrooms;}
+      if (unit.bathrooms != null) {insert.bathrooms = unit.bathrooms;}
       if (unit.plexflowId) {
         insert.amenities = { plexflowId: unit.plexflowId };
       }
@@ -62,7 +62,7 @@ async function ingestMissingData(buildingId) {
         .limit(200);
 
       const match = localUnit?.find(u =>
-        u.label && plexflowService.normLabel(u.label) === plexflowService.normLabel(lease.unitLabel || '')
+        u.label && plexflowService.normLabel(u.label) === plexflowService.normLabel(lease.unitLabel || ''),
       );
 
       if (!match) {
@@ -111,7 +111,7 @@ async function ingestMissingData(buildingId) {
         .limit(200);
 
       const match = existingUnits.find(u =>
-        u.label && plexflowService.normLabel(u.label) === plexflowService.normLabel(tenant.unitLabel || '')
+        u.label && plexflowService.normLabel(u.label) === plexflowService.normLabel(tenant.unitLabel || ''),
       );
       if (match) {
         await db.update(unitsTable).set({
