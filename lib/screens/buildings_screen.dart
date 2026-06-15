@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import 'units_screen.dart';
+import 'building_form_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
@@ -81,22 +82,15 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
       appBar: ImmoAppBar(title: 'Immeubles', actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Ajouter un immeuble'),
-                  content: const Text(
-                    'La création d\'immeubles sera disponible dans une prochaine version.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: const Text('OK'),
-                    ),
-                  ],
+            onPressed: () async {
+              final result = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => const BuildingFormScreen(),
                 ),
               );
+              if (result == true && mounted) {
+                _fetchBuildings();
+              }
             },
           ),
         ]),
