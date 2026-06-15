@@ -22,7 +22,11 @@ const maintenanceRoutes = require('./maintenance.routes');
 const photoRoutes = require('./photo.routes');
 const renovationJobTemplateRoutes = require('./renovation-job-template.routes');
 const plexflowRoutes = require('./plexflow.routes');
+const plexflowWebhookRoutes = require('./plexflow-webhook.routes');
+const departurePhotosRoutes = require('./departure-photos.routes');
+const messageTemplatesRoutes = require('./message-templates.routes');
 const voiceRoutes = require('./voice.routes');
+const propertyPhotosRoutes = require('./property-photos.routes');
 
 const router = express.Router();
 
@@ -69,7 +73,11 @@ router.use('/renewals', renewalRoutes);
 router.use('/renovations', renovationRoutes);
 router.use('/maintenance', maintenanceRoutes);
 router.use('/plexflow', plexflowRoutes);
+router.use('/departure-photos', departurePhotosRoutes);
+router.use('/message-templates', messageTemplatesRoutes);
+router.use('/webhooks/plexflow', plexflowWebhookRoutes);
 router.use('/webhooks/twilio/voice', voiceRoutes);
+router.use('/property-photos', propertyPhotosRoutes);
 router.use('/companies/:companyId/photos', photoRoutes);
 router.use('/companies/:companyId/renovation-job-templates', renovationJobTemplateRoutes);
 

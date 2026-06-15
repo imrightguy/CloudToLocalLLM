@@ -292,6 +292,36 @@ const maintenanceTicketsTable = pgTable('maintenance_tickets', {
   unitIdx: index('maintenance_tickets_unit_id_idx').on(table.unitId),
 }));
 
+// ─── Departure / Arrival photos (PlexFlow webhooks) ───
+const departurePhotosTable = pgTable('departure_photos', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  buildingId: uuid('building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
+  unitId: uuid('unit_id').references(() => unitsTable.id, { onDelete: 'set null' }),
+  tenantName: text('tenant_name'),
+  eventType: text('event_type').notNull().default('departure'), // departure | arrival
+  photoUrl: text('photo_url'),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  buildingIdx: index('departure_photos_building_id_idx').on(table.buildingId),
+  unitIdx: index('departure_photos_unit_id_idx').on(table.unitId),
+  eventTypeIdx: index('departure_photos_event_type_idx').on(table.eventType),
+}));
+
+// ─── Customizable message templates (one row per webhook event type) ───
+const messageTemplatesTable = pgTable('message_templates', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  // tenant_deactivated | tenant_activated | lease_created | lease_renewed | unit_vacant | unit_occupied
+  eventType: text('event_type').notNull().unique(),
+  channel: text('channel').notNull().default('sms'), // sms | email
+  subject: text('subject'), // email only
+  body: text('body').notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // ─── Employee Weekly Schedule ───
 const employeeSchedulesTable = pgTable('employee_schedules', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -655,6 +685,8 @@ module.exports = {
   workerIntakeRecordsTable,
   unitReadinessTable,
   maintenanceTicketsTable,
+  departurePhotosTable,
+  messageTemplatesTable,
   employeeSchedulesTable,
   leadsTable,
   visitsTable,

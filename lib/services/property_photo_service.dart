@@ -195,3 +195,95 @@ class PickedPhoto {
   final String fileType;
   final Uint8List bytes;
 }
+
+/// Modèle pour une photo de bâtiment/logement.
+class PropertyPhoto {
+  const PropertyPhoto({
+    required this.id,
+    required this.buildingId,
+    this.unitId,
+    this.roomContext,
+    this.useCase,
+    required this.fileName,
+    required this.url,
+    this.capturedAt,
+    this.createdAt,
+    this.fileSizeBytes,
+  });
+
+  final String id;
+  final String buildingId;
+  final String? unitId;
+  final String? roomContext;
+  final String? useCase;
+  final String fileName;
+  final String url;
+  final DateTime? capturedAt;
+  final DateTime? createdAt;
+  final int? fileSizeBytes;
+
+  factory PropertyPhoto.fromJson(Map<String, dynamic> json) {
+    return PropertyPhoto(
+      id: json['id'] as String? ?? '',
+      buildingId: json['buildingId'] as String? ?? '',
+      unitId: json['unitId'] as String?,
+      roomContext: json['roomContext'] as String?,
+      useCase: json['useCase'] as String?,
+      fileName: json['fileName'] as String? ?? '',
+      url: json['url'] as String? ?? '',
+      capturedAt: json['capturedAt'] != null ? DateTime.tryParse(json['capturedAt'] as String) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
+      fileSizeBytes: (json['fileSizeBytes'] as num?)?.toInt(),
+    );
+  }
+}
+
+/// Service pour les photos de bâtiments/logements.
+class PropertyPhotoService {
+  PropertyPhotoService._();
+  static final PropertyPhotoService instance = PropertyPhotoService._();
+
+  /// GET /property-photos/building/:buildingId
+  Future<({List<PropertyPhoto> photos, int total, int page, int limit})> getPhotosByBuilding(
+    String buildingId, {
+    String? useCase,
+    String? unitId,
+    int page = 1,
+    int limit = 30,
+  }) async {
+    final params = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (useCase != null) params['useCase'] = useCase;
+    if (unitId != null) params['unitId'] = unitId;
+
+    final query = params.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&');
+    final result = await ApiService.instance.get('/property-photos/building/$buildingId?$query');
+
+    final data = result['data'] as List<dynamic>? ?? [];
+    return (
+      photos: data.map((e) => PropertyPhoto.fromJson(e as Map<String, dynamic>)).toList(),
+      total: (result['total'] as num?)?.toInt() ?? 0,
+      page: (result['page'] as num?)?.toInt() ?? page,
+      limit: (result['limit'] as num?)?.toInt() ?? limit,
+    );
+  }
+
+  /// GET /property-photos/unit/:unitId
+  Future<({List<PropertyPhoto> photos, int total, int page, int limit})> getPhotosByUnit(
+    String unitId, {
+    int page = 1,
+    int limit = 30,
+  }) async {
+    final result = await ApiService.instance.get('/property-photos/unit/$unitId?page=$page&limit=$limit');
+
+    final data = result['data'] as List<dynamic>? ?? [];
+    return (
+      photos: data.map((e) => PropertyPhoto.fromJson(e as Map<String, dynamic>)).toList(),
+      total: (result['total'] as num?)?.toInt() ?? 0,
+      page: (result['page'] as num?)?.toInt() ?? page,
+      limit: (result['limit'] as num?)?.toInt() ?? limit,
+    );
+  }
+}

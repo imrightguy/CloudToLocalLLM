@@ -19,6 +19,7 @@ const {
 const {
   photoRecordCreateSchema,
   photoRecordUploadSchema,
+  photoRecordUpdateSchema,
   photoRecordListQuerySchema,
 } = require('../models/photo');
 
@@ -47,6 +48,19 @@ const photoRecordSchemas = {
     body: photoRecordUploadSchema,
   },
   download: {
+    params: Joi.object({
+      companyId: uuid.required(),
+      photoId: uuid.required(),
+    }),
+  },
+  update: {
+    params: Joi.object({
+      companyId: uuid.required(),
+      photoId: uuid.required(),
+    }),
+    body: photoRecordUpdateSchema,
+  },
+  remove: {
     params: Joi.object({
       companyId: uuid.required(),
       photoId: uuid.required(),
@@ -909,6 +923,61 @@ const plexflowSchemas = {
   },
 };
 
+const plexflowWebhookSchemas = {
+  // PlexFlow payload shapes vary by event — accept anything, parse in service.
+  webhook: {
+    body: Joi.object().unknown(true),
+  },
+};
+
+const messageTemplateEventTypes = [
+  'tenant_deactivated',
+  'tenant_activated',
+  'lease_created',
+  'lease_renewed',
+  'unit_vacant',
+  'unit_occupied',
+];
+
+const messageTemplateSchemas = {
+  update: {
+    params: Joi.object({
+      eventType: Joi.string().valid(...messageTemplateEventTypes).required(),
+    }),
+    body: Joi.object({
+      body: Joi.string().trim().min(1).max(2000),
+      subject: Joi.string().trim().max(255).allow(null, ''),
+      channel: Joi.string().valid('sms', 'email'),
+      isActive: Joi.boolean(),
+    }).min(1),
+  },
+};
+
+const departurePhotoSchemas = {
+  list: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: Joi.number().integer().min(1).max(200).default(50),
+      buildingId: uuid,
+      unitId: uuid,
+      eventType: Joi.string().valid('departure', 'arrival'),
+    }),
+  },
+  create: {
+    body: Joi.object({
+      buildingId: uuid,
+      unitId: uuid,
+      tenantName: Joi.string().trim().max(255),
+      eventType: Joi.string().valid('departure', 'arrival').default('departure'),
+      photoUrl: Joi.string().uri({ scheme: ['http', 'https'] }).max(1000),
+      notes: Joi.string().trim().max(2000),
+    }).min(1),
+  },
+  idParam: {
+    params: Joi.object({ id: uuid.required() }),
+  },
+};
+
 const tenantConfirmationSchemas = {
   submit: {
     params: Joi.object({ token: Joi.string().trim().min(1).max(255).required() }),
@@ -1008,6 +1077,9 @@ module.exports = {
   smsWebhookSchemas,
   analyticsSchemas,
   plexflowSchemas,
+  plexflowWebhookSchemas,
+  messageTemplateSchemas,
+  departurePhotoSchemas,
   tenantConfirmationSchemas,
   facebookWebhookSchemas,
 };

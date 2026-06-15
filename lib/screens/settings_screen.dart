@@ -8,6 +8,8 @@ import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
 import 'plexflow_gap_screen.dart';
+import 'departure_photos_screen.dart';
+import 'automatic_messages_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -926,6 +928,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const PlexFlowGapScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1, indent: 56),
+          _settingsTile(
+            icon: Icons.chat_bubble_outline,
+            title: 'Messages automatiques',
+            subtitle: 'Personnaliser les SMS/courriels départ et arrivée',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const AutomaticMessagesScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1, indent: 56),
+          _settingsTile(
+            icon: Icons.photo_library_outlined,
+            title: 'Photos départ / arrivée',
+            subtitle: 'État des lieux des locataires',
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const DeparturePhotosScreen(),
                 ),
               );
             },

@@ -26,6 +26,8 @@ const EXPECTED_TABLES = [
   'workerIntakeRecordsTable',
   'unitReadinessTable',
   'maintenanceTicketsTable',
+  'departurePhotosTable',
+  'messageTemplatesTable',
   'paymentsTable',
   'renewalOffersTable',
   'smsOptOutsTable',

@@ -150,6 +150,38 @@ exports.uploadPropertyPhoto = async (req, res) => {
   }
 };
 
+exports.updatePropertyPhoto = async (req, res) => {
+  try {
+    const updated = await photoService.updatePropertyPhoto({
+      companyId: req.params.companyId,
+      photoId: req.params.photoId,
+      useCase: req.body.useCase,
+      roomContext: req.body.roomContext,
+      displayOrder: req.body.displayOrder,
+      caption: req.body.caption,
+      tags: req.body.tags,
+      metadata: req.body.metadata,
+    });
+
+    return success(res, updated, 'Photo record updated successfully');
+  } catch (err) {
+    return handleServiceError(res, err, 'PHOTO_RECORD_UPDATE_FAILED');
+  }
+};
+
+exports.deletePropertyPhoto = async (req, res) => {
+  try {
+    const removed = await photoService.deletePropertyPhoto({
+      companyId: req.params.companyId,
+      photoId: req.params.photoId,
+    });
+
+    return success(res, removed, 'Photo record deleted successfully');
+  } catch (err) {
+    return handleServiceError(res, err, 'PHOTO_RECORD_DELETE_FAILED');
+  }
+};
+
 exports.downloadPropertyPhotoFile = async (req, res) => {
   try {
     const photo = await photoService.getPropertyPhotoById({

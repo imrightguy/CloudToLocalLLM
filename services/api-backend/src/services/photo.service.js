@@ -211,8 +211,64 @@ const getPropertyPhotoById = async ({ companyId, photoId }) => {
   return photo;
 };
 
+const updatePropertyPhoto = async ({
+  companyId,
+  photoId,
+  useCase,
+  roomContext,
+  displayOrder,
+  caption,
+  tags,
+  metadata,
+}) => {
+  const existing = await getPropertyPhotoById({ companyId, photoId });
+
+  const updates = { updatedAt: new Date() };
+  if (useCase !== undefined) updates.useCase = useCase;
+  if (roomContext !== undefined) updates.roomContext = roomContext || null;
+  if (displayOrder !== undefined) updates.displayOrder = displayOrder;
+
+  // caption + tags live inside the metadata jsonb; merge so we never drop
+  // existing keys when only one is supplied.
+  const hasMetaChange = caption !== undefined || tags !== undefined || metadata !== undefined;
+  if (hasMetaChange) {
+    updates.metadata = {
+      ...(existing.metadata || {}),
+      ...(metadata || {}),
+      ...(caption !== undefined ? { caption: caption || null } : {}),
+      ...(tags !== undefined ? { tags } : {}),
+    };
+  }
+
+  const [row] = await db.update(propertyPhotosTable)
+    .set(updates)
+    .where(and(
+      eq(propertyPhotosTable.companyId, companyId),
+      eq(propertyPhotosTable.id, photoId),
+    ))
+    .returning();
+
+  return row;
+};
+
+const deletePropertyPhoto = async ({ companyId, photoId }) => {
+  await getPropertyPhotoById({ companyId, photoId });
+
+  const [row] = await db.update(propertyPhotosTable)
+    .set({ isActive: false, updatedAt: new Date() })
+    .where(and(
+      eq(propertyPhotosTable.companyId, companyId),
+      eq(propertyPhotosTable.id, photoId),
+    ))
+    .returning();
+
+  return row;
+};
+
 module.exports = {
   listPropertyPhotos,
   createPropertyPhoto,
   getPropertyPhotoById,
+  updatePropertyPhoto,
+  deletePropertyPhoto,
 };

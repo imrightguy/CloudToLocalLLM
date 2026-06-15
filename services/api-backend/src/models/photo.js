@@ -1,6 +1,19 @@
 const Joi = require('joi');
 
-const VALID_PHOTO_USE_CASES = ['maintenance', 'marketing', 'inventory'];
+// Original ops use cases + field-survey categories (acquisition / renovation /
+// relocation / état des lieux). Adding values is backwards-compatible — existing
+// rows ('maintenance', 'marketing', 'inventory') stay valid.
+const VALID_PHOTO_USE_CASES = [
+  'maintenance',
+  'marketing',
+  'inventory',
+  'exterior',
+  'interior',
+  'renovation',
+  'departure',
+  'arrival',
+  'general',
+];
 
 const photoRecordCreateSchema = Joi.object({
   buildingId: Joi.string().uuid().required(),
@@ -32,6 +45,17 @@ const photoRecordUploadSchema = Joi.object({
   metadata: Joi.object().default({}),
 });
 
+// Metadata update — caption + tags live in the metadata jsonb so we can reuse
+// the existing table without a migration.
+const photoRecordUpdateSchema = Joi.object({
+  useCase: Joi.string().valid(...VALID_PHOTO_USE_CASES),
+  roomContext: Joi.string().trim().max(120).allow(null, ''),
+  displayOrder: Joi.number().integer().min(0),
+  caption: Joi.string().trim().max(500).allow(null, ''),
+  tags: Joi.array().items(Joi.string().trim().max(60)).max(30),
+  metadata: Joi.object(),
+}).min(1);
+
 const photoRecordListQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(20),
@@ -46,5 +70,6 @@ module.exports = {
   VALID_PHOTO_USE_CASES,
   photoRecordCreateSchema,
   photoRecordUploadSchema,
+  photoRecordUpdateSchema,
   photoRecordListQuerySchema,
 };
