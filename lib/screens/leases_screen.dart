@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import 'lease_detail_screen.dart';
 import 'lease_form_screen.dart';
 import '../theme/app_colors.dart';
+import '../widgets/status_badge.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
 import '../widgets/error_state.dart';
@@ -429,21 +430,10 @@ class _LeasesScreenState extends State<LeasesScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        lease.leaseStatus.label,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: statusColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                    StatusBadge(
+                      label: lease.leaseStatus.label,
+                      variant: _leaseBadgeVariant(lease.leaseStatus),
+                      icon: lease.leaseStatus.icon,
                     ),
                   ],
                 ),
@@ -480,5 +470,20 @@ class _LeasesScreenState extends State<LeasesScreen> {
         ),
       ),
     );
+  }
+
+  BadgeVariant _leaseBadgeVariant(LeaseStatus status) {
+    switch (status) {
+      case LeaseStatus.active:
+        return BadgeVariant.success;
+      case LeaseStatus.signed:
+        return BadgeVariant.info;
+      case LeaseStatus.sent:
+        return BadgeVariant.warning;
+      case LeaseStatus.draft:
+        return BadgeVariant.neutral;
+      case LeaseStatus.terminated:
+        return BadgeVariant.danger;
+    }
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../services/payment_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/status_badge.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../widgets/immo_app_bar.dart';
@@ -303,20 +304,18 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: status.color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      status.label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: status.color,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  StatusBadge(
+                    label: status.label,
+                    variant: _paymentBadgeVariant(status),
+                    icon: status == PaymentStatus.paid
+                        ? Icons.check_circle_outline
+                        : status == PaymentStatus.late
+                            ? Icons.warning_amber_rounded
+                            : status == PaymentStatus.pending
+                                ? Icons.schedule_outlined
+                                : status == PaymentStatus.partial
+                                    ? Icons.remove_circle_outline
+                                    : Icons.error_outline,
                   ),
                 ],
               ),
@@ -363,5 +362,20 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         ),
       ),
     );
+  }
+
+  BadgeVariant _paymentBadgeVariant(PaymentStatus status) {
+    switch (status) {
+      case PaymentStatus.paid:
+        return BadgeVariant.success;
+      case PaymentStatus.pending:
+        return BadgeVariant.warning;
+      case PaymentStatus.partial:
+        return BadgeVariant.info;
+      case PaymentStatus.late:
+        return BadgeVariant.danger;
+      case PaymentStatus.failed:
+        return BadgeVariant.danger;
+    }
   }
 }

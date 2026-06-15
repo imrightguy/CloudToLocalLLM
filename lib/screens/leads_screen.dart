@@ -5,6 +5,7 @@ import '../models.dart';
 import '../services/hermes_service.dart';
 import '../services/lead_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/status_badge.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
@@ -267,20 +268,9 @@ class _LeadsScreenState extends State<LeadsScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                    ),
-                    child: Text(
-                      lead.stage.label,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  StatusBadge(
+                    label: lead.stage.label,
+                    variant: _leadBadgeVariant(lead.stage),
                   ),
                 ],
               ),
@@ -336,5 +326,21 @@ class _LeadsScreenState extends State<LeadsScreen> {
         ),
       ],
     );
+  }
+
+  BadgeVariant _leadBadgeVariant(LeadStage stage) {
+    switch (stage) {
+      case LeadStage.bailSigne:
+        return BadgeVariant.success;
+      case LeadStage.negociation:
+      case LeadStage.offreEnvoyee:
+        return BadgeVariant.info;
+      case LeadStage.visitePlanifiee:
+      case LeadStage.qualifie:
+        return BadgeVariant.warning;
+      case LeadStage.contacte:
+      case LeadStage.nouveau:
+        return BadgeVariant.neutral;
+    }
   }
 }

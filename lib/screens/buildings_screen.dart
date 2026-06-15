@@ -8,6 +8,7 @@ import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
 import '../widgets/error_state.dart';
+import '../widgets/status_badge.dart';
 import '../widgets/empty_state.dart';
 import '../theme/app_spacing.dart';
 
@@ -237,21 +238,12 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${building.occupiedUnits}/${building.totalUnits}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                      StatusBadge(
+                        label: '${building.occupiedUnits}/${building.totalUnits} occupés',
+                        variant: building.occupancyRate >= 0.8
+                            ? BadgeVariant.success
+                            : BadgeVariant.warning,
+                        icon: Icons.people_outline,
                       ),
                     ],
                   ),
