@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'utils/parse_helpers.dart';
+
 /// Safely parse a date value that may be null, malformed, or non-String.
 /// Returns null instead of throwing when parsing fails.
 DateTime? _tryParseDate(dynamic value) {
@@ -364,11 +366,6 @@ class VisitItem {
   final String notes;
 
   factory VisitItem.fromJson(Map<String, dynamic> json) {
-    DateTime? parseNullableDate(dynamic value) {
-      if (value == null) return null;
-      return DateTime.parse(value as String);
-    }
-
     String formatFrenchDate(DateTime dateTime) {
       const monthNames = [
         'janv.',
@@ -390,7 +387,7 @@ class VisitItem {
       return '$day $month $year';
     }
 
-    final parsedDateTime = parseNullableDate(json['dateTime']);
+    final parsedDateTime = parseNullableDateTime(json['dateTime']);
     final explicitDateLabel = json['dateLabel'] as String?;
     final derivedDateLabel = parsedDateTime == null ? null : formatFrenchDate(parsedDateTime);
 
@@ -415,26 +412,26 @@ class VisitItem {
           ? (json['lead'] as Map<String, dynamic>)['fullName'] as String?
           : json['leadName'] as String?,
       tenantConfirmed: json['tenantConfirmed'] as bool? ?? false,
-      tenantConfirmationRequestedAt: parseNullableDate(json['tenantConfirmationRequestedAt']),
-      tenantConfirmedAt: parseNullableDate(json['tenantConfirmedAt']),
-      tenantDeclinedAt: parseNullableDate(json['tenantDeclinedAt']),
+      tenantConfirmationRequestedAt: parseNullableDateTime(json['tenantConfirmationRequestedAt']),
+      tenantConfirmedAt: parseNullableDateTime(json['tenantConfirmedAt']),
+      tenantDeclinedAt: parseNullableDateTime(json['tenantDeclinedAt']),
       employeeConfirmed: json['employeeConfirmed'] as bool? ?? false,
-      employeeConfirmationRequestedAt: parseNullableDate(json['employeeConfirmationRequestedAt']),
-      employeeConfirmedAt: parseNullableDate(json['employeeConfirmedAt']),
-      employeeDeclinedAt: parseNullableDate(json['employeeDeclinedAt']),
+      employeeConfirmationRequestedAt: parseNullableDateTime(json['employeeConfirmationRequestedAt']),
+      employeeConfirmedAt: parseNullableDateTime(json['employeeConfirmedAt']),
+      employeeDeclinedAt: parseNullableDateTime(json['employeeDeclinedAt']),
       occupantNotified: json['occupantNotified'] as bool? ?? false,
       morningOfSent: json['morningOfSent'] as bool? ?? false,
-      morningReminderSentAt: parseNullableDate(json['morningReminderSentAt']),
-      reminder24hQueuedAt: parseNullableDate(json['reminder24hQueuedAt']),
-      reminder2hQueuedAt: parseNullableDate(json['reminder2hQueuedAt']),
+      morningReminderSentAt: parseNullableDateTime(json['morningReminderSentAt']),
+      reminder24hQueuedAt: parseNullableDateTime(json['reminder24hQueuedAt']),
+      reminder2hQueuedAt: parseNullableDateTime(json['reminder2hQueuedAt']),
       occupantSMS: json['occupantSMS'] as Map<String, dynamic>?,
       outcome: json['outcome'] as String?,
       reasonCode: json['reasonCode'] as String? ?? json['failureReasonCode'] as String?,
       failureReasonCode: json['failureReasonCode'] as String? ?? json['reasonCode'] as String?,
-      completedAt: parseNullableDate(json['completedAt']),
-      cancelledAt: parseNullableDate(json['cancelledAt']),
-      noShowAt: parseNullableDate(json['noShowAt']),
-      rescheduledAt: parseNullableDate(json['rescheduledAt']),
+      completedAt: parseNullableDateTime(json['completedAt']),
+      cancelledAt: parseNullableDateTime(json['cancelledAt']),
+      noShowAt: parseNullableDateTime(json['noShowAt']),
+      rescheduledAt: parseNullableDateTime(json['rescheduledAt']),
     );
   }
 
@@ -523,17 +520,12 @@ class LeadItem {
       budget: (json['budgetCents'] as num?)?.toInt() ?? 0,
       source: json['source'] as String? ?? '',
       stage: json['stage'] != null
-          ? LeadStage.fromString(_snakeToCamel(json['stage'] as String))
+          ? LeadStage.fromString(_snakeToCamel(json['stage'].toString()))
           : LeadStage.nouveau,
       notes: json['notes'] as String? ?? '',
-      tags: json['tags'] is List
-          ? (json['tags'] as List).map((e) => e.toString()).toList()
-          : <String>[],
+      tags: parseStringList(json['tags']),
       lastContact: json['lastContact'] as String? ?? '',
-      offers: (json['offers'] as List<dynamic>?)
-              ?.map((e) => OfferItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      offers: parseObjectList(json['offers'], OfferItem.fromJson),
       language: json['language'] as String?,
       createdAt: _tryParseDate(json['createdAt']),
     );
@@ -744,11 +736,8 @@ class EmployeeItem {
       phone: json['phone'] as String? ?? '',
       isActive: json['isActive'] as bool? ?? true,
       createdAt: _tryParseDate(json['createdAt']),
-      buildingAssignments: (json['buildingAssignments'] as List<dynamic>?)
-              ?.map((e) =>
-                  BuildingAssignment.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      buildingAssignments: parseObjectList(
+          json['buildingAssignments'], BuildingAssignment.fromJson),
     );
   }
 
@@ -941,16 +930,12 @@ class MaintenanceCapacityCandidate {
 
   factory MaintenanceCapacityCandidate.fromJson(Map<String, dynamic> json) {
     return MaintenanceCapacityCandidate(
-      employee: EmployeeItem.fromJson(json['employee'] as Map<String, dynamic>),
-      assignments: (json['assignments'] as List<dynamic>? ?? const [])
-          .map((e) => BuildingAssignment.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      schedules: (json['schedules'] as List<dynamic>? ?? const [])
-          .map((e) => ScheduleItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      tasks: (json['tasks'] as List<dynamic>? ?? const [])
-          .map((e) => MaintenanceTaskItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      employee: EmployeeItem.fromJson(
+          parseNullableMap(json['employee']) ?? const <String, dynamic>{}),
+      assignments:
+          parseObjectList(json['assignments'], BuildingAssignment.fromJson),
+      schedules: parseObjectList(json['schedules'], ScheduleItem.fromJson),
+      tasks: parseObjectList(json['tasks'], MaintenanceTaskItem.fromJson),
       openTaskCount: (json['openTaskCount'] as num?)?.toInt() ?? 0,
       buildingTaskCount: (json['buildingTaskCount'] as num?)?.toInt() ?? 0,
       fitScore: (json['fitScore'] as num?)?.toInt() ?? 0,
@@ -1069,10 +1054,7 @@ class BuildingItem {
       totalUnits: (json['totalUnits'] as num?)?.toInt() ?? 0,
       occupiedUnits: (json['occupiedUnits'] as num?)?.toInt() ?? 0,
       monthlyRevenue: (json['monthlyRevenue'] as num?)?.toInt() ?? 0,
-      units: (json['units'] as List<dynamic>?)
-              ?.map((e) => UnitItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      units: parseObjectList(json['units'], UnitItem.fromJson),
     );
   }
 
@@ -1449,7 +1431,7 @@ class DocumentItem {
       fileSize: (json['fileSize'] as num?)?.toInt() ?? (json['size'] as num?)?.toInt() ?? 0,
       fileType: json['fileType'] as String? ?? json['mimeType'] as String? ?? '',
       documentType: json['documentType'] != null
-          ? DocumentType.fromString(json['documentType'] as String)
+          ? DocumentType.fromString(json['documentType'].toString())
           : DocumentType.other,
       description: json['description'] as String?,
       buildingId: json['buildingId'] as String?,
