@@ -699,7 +699,7 @@ class RenovationJobTemplate {
 
   factory RenovationJobTemplate.fromJson(Map<String, dynamic> json) {
     return RenovationJobTemplate(
-      id: json['id'] as String,
+      id: json['id']?.toString() ?? '',
       name: json['name'] as String? ?? 'Modèle sans nom',
       description: json['description'] as String?,
       isFavorite: json['isFavorite'] as bool? ?? false,

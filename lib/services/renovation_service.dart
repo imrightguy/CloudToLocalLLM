@@ -36,10 +36,10 @@ class RenovationOrder {
       status: json['status'] as String? ?? 'draft',
       notes: json['notes'] as String? ?? '',
       expectedAt: json['expectedAt'] != null
-          ? DateTime.tryParse(json['expectedAt'] as String)
+          ? DateTime.tryParse(json['expectedAt'].toString())
           : null,
       createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'].toString())
           : null,
     );
   }

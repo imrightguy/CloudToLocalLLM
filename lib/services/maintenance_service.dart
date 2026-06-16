@@ -41,7 +41,7 @@ class MaintenanceCommandCenterData {
                 entry as Map<String, dynamic>,
               ))
           .toList(),
-      asOf: json['asOf'] != null ? DateTime.tryParse(json['asOf'] as String) : null,
+      asOf: json['asOf'] != null ? DateTime.tryParse(json['asOf'].toString()) : null,
     );
   }
 }
@@ -125,7 +125,7 @@ class MaintenanceCommandCenterTenantMessageStats {
       total: (json['total'] as num?)?.toInt() ?? 0,
       sent: (json['sent'] as num?)?.toInt() ?? 0,
       failed: (json['failed'] as num?)?.toInt() ?? 0,
-      latestAt: json['latestAt'] != null ? DateTime.tryParse(json['latestAt'] as String) : null,
+      latestAt: json['latestAt'] != null ? DateTime.tryParse(json['latestAt'].toString()) : null,
     );
   }
 }
@@ -209,7 +209,7 @@ class MaintenanceCommandCenterProperty {
                 entry as Map<String, dynamic>,
               ))
           .toList(),
-      nextDueAt: json['nextDueAt'] != null ? DateTime.tryParse(json['nextDueAt'] as String) : null,
+      nextDueAt: json['nextDueAt'] != null ? DateTime.tryParse(json['nextDueAt'].toString()) : null,
     );
   }
 }
@@ -275,9 +275,9 @@ class MaintenanceCommandCenterBacklogItem {
       overdueTaskCount: (json['overdueTaskCount'] as num?)?.toInt() ?? 0,
       dueSoonTaskCount: (json['dueSoonTaskCount'] as num?)?.toInt() ?? 0,
       nextStep: json['nextStep'] as String? ?? '',
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'] as String) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'].toString()) : null,
       blockerNote: json['blockerNote'] as String? ?? '',
-      nextDueAt: json['nextDueAt'] != null ? DateTime.tryParse(json['nextDueAt'] as String) : null,
+      nextDueAt: json['nextDueAt'] != null ? DateTime.tryParse(json['nextDueAt'].toString()) : null,
       assignedEmployeeLabel: json['assignedEmployeeLabel'] as String? ?? '',
       tenantPhone: json['tenantPhone'] as String?,
       tenantMessageStatus: MaintenanceCommandCenterTenantMessage.fromJson(
@@ -325,7 +325,7 @@ class MaintenanceCommandCenterTenantMessage {
       unitLabel: json['unitLabel'] as String?,
       tenantPhone: json['tenantPhone'] as String?,
       status: json['status'] as String? ?? 'unavailable',
-      lastSentAt: json['lastSentAt'] != null ? DateTime.tryParse(json['lastSentAt'] as String) : null,
+      lastSentAt: json['lastSentAt'] != null ? DateTime.tryParse(json['lastSentAt'].toString()) : null,
       phoneNumber: json['phoneNumber'] as String?,
       errorMessage: json['errorMessage'] as String?,
     );
@@ -381,13 +381,13 @@ class MaintenanceTicket {
           .map((e) => e.toString())
           .toList(),
       resolvedAt: json['resolvedAt'] != null
-          ? DateTime.tryParse(json['resolvedAt'] as String)
+          ? DateTime.tryParse(json['resolvedAt'].toString())
           : null,
       createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'].toString())
           : null,
       updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'] as String)
+          ? DateTime.tryParse(json['updatedAt'].toString())
           : null,
     );
   }
