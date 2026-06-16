@@ -1243,24 +1243,24 @@ class LeaseItem {
     }
 
     return LeaseItem(
-      id: json['id'] as String?,
-      buildingId: json['buildingId'] as String?,
+      id: parseNullableString(json['id']),
+      buildingId: parseNullableString(json['buildingId']),
       buildingName: (json['building'] is Map<String, dynamic>)
-          ? (json['building'] as Map<String, dynamic>)['name'] as String?
-          : json['buildingName'] as String?,
-      unitId: json['unitId'] as String?,
+          ? parseNullableString((json['building'] as Map<String, dynamic>)['name'])
+          : parseNullableString(json['buildingName']),
+      unitId: parseNullableString(json['unitId']),
       unitLabel: (json['unit'] is Map<String, dynamic>)
-          ? (json['unit'] as Map<String, dynamic>)['label'] as String?
-          : json['unitLabel'] as String?,
+          ? parseNullableString((json['unit'] as Map<String, dynamic>)['label'])
+          : parseNullableString(json['unitLabel']),
       tenantName: (json['tenant'] is Map<String, dynamic>)
-          ? (json['tenant'] as Map<String, dynamic>)['fullName'] as String?
-          : json['tenantName'] as String?,
+          ? parseNullableString((json['tenant'] as Map<String, dynamic>)['fullName'])
+          : parseNullableString(json['tenantName']),
       tenantEmail: (json['tenant'] is Map<String, dynamic>)
-          ? (json['tenant'] as Map<String, dynamic>)['email'] as String?
-          : json['tenantEmail'] as String?,
+          ? parseNullableString((json['tenant'] as Map<String, dynamic>)['email'])
+          : parseNullableString(json['tenantEmail']),
       tenantPhone: (json['tenant'] is Map<String, dynamic>)
-          ? (json['tenant'] as Map<String, dynamic>)['phone'] as String?
-          : json['tenantPhone'] as String?,
+          ? parseNullableString((json['tenant'] as Map<String, dynamic>)['phone'])
+          : parseNullableString(json['tenantPhone']),
       startDate: parsedStartDate,
       endDate: parsedEndDate,
       monthlyRent: (json['monthlyRent'] as num?)?.toInt(),
