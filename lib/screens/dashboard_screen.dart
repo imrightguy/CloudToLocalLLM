@@ -555,7 +555,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const Text('Les 3 piliers', style: AppTypography.sectionHeader),
         const SizedBox(height: AppSpacing.md),
         if (isWide)
-          Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          // IntrinsicHeight bounds the Row's vertical extent so that
+          // CrossAxisAlignment.stretch is legal. Inside a SingleChildScrollView
+          // the incoming height is *infinite*; stretch then forces an infinite
+          // height on the cards, their layout silently fails (no size), and in
+          // release builds the cards still paint but receive **no pointer
+          // events** (hitTest needs a valid size) — i.e. unclickable pillars.
+          IntrinsicHeight(
+            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Expanded(child: buildCard('Leasing', Icons.people_alt_outlined, AppColors.primary, [
               _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
               _PillarMetric('Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
@@ -573,7 +580,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
               _PillarMetric('Commandes ouvertes', '${pillars.renovation.openOrders}'),
             ], '/renovation-ops')),
-          ])
+          ]))
         else
           Column(children: [
             buildCard('Leasing', Icons.people_alt_outlined, AppColors.primary, [
