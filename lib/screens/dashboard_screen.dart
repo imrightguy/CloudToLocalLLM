@@ -509,56 +509,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildPillarsSection(PillarsOverview pillars) {
     final isWide = MediaQuery.of(context).size.width > 720;
-    final leasingCard = _buildPillarCard(
-      title: 'Leasing',
-      icon: Icons.people_alt_outlined,
-      accentColor: AppColors.primary,
-      semanticLabel:
-          'Voir le leasing, ${pillars.leasing.activeLeads} pistes actives',
-      onTap: () => Navigator.of(context).pushNamed('/leads'),
-      metrics: [
-        _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
-        _PillarMetric(
-            'Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
-        _PillarMetric(
-            'Taux de conversion', pillars.leasing.conversionRate),
-      ],
-    );
-    final maintenanceCard = _buildPillarCard(
-      title: 'Maintenance',
-      icon: Icons.build_outlined,
-      accentColor: AppColors.skyBlue,
-      semanticLabel:
-          'Voir la maintenance, ${pillars.maintenance.openTickets} tickets ouverts',
-      onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
-      metrics: [
-        _PillarMetric(
-            'Tickets ouverts', '${pillars.maintenance.openTickets}'),
-        _PillarMetric(
-            'En cours', '${pillars.maintenance.inProgressTickets}'),
-        _PillarMetric(
-          'Résolution moy.',
-          pillars.maintenance.avgResolutionHours != null
-              ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h'
-              : '—',
+
+    // TEST NUCLÉAIRE — ElevatedButton simples pour vérifier si les taps passent
+    Widget testButton(String label, String route) {
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textPrimary,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
+          ),
+          elevation: 0,
         ),
-      ],
-    );
-    final renovationCard = _buildPillarCard(
-      title: 'Rénovation',
-      icon: Icons.handyman_outlined,
-      accentColor: AppColors.warning,
-      semanticLabel:
-          'Voir la rénovation, ${pillars.renovation.blockedProjects} projets bloqués',
-      onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
-      metrics: [
-        _PillarMetric(
-            'Projets actifs', '${pillars.renovation.activeProjects}'),
-        _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
-        _PillarMetric(
-            'Commandes ouvertes', '${pillars.renovation.openOrders}'),
-      ],
-    );
+        onPressed: () {
+          Navigator.of(context).pushNamed(route);
+        },
+        child: Text('TEST: $label → $route', style: AppTypography.cardTitle),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,45 +539,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).pushNamed('/leads'),
-                child: leasingCard,
-              )),
+              Expanded(child: testButton('Leasing', '/leads')),
               const SizedBox(width: AppSpacing.md),
-              Expanded(child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
-                child: maintenanceCard,
-              )),
+              Expanded(child: testButton('Maintenance', '/maintenance-tickets')),
               const SizedBox(width: AppSpacing.md),
-              Expanded(child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
-                child: renovationCard,
-              )),
+              Expanded(child: testButton('Rénovation', '/renovation-ops')),
             ],
           )
         else
           Column(
             children: [
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).pushNamed('/leads'),
-                child: leasingCard,
-              ),
+              testButton('Leasing', '/leads'),
               const SizedBox(height: AppSpacing.md),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
-                child: maintenanceCard,
-              ),
+              testButton('Maintenance', '/maintenance-tickets'),
               const SizedBox(height: AppSpacing.md),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
-                child: renovationCard,
-              ),
+              testButton('Rénovation', '/renovation-ops'),
             ],
           ),
       ],
