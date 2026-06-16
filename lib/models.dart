@@ -648,14 +648,8 @@ class UnitItem {
     }
 
     // Parse tenantLeaseEnd
-    DateTime? parsedTenantLeaseEnd;
-    if (json['tenantLeaseEnd'] != null) {
-      try {
-        parsedTenantLeaseEnd = DateTime.parse(json['tenantLeaseEnd'] as String);
-      } catch (_) {
-        parsedTenantLeaseEnd = null;
-      }
-    }
+    final DateTime? parsedTenantLeaseEnd =
+        parseNullableDateTime(json['tenantLeaseEnd']);
 
     return UnitItem(
       id: json['id'] as String?,
@@ -1490,14 +1484,10 @@ class CommunicationItem {
   final String? parentId;
 
   factory CommunicationItem.fromJson(Map<String, dynamic> json) {
-    DateTime? parsedCreatedAt;
-    if (json['createdAt'] != null) {
-      try {
-        parsedCreatedAt = DateTime.parse(json['createdAt'] as String);
-      } catch (_) {
-        parsedCreatedAt = DateTime.now();
-      }
-    }
+    // createdAt présent mais illisible -> on retombe sur l'heure courante.
+    final DateTime? parsedCreatedAt = json['createdAt'] != null
+        ? (parseNullableDateTime(json['createdAt']) ?? DateTime.now())
+        : null;
 
     final contactName = (json['contact'] is Map<String, dynamic>)
         ? (json['contact'] as Map<String, dynamic>)['fullName'] as String? ?? ''
@@ -1594,14 +1584,7 @@ class MarketplaceInboxThread {
   bool get needsResponse => firstResponseAt == null;
 
   factory MarketplaceInboxThread.fromJson(Map<String, dynamic> json) {
-    DateTime? parseDate(dynamic value) {
-      if (value == null) return null;
-      try {
-        return DateTime.parse(value as String);
-      } catch (_) {
-        return null;
-      }
-    }
+    DateTime? parseDate(dynamic value) => parseNullableDateTime(value);
 
     final lastMessageJson = json['lastMessage'];
     final visitJson = json['latestVisit'];
@@ -1763,16 +1746,11 @@ class SmsMessage {
   bool get isFailed => status == SmsDeliveryStatus.failed;
 
   factory SmsMessage.fromJson(Map<String, dynamic> json) {
-    DateTime? parsedCreatedAt;
-    if (json['createdAt'] != null || json['sentAt'] != null) {
-      try {
-        parsedCreatedAt = DateTime.parse(
-          (json['createdAt'] ?? json['sentAt']) as String,
-        );
-      } catch (_) {
-        parsedCreatedAt = DateTime.now();
-      }
-    }
+    final dynamic rawCreatedAt = json['createdAt'] ?? json['sentAt'];
+    // Date présente mais illisible -> on retombe sur l'heure courante.
+    final DateTime? parsedCreatedAt = rawCreatedAt != null
+        ? (parseNullableDateTime(rawCreatedAt) ?? DateTime.now())
+        : null;
 
     return SmsMessage(
       id: json['id'] as String?,

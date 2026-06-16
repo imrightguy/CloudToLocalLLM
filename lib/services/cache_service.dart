@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/parse_helpers.dart';
+
 class CacheEntry {
   const CacheEntry({
     required this.data,
@@ -18,9 +20,11 @@ class CacheEntry {
 
   factory CacheEntry.fromJson(Map<String, dynamic> json) {
     return CacheEntry(
-      data: json['data'] as String,
-      cachedAt: DateTime.parse(json['cachedAt'] as String),
-      ttlSeconds: json['ttlSeconds'] as int,
+      data: parseNullableString(json['data']) ?? '',
+      // Si cachedAt est illisible, on traite l'entrée comme expirée (epoch).
+      cachedAt: parseNullableDateTime(json['cachedAt']) ??
+          DateTime.fromMillisecondsSinceEpoch(0),
+      ttlSeconds: parseNullableInt(json['ttlSeconds']) ?? 0,
     );
   }
 

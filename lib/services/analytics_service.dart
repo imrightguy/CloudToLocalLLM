@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../utils/parse_helpers.dart';
 import 'api_service.dart';
 import 'cache_service.dart';
 
@@ -10,7 +11,7 @@ class PipelineData {
   factory PipelineData.fromJson(Map<String, dynamic> json) {
     final raw = json as Map<String, dynamic>? ?? {};
     return PipelineData(
-      stages: raw.map((key, value) => MapEntry(key, (value as num).toInt())),
+      stages: raw.map((key, value) => MapEntry(key, parseNullableInt(value) ?? 0)),
     );
   }
 }
@@ -246,7 +247,7 @@ class FullDashboardData {
           ?.map((e) => e as Map<String, dynamic>)
           .toList(),
       leadFunnel: (json['leadFunnel'] as Map<String, dynamic>?)?.map(
-        (key, value) => MapEntry(key, (value as num).toInt()),
+        (key, value) => MapEntry(key, parseNullableInt(value) ?? 0),
       ),
       buildings: (json['buildings'] as List<dynamic>?)
           ?.map((e) => e as Map<String, dynamic>)
@@ -437,7 +438,7 @@ class AnalyticsService {
       if (cached != null) {
         final data = jsonDecode(cached) as Map<String, dynamic>;
         return data.map(
-            (key, value) => MapEntry(key, (value as num).toInt()));
+            (key, value) => MapEntry(key, parseNullableInt(value) ?? 0));
       }
     }
 
@@ -449,6 +450,6 @@ class AnalyticsService {
       jsonEncode(data),
       ttlSeconds: _cacheTtlSeconds,
     );
-    return data.map((key, value) => MapEntry(key, (value as num).toInt()));
+    return data.map((key, value) => MapEntry(key, parseNullableInt(value) ?? 0));
   }
 }

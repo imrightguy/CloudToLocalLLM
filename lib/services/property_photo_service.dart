@@ -231,8 +231,8 @@ class PropertyPhoto {
       useCase: json['useCase'] as String?,
       fileName: json['fileName'] as String? ?? '',
       url: json['url'] as String? ?? '',
-      capturedAt: json['capturedAt'] != null ? DateTime.tryParse(json['capturedAt'] as String) : null,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
+      capturedAt: json['capturedAt'] != null ? DateTime.tryParse(json['capturedAt'].toString()) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'].toString()) : null,
       fileSizeBytes: (json['fileSizeBytes'] as num?)?.toInt(),
     );
   }

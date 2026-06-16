@@ -209,7 +209,7 @@ class _PropertyPhotosScreenState extends State<PropertyPhotosScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: AppSpacing.sm),
             child: FilterChip(
-              label: Text(uc['label'] as String),
+              label: Text(uc['label']?.toString() ?? ''),
               selected: isSelected,
               onSelected: (_) => _onUseCaseChanged(uc['value']),
               selectedColor: AppColors.primary.withValues(alpha: 0.15),

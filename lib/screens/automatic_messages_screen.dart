@@ -63,7 +63,7 @@ class _AutomaticMessagesScreenState extends State<AutomaticMessagesScreen> {
       final templates = await MessageTemplatesService.instance.list();
       if (!mounted) return;
       for (final t in templates) {
-        final eventType = t['eventType'] as String;
+        final eventType = t['eventType']?.toString() ?? '';
         _bodyCtrls[eventType] =
             TextEditingController(text: t['body'] as String? ?? '');
         _subjectCtrls[eventType] =
@@ -84,7 +84,7 @@ class _AutomaticMessagesScreenState extends State<AutomaticMessagesScreen> {
   }
 
   Future<void> _save(Map<String, dynamic> template) async {
-    final eventType = template['eventType'] as String;
+    final eventType = template['eventType']?.toString() ?? '';
     final isEmail = (template['channel'] as String?) == 'email';
     setState(() => _saving.add(eventType));
     try {
@@ -160,7 +160,7 @@ class _AutomaticMessagesScreenState extends State<AutomaticMessagesScreen> {
   }
 
   Widget _templateCard(Map<String, dynamic> template) {
-    final eventType = template['eventType'] as String;
+    final eventType = template['eventType']?.toString() ?? '';
     final channel = template['channel'] as String? ?? 'sms';
     final isEmail = channel == 'email';
     final label = _labels[eventType] ?? eventType;
