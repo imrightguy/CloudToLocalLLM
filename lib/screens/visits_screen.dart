@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/visit_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
@@ -32,11 +33,8 @@ class _VisitsScreenState extends State<VisitsScreen> {
       _errorMessage = null;
     });
     try {
-      final response = await ApiService.instance.get('/visits');
-      final data = response['data'] as List<dynamic>;
-      final visits = data
-          .map((e) => VisitItem.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final result = await VisitService.instance.getVisits(limit: 200, forceRefresh: true);
+      final visits = result.items;
       setState(() {
         _allVisits = visits;
         _isLoading = false;
