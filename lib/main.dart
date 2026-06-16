@@ -29,6 +29,7 @@ import 'screens/settings_screen.dart';
 import 'screens/renovation_ops_screen.dart';
 import 'screens/maintenance_command_center_screen.dart';
 import 'screens/maintenance_screen.dart';
+import 'screens/unit_360_screen.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_spacing.dart';
 import 'theme/app_typography.dart';
@@ -187,6 +188,16 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       return MaterialPageRoute<void>(
         settings: settings,
         builder: (_) => _VisitDetailRouteScreen(visitId: visitId),
+      );
+    }
+
+    if (segments.length == 3 &&
+        segments[0] == 'units' &&
+        segments[2] == '360') {
+      final unitId = Uri.decodeComponent(segments[1]);
+      return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => Unit360Screen(unitId: unitId),
       );
     }
 
