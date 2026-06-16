@@ -169,11 +169,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildPillarsBlock(),
+            const SizedBox(height: AppSpacing.xl),
             _buildHeader(),
             const SizedBox(height: AppSpacing.xl),
             _buildAttentionBlock(),
-            const SizedBox(height: AppSpacing.xl),
-            _buildPillarsBlock(),
             const SizedBox(height: AppSpacing.xl),
             _buildActivityBlock(),
             const SizedBox(height: AppSpacing.xl),
