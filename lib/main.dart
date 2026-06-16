@@ -119,7 +119,19 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
             ? ListenableBuilder(
                 listenable: AuthNotifier.instance,
                 builder: (context, _) {
-                  return _buildStartScreen(currentBrowserLocation());
+                  final location = currentBrowserLocation();
+                  final startScreen = _buildStartScreen(location);
+                  // Navigate to deep-link after first frame
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final path = currentBrowserLocation().path;
+                    if (path.isNotEmpty && path != '/' && path != '/dashboard') {
+                      final route = _buildDynamicRoute(RouteSettings(name: path));
+                      if (route != null) {
+                        Navigator.of(context).pushReplacement(route);
+                      }
+                    }
+                  });
+                  return startScreen;
                 },
               )
             : const _SplashScreen(),
