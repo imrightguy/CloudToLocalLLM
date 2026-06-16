@@ -508,89 +508,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildPillarsSection(PillarsOverview pillars) {
+    final isWide = MediaQuery.of(context).size.width > 720;
+    final leasingCard = _buildPillarCard(
+      title: 'Leasing',
+      icon: Icons.people_alt_outlined,
+      accentColor: AppColors.primary,
+      semanticLabel:
+          'Voir le leasing, ${pillars.leasing.activeLeads} pistes actives',
+      onTap: () => Navigator.of(context).pushNamed('/leads'),
+      metrics: [
+        _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
+        _PillarMetric(
+            'Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
+        _PillarMetric(
+            'Taux de conversion', pillars.leasing.conversionRate),
+      ],
+    );
+    final maintenanceCard = _buildPillarCard(
+      title: 'Maintenance',
+      icon: Icons.build_outlined,
+      accentColor: AppColors.skyBlue,
+      semanticLabel:
+          'Voir la maintenance, ${pillars.maintenance.openTickets} tickets ouverts',
+      onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
+      metrics: [
+        _PillarMetric(
+            'Tickets ouverts', '${pillars.maintenance.openTickets}'),
+        _PillarMetric(
+            'En cours', '${pillars.maintenance.inProgressTickets}'),
+        _PillarMetric(
+          'Résolution moy.',
+          pillars.maintenance.avgResolutionHours != null
+              ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h'
+              : '—',
+        ),
+      ],
+    );
+    final renovationCard = _buildPillarCard(
+      title: 'Rénovation',
+      icon: Icons.handyman_outlined,
+      accentColor: AppColors.warning,
+      semanticLabel:
+          'Voir la rénovation, ${pillars.renovation.blockedProjects} projets bloqués',
+      onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+      metrics: [
+        _PillarMetric(
+            'Projets actifs', '${pillars.renovation.activeProjects}'),
+        _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
+        _PillarMetric(
+            'Commandes ouvertes', '${pillars.renovation.openOrders}'),
+      ],
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Les 3 piliers', style: AppTypography.sectionHeader),
         const SizedBox(height: AppSpacing.md),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth > 720;
-            final leasingCard = _buildPillarCard(
-              title: 'Leasing',
-              icon: Icons.people_alt_outlined,
-              accentColor: AppColors.primary,
-              semanticLabel:
-                  'Voir le leasing, ${pillars.leasing.activeLeads} pistes actives',
-              onTap: () => _go('/leads'),
-              metrics: [
-                _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
-                _PillarMetric(
-                    'Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
-                _PillarMetric(
-                    'Taux de conversion', pillars.leasing.conversionRate),
-              ],
-            );
-            final maintenanceCard = _buildPillarCard(
-              title: 'Maintenance',
-              icon: Icons.build_outlined,
-              accentColor: AppColors.skyBlue,
-              semanticLabel:
-                  'Voir la maintenance, ${pillars.maintenance.openTickets} tickets ouverts',
-              onTap: () => _go('/maintenance-tickets'),
-              metrics: [
-                _PillarMetric(
-                    'Tickets ouverts', '${pillars.maintenance.openTickets}'),
-                _PillarMetric(
-                    'En cours', '${pillars.maintenance.inProgressTickets}'),
-                _PillarMetric(
-                  'Résolution moy.',
-                  pillars.maintenance.avgResolutionHours != null
-                      ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h'
-                      : '—',
-                ),
-              ],
-            );
-            final renovationCard = _buildPillarCard(
-              title: 'Rénovation',
-              icon: Icons.handyman_outlined,
-              accentColor: AppColors.warning,
-              semanticLabel:
-                  'Voir la rénovation, ${pillars.renovation.blockedProjects} projets bloqués',
-              onTap: () => _go('/renovation-ops'),
-              metrics: [
-                _PillarMetric(
-                    'Projets actifs', '${pillars.renovation.activeProjects}'),
-                _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
-                _PillarMetric(
-                    'Commandes ouvertes', '${pillars.renovation.openOrders}'),
-              ],
-            );
-
-            if (isWide) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(child: leasingCard),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(child: maintenanceCard),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(child: renovationCard),
-                ],
-              );
-            }
-
-            return Column(
-              children: [
-                leasingCard,
-                const SizedBox(height: AppSpacing.md),
-                maintenanceCard,
-                const SizedBox(height: AppSpacing.md),
-                renovationCard,
-              ],
-            );
-          },
-        ),
+        if (isWide)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: leasingCard),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: maintenanceCard),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: renovationCard),
+            ],
+          )
+        else
+          Column(
+            children: [
+              leasingCard,
+              const SizedBox(height: AppSpacing.md),
+              maintenanceCard,
+              const SizedBox(height: AppSpacing.md),
+              renovationCard,
+            ],
+          ),
       ],
     );
   }
