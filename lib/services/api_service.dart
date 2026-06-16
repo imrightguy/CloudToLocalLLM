@@ -117,11 +117,6 @@ class ApiService {
 
   Future<Map<String, dynamic>> get(String path) async => _request('GET', path);
 
-  /// Like [get] but returns the full response envelope {success, data, metadata}
-  /// instead of just data['data']. Use for paginated endpoints.
-  Future<Map<String, dynamic>> getRaw(String path) async =>
-      _request('GET', path, raw: true);
-
   Future<Map<String, dynamic>> post(String path, Object? body) async =>
       _request('POST', path, body: body);
 
@@ -140,7 +135,6 @@ class ApiService {
     String path, {
     Object? body,
     bool isRetry = false,
-    bool raw = false,
   }) async {
     final uri = Uri.parse('$baseUrl$path');
 
@@ -188,7 +182,7 @@ class ApiService {
     if (response.statusCode == 401 && !isRetry) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
-        return _request(method, path, body: body, isRetry: true, raw: raw);
+        return _request(method, path, body: body, isRetry: true);
       }
       // Refresh failed – force logout
       await _clearTokens();
@@ -212,8 +206,7 @@ class ApiService {
     }
 
     // Success envelope: { success: true, data: … }
-    // When raw=true, return the full envelope; otherwise strip to data['data']
-    return (raw ? data : (data['data'] ?? data)) as Map<String, dynamic>;
+    return data;
   }
 
   /// Attempt to refresh the access token. Returns `true` on success.
