@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models.dart';
-import '../services/api_service.dart';
 import '../services/visit_service.dart';
 import 'visit_form_screen.dart';
 import '../theme/app_colors.dart';
@@ -50,13 +49,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
         59,
         59,
       );
-      final response = await ApiService.instance.get(
-        '/visits?dateFrom=${Uri.encodeComponent(startOfMonth.toIso8601String().split('T').first)}&dateTo=${Uri.encodeComponent(endOfMonth.toIso8601String().split('T').first)}&limit=200',
+      final result = await VisitService.instance.getVisits(
+        dateFrom: startOfMonth,
+        dateTo: endOfMonth,
+        limit: 200,
+        forceRefresh: true,
       );
-      final data = response['data'] as List<dynamic>;
-      final visits = data
-          .map((e) => VisitItem.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final visits = result.items;
       if (!mounted) return;
       setState(() {
         _visits = visits;
