@@ -526,9 +526,9 @@ class LeadItem {
           ? LeadStage.fromString(_snakeToCamel(json['stage'] as String))
           : LeadStage.nouveau,
       notes: json['notes'] as String? ?? '',
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              [],
+      tags: json['tags'] is List
+          ? (json['tags'] as List).map((e) => e.toString()).toList()
+          : <String>[],
       lastContact: json['lastContact'] as String? ?? '',
       offers: (json['offers'] as List<dynamic>?)
               ?.map((e) => OfferItem.fromJson(e as Map<String, dynamic>))
