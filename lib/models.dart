@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -1269,7 +1271,9 @@ class LeaseItem {
           ? LeaseStatus.fromString(json['status'].toString())
           : null,
       notes: json['notes'] as String?,
-      terms: json['terms'] as String?,
+      terms: json['terms'] is Map
+          ? jsonEncode(json['terms'])
+          : parseNullableString(json['terms']),
       createdAt: parsedCreatedAt,
       updatedAt: parsedUpdatedAt,
     );
