@@ -752,12 +752,7 @@ class _HomeTabState extends State<_HomeTab> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Notifications — bientôt disponible'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
+              Navigator.of(context).pushNamed('/notifications');
             },
           ),
           IconButton(
