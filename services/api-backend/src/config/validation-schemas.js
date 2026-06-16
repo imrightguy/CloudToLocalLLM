@@ -100,7 +100,7 @@ const leadSchemas = {
   list: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       stage: Joi.string().valid(...VALID_LEAD_STAGES),
       buildingId: uuid,
       search: Joi.string().trim().max(255),
@@ -200,7 +200,7 @@ const leaseSchemas = {
   list: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       status: Joi.string().valid('draft', 'active', 'expired', 'terminated'),
       buildingId: uuid,
       unitId: uuid,
@@ -302,7 +302,7 @@ const visitSchemas = {
   list: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'),
       employeeId: uuid,
       leadId: uuid,
@@ -463,7 +463,7 @@ const communicationSchemas = {
   list: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       leadId: uuid,
       employeeId: uuid,
       type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
@@ -481,7 +481,7 @@ const communicationSchemas = {
   threads: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       leadId: uuid,
       employeeId: uuid,
       type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
@@ -493,7 +493,7 @@ const communicationSchemas = {
   logs: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       leadId: uuid,
       employeeId: uuid,
       type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
@@ -532,7 +532,7 @@ const marketplaceSchemas = {
   inbox: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       search: Joi.string().trim().max(255),
       stage: Joi.string().valid(...VALID_LEAD_STAGES),
       assignedEmployeeId: uuid,
@@ -707,7 +707,7 @@ const maintenanceSchemas = {
   listTickets: {
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       status: Joi.string().valid(...maintenanceStatuses),
       urgency: Joi.string().valid(...maintenanceUrgencies),
       buildingId: uuid,
@@ -763,7 +763,7 @@ const observationResultSchemas = {
     params: Joi.object({ companyId: uuid.required() }),
     query: Joi.object({
       page: pagination.extract('page'),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
       status: Joi.string().valid(...observationResultStatusValues),
       domain: Joi.string().valid(...observationResultDomainValues),
       leadId: uuid,
@@ -808,7 +808,7 @@ const dossierCaseSchemas = {
     params: Joi.object({ companyId: uuid.required() }),
     query: Joi.object({
       status: Joi.string().valid(...dossierCaseStatusValues),
-      limit: pagination.extract('limit'),
+      limit: Joi.number().integer().min(1).max(200).default(20),
     }),
   },
   create: {
