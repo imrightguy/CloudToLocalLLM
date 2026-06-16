@@ -1290,7 +1290,7 @@ class LeaseItem {
       monthlyRent: (json['monthlyRent'] as num?)?.toInt(),
       deposit: (json['deposit'] as num?)?.toInt(),
       status: json['status'] != null
-          ? LeaseStatus.fromString(json['status'] as String)
+          ? LeaseStatus.fromString(json['status'].toString())
           : null,
       notes: json['notes'] as String?,
       terms: json['terms'] as String?,
