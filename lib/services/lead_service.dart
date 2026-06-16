@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
+
+import '../app_config.dart';
 import '../models.dart';
 import 'api_service.dart';
+import 'auth_token_storage.dart';
 import 'building_service.dart';
 import 'cache_service.dart';
 
@@ -45,15 +49,31 @@ class LeadService {
     final query = params.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
         .join('&');
-    final result = await ApiService.instance.getRaw('/leads?$query');
 
-    final dataList = result['data'];
+    // Bypass ApiService — direct HTTP call to isolate the bug
+    final uri = Uri.parse('${AppConfig.apiBaseUrl}/leads?$query');
+    final token = await _getAccessToken();
+    final response = await http.get(uri, headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    });
+
+    if (response.statusCode != 200) {
+      throw ApiException('Leads fetch failed: HTTP ${response.statusCode}');
+    }
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (body['success'] != true) {
+      throw ApiException('Leads fetch failed: ${body['error']?['message'] ?? 'unknown'}');
+    }
+
+    final dataList = body['data'];
     final items = (dataList is List)
         ? dataList
             .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
             .toList()
         : <LeadItem>[];
-    final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
+    final metadata = body['metadata'] as Map<String, dynamic>? ?? {};
 
     return PaginatedResult<LeadItem>(
       items: items,
@@ -157,5 +177,11 @@ class LeadService {
   Future<void> deleteLead(String id) async {
     await ApiService.instance.delete('/leads/$id');
     CacheService.instance.invalidate('lead*');
+  }
+
+  /// Read the access token from storage for direct HTTP calls.
+  Future<String> _getAccessToken() async {
+    final tokens = await readAuthTokens();
+    return tokens.accessToken ?? '';
   }
 }
