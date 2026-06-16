@@ -169,11 +169,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // TEST: Piliers en premier pour voir si les taps passent
+            _buildPillarsBlock(),
+            const SizedBox(height: AppSpacing.xl),
             _buildHeader(),
             const SizedBox(height: AppSpacing.xl),
             _buildAttentionBlock(),
-            const SizedBox(height: AppSpacing.xl),
-            _buildPillarsBlock(),
             const SizedBox(height: AppSpacing.xl),
             _buildActivityBlock(),
             const SizedBox(height: AppSpacing.xl),
@@ -508,89 +509,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildPillarsSection(PillarsOverview pillars) {
+    final isWide = MediaQuery.of(context).size.width > 720;
+
+    // TEST NUCLÉAIRE — ElevatedButton simples pour vérifier si les taps passent
+    Widget testButton(String label, String route) {
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textPrimary,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
+          ),
+          elevation: 0,
+        ),
+        onPressed: () {
+          Navigator.of(context).pushNamed(route);
+        },
+        child: Text('TEST: $label → $route', style: AppTypography.cardTitle),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Les 3 piliers', style: AppTypography.sectionHeader),
         const SizedBox(height: AppSpacing.md),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth > 720;
-            final leasingCard = _buildPillarCard(
-              title: 'Leasing',
-              icon: Icons.people_alt_outlined,
-              accentColor: AppColors.primary,
-              semanticLabel:
-                  'Voir le leasing, ${pillars.leasing.activeLeads} pistes actives',
-              onTap: () => _go('/leads'),
-              metrics: [
-                _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
-                _PillarMetric(
-                    'Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
-                _PillarMetric(
-                    'Taux de conversion', pillars.leasing.conversionRate),
-              ],
-            );
-            final maintenanceCard = _buildPillarCard(
-              title: 'Maintenance',
-              icon: Icons.build_outlined,
-              accentColor: AppColors.skyBlue,
-              semanticLabel:
-                  'Voir la maintenance, ${pillars.maintenance.openTickets} tickets ouverts',
-              onTap: () => _go('/maintenance-tickets'),
-              metrics: [
-                _PillarMetric(
-                    'Tickets ouverts', '${pillars.maintenance.openTickets}'),
-                _PillarMetric(
-                    'En cours', '${pillars.maintenance.inProgressTickets}'),
-                _PillarMetric(
-                  'Résolution moy.',
-                  pillars.maintenance.avgResolutionHours != null
-                      ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h'
-                      : '—',
-                ),
-              ],
-            );
-            final renovationCard = _buildPillarCard(
-              title: 'Rénovation',
-              icon: Icons.handyman_outlined,
-              accentColor: AppColors.warning,
-              semanticLabel:
-                  'Voir la rénovation, ${pillars.renovation.blockedProjects} projets bloqués',
-              onTap: () => _go('/renovation-ops'),
-              metrics: [
-                _PillarMetric(
-                    'Projets actifs', '${pillars.renovation.activeProjects}'),
-                _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
-                _PillarMetric(
-                    'Commandes ouvertes', '${pillars.renovation.openOrders}'),
-              ],
-            );
-
-            if (isWide) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(child: leasingCard),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(child: maintenanceCard),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(child: renovationCard),
-                ],
-              );
-            }
-
-            return Column(
-              children: [
-                leasingCard,
-                const SizedBox(height: AppSpacing.md),
-                maintenanceCard,
-                const SizedBox(height: AppSpacing.md),
-                renovationCard,
-              ],
-            );
-          },
-        ),
+        if (isWide)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: testButton('Leasing', '/leads')),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: testButton('Maintenance', '/maintenance-tickets')),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: testButton('Rénovation', '/renovation-ops')),
+            ],
+          )
+        else
+          Column(
+            children: [
+              testButton('Leasing', '/leads'),
+              const SizedBox(height: AppSpacing.md),
+              testButton('Maintenance', '/maintenance-tickets'),
+              const SizedBox(height: AppSpacing.md),
+              testButton('Rénovation', '/renovation-ops'),
+            ],
+          ),
       ],
     );
   }
@@ -603,72 +569,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
     required String semanticLabel,
   }) {
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      child: Material(
-        color: AppColors.surface,
+    // Retourne juste le contenu visuel — le GestureDetector est géré au niveau du layout
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(icon, size: 22, color: accentColor),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Text(title, style: AppTypography.cardTitle),
-                    ),
-                    const Icon(Icons.chevron_right,
-                        size: 20, color: AppColors.textMuted),
-                  ],
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 22, color: accentColor),
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                ...metrics.map((m) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              m.label,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            m.value,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: accentColor,
-                              ),
-                          ),
-                        ],
-                      ),
-                    )),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(title, style: AppTypography.cardTitle),
+                ),
+                const Icon(Icons.chevron_right,
+                    size: 20, color: AppColors.textMuted),
               ],
             ),
-          ),
+            const SizedBox(height: AppSpacing.lg),
+            ...metrics.map((m) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          m.label,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        m.value,
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
         ),
       ),
     );
