@@ -47,9 +47,24 @@ class LeadService {
         .join('&');
     final result = await ApiService.instance.get('/leads?$query');
 
+    // Cache the raw wrapper for future use
     final raw = jsonEncode(result);
     CacheService.instance.set(cacheKey, raw, ttlSeconds: _cacheTtlSeconds);
-    return _parseLeadsPage(raw, page, limit);
+
+    final items = (result['data'] as List<dynamic>?)
+            ?.map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        <LeadItem>[];
+    final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
+
+    return PaginatedResult<LeadItem>(
+      items: items,
+      total: (metadata['total'] as num?)?.toInt() ?? items.length,
+      page: (metadata['page'] as num?)?.toInt() ?? page,
+      limit: (metadata['limit'] as num?)?.toInt() ?? limit,
+      totalPages: (metadata['totalPages'] as num?)?.toInt() ?? 1,
+      hasMore: (metadata['hasMore'] as bool?) ?? false,
+    );
   }
 
   PaginatedResult<LeadItem> _parseLeadsPage(
@@ -62,7 +77,7 @@ class LeadService {
     final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
 
     final items = data is List<dynamic>
-        ? (data as List<dynamic>)
+        ? data
             .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
             .toList()
         : <LeadItem>[];
