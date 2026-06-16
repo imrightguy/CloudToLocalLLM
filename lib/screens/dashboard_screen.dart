@@ -557,19 +557,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const SizedBox(height: AppSpacing.md),
         if (isWide)
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(child: buildCard('Leasing', Icons.people_alt_outlined, AppColors.primary, [
+            Flexible(child: buildCard('Leasing', Icons.people_alt_outlined, AppColors.primary, [
               _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
               _PillarMetric('Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
               _PillarMetric('Taux de conversion', pillars.leasing.conversionRate),
             ], '/leads')),
             const SizedBox(width: AppSpacing.md),
-            Expanded(child: buildCard('Maintenance', Icons.build_outlined, AppColors.skyBlue, [
+            Flexible(child: buildCard('Maintenance', Icons.build_outlined, AppColors.skyBlue, [
               _PillarMetric('Tickets ouverts', '${pillars.maintenance.openTickets}'),
               _PillarMetric('En cours', '${pillars.maintenance.inProgressTickets}'),
               _PillarMetric('Résolution moy.', pillars.maintenance.avgResolutionHours != null ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h' : '—'),
             ], '/maintenance-tickets')),
             const SizedBox(width: AppSpacing.md),
-            Expanded(child: buildCard('Rénovation', Icons.handyman_outlined, AppColors.warning, [
+            Flexible(child: buildCard('Rénovation', Icons.handyman_outlined, AppColors.warning, [
               _PillarMetric('Projets actifs', '${pillars.renovation.activeProjects}'),
               _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
               _PillarMetric('Commandes ouvertes', '${pillars.renovation.openOrders}'),
