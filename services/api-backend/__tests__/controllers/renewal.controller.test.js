@@ -7,6 +7,7 @@ jest.mock('drizzle-orm', () => ({
   lte: jest.fn((col, val) => ({ col, val, _type: 'lte' })),
   gte: jest.fn((col, val) => ({ col, val, _type: 'gte' })),
   ne: jest.fn((col, val) => ({ col, val, _type: 'ne' })),
+  inArray: jest.fn((col, vals) => ({ col, vals, _type: 'inArray' })),
 }));
 
 jest.mock('../../src/utils/logger', () => ({
@@ -394,27 +395,23 @@ describe('getRenewalOffersByLease', () => {
 
 describe('getLeasesNeedingRenewal', () => {
   it('returns leases with renewal info', async () => {
+    // Requête unique : baux + unité + immeuble joints.
     const chain1 = mockSelectChain();
     chain1.from.mockReturnValue(chain1);
-    chain1.where.mockResolvedValueOnce([{ id: 'lease-1', unitId: 'unit-1', rentCents: 120000, depositCents: 0, endDate: new Date(Date.now() + 30 * 86400000) }]);
+    chain1.leftJoin.mockReturnValue(chain1);
+    chain1.where.mockResolvedValueOnce([{
+      leases: { id: 'lease-1', unitId: 'unit-1', rentCents: 120000, depositCents: 0, endDate: new Date(Date.now() + 30 * 86400000) },
+      units: { id: 'unit-1', buildingId: 'bld-1' },
+      buildings: { id: 'bld-1', name: 'Test' },
+    }]);
+    // Requête unique pour les offres existantes des baux concernés.
     const chain2 = mockSelectChain();
     chain2.from.mockReturnValue(chain2);
     chain2.where.mockReturnValue(chain2);
-    chain2.limit.mockResolvedValueOnce([{ id: 'unit-1', buildingId: 'bld-1' }]);
-    const chain3 = mockSelectChain();
-    chain3.from.mockReturnValue(chain3);
-    chain3.where.mockReturnValue(chain3);
-    chain3.limit.mockResolvedValueOnce([{ id: 'bld-1', name: 'Test' }]);
-    const chain4 = mockSelectChain();
-    chain4.from.mockReturnValue(chain4);
-    chain4.where.mockReturnValue(chain4);
-    chain4.orderBy.mockReturnValue(chain4);
-    chain4.limit.mockResolvedValueOnce([]);
+    chain2.orderBy.mockResolvedValueOnce([]);
     mockDb.select
       .mockReturnValueOnce(chain1)
-      .mockReturnValueOnce(chain2)
-      .mockReturnValueOnce(chain3)
-      .mockReturnValueOnce(chain4);
+      .mockReturnValueOnce(chain2);
     const res = mockRes();
     await renewalController.getLeasesNeedingRenewal({ query: {} }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({

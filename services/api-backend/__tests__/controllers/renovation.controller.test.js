@@ -124,6 +124,7 @@ const mockDb = {
   delete: jest.fn(() => ({
     where: jest.fn().mockResolvedValue(undefined),
   })),
+  transaction: jest.fn(async (cb) => cb(mockDb)),
 };
 
 jest.mock('../../src/database/connection', () => ({ db: mockDb }));

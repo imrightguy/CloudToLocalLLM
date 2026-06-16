@@ -66,25 +66,26 @@ const autoUpdateOverduePayments = async (leaseId) => {
       ),
     );
 
-  const updates = [];
-  for (const payment of overduePayments) {
-    const lateFee = calculateLateFee(payment.amountCents, payment.dueDate);
-    if (lateFee > 0) {
-      updates.push(
-        db.update(paymentsTable)
-          .set({
-            status: 'late',
-            lateFeeCents: lateFee,
-            updatedAt: new Date(),
-          })
-          .where(eq(paymentsTable.id, payment.id)),
-      );
-    }
+  const pendingUpdates = overduePayments
+    .map((payment) => ({ payment, lateFee: calculateLateFee(payment.amountCents, payment.dueDate) }))
+    .filter(({ lateFee }) => lateFee > 0);
+
+  if (pendingUpdates.length === 0) {
+    return;
   }
 
-  if (updates.length > 0) {
-    await Promise.all(updates);
-  }
+  // Atomique : tous les passages en retard réussissent ou aucun.
+  await db.transaction(async (tx) => {
+    for (const { payment, lateFee } of pendingUpdates) {
+      await tx.update(paymentsTable)
+        .set({
+          status: 'late',
+          lateFeeCents: lateFee,
+          updatedAt: new Date(),
+        })
+        .where(eq(paymentsTable.id, payment.id));
+    }
+  });
 };
 
 exports.createPayment = async (req, res) => {
@@ -169,23 +170,20 @@ exports.getPayments = async (req, res) => {
     const conditions = [];
     if (status) {conditions.push(eq(paymentsTable.status, status));}
     if (leaseId) {conditions.push(eq(paymentsTable.leaseId, leaseId));}
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    let countQuery = db
-      .select({ count: sql`count(*)::int` })
-      .from(paymentsTable);
-
     if (buildingId) {
-      countQuery = countQuery
-        .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
-        .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
-        .where(and(eq(unitsTable.buildingId, buildingId), ...conditions));
+      conditions.push(eq(unitsTable.buildingId, buildingId));
     } else {
-      countQuery = countQuery.where(whereClause);
+      conditions.push(eq(unitsTable.isActive, true));
     }
 
-    const [{ count: total }] = await countQuery;
+    const whereClause = and(...conditions);
+
+    const [{ count: total }] = await db
+      .select({ count: sql`count(*)::int` })
+      .from(paymentsTable)
+      .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
+      .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
+      .where(whereClause);
 
     const allowedSortFields = {
       createdAt: paymentsTable.createdAt,
@@ -198,43 +196,28 @@ exports.getPayments = async (req, res) => {
     const sortColumn = allowedSortFields[sortBy] || paymentsTable.dueDate;
     const orderFn = sortOrder === 'desc' ? desc : asc;
 
-    let dataQuery = db
+    const rows = await db
       .select()
       .from(paymentsTable)
       .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
       .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
-      .where(and(...conditions.filter(Boolean)))
+      .leftJoin(buildingsTable, eq(unitsTable.buildingId, buildingsTable.id))
+      .where(whereClause)
       .orderBy(orderFn(sortColumn))
       .limit(validLimit)
       .offset(offset);
 
-    if (buildingId) {
-      conditions.push(eq(unitsTable.buildingId, buildingId));
-    } else {
-      conditions.push(eq(unitsTable.isActive, true));
-    }
-
-    dataQuery = db
-      .select()
-      .from(paymentsTable)
-      .innerJoin(leasesTable, eq(paymentsTable.leaseId, leasesTable.id))
-      .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
-      .where(and(...conditions.filter(Boolean)))
-      .orderBy(orderFn(sortColumn))
-      .limit(validLimit)
-      .offset(offset);
-
-    const rows = await dataQuery;
     const payments = rows.map((row) => {
       const payment = row.payments || row;
       const lease = row.leases || {};
       const unit = row.units || {};
+      const building = row.buildings || {};
       return toPublicPayment(payment, {
         tenantName: lease.tenantFirstName && lease.tenantLastName
           ? `${lease.tenantFirstName} ${lease.tenantLastName}`
           : null,
         unitLabel: unit.label,
-        buildingName: unit.buildingName,
+        buildingName: building.name,
         amountPaid: payment.paidDate ? payment.amountCents / 100 : 0,
       });
     });

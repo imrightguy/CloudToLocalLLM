@@ -1,5 +1,5 @@
 const {
-  eq, and, desc, sql, lte, gte, ne,
+  eq, and, desc, sql, lte, gte, ne, inArray,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -49,33 +49,56 @@ exports.getLeasesNeedingRenewal = async (req, res) => {
     const { window = 90 } = req.query;
     const days = Math.min(180, Math.max(1, parseInt(window)));
 
-    const leases = await getLeasesExpiringWithinDays(days);
+    const now = new Date();
+    const windowStart = new Date(now.getTime() + (days - 2) * 24 * 60 * 60 * 1000);
+    const windowEnd = new Date(now.getTime() + (days + 2) * 24 * 60 * 60 * 1000);
 
-    const enriched = await Promise.all(leases.map(async (lease) => {
-      const [unit] = await db
+    // Une seule requête : baux + unité + immeuble joints (plus de N+1).
+    const rows = await db
+      .select()
+      .from(leasesTable)
+      .leftJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
+      .leftJoin(buildingsTable, eq(unitsTable.buildingId, buildingsTable.id))
+      .where(and(
+        eq(leasesTable.isActive, true),
+        eq(leasesTable.status, 'active'),
+        gte(leasesTable.endDate, windowStart),
+        lte(leasesTable.endDate, windowEnd),
+      ));
+
+    const leaseIds = rows.map((row) => (row.leases || row).id);
+
+    // Une seule requête pour toutes les offres actives non refusées des baux concernés.
+    const offers = leaseIds.length > 0
+      ? await db
         .select()
-        .from(unitsTable)
-        .where(eq(unitsTable.id, lease.unitId))
-        .limit(1);
+        .from(renewalOffersTable)
+        .where(and(
+          inArray(renewalOffersTable.leaseId, leaseIds),
+          eq(renewalOffersTable.isActive, true),
+          ne(renewalOffersTable.status, 'declined'),
+        ))
+        .orderBy(desc(renewalOffersTable.createdAt))
+      : [];
 
-      const building = unit && unit.buildingId
-        ? await db.select().from(buildingsTable).where(eq(buildingsTable.id, unit.buildingId)).limit(1)
-        : [];
+    // Regroupement en mémoire : conserver l'offre la plus récente par bail.
+    const latestOfferByLease = new Map();
+    for (const offer of offers) {
+      if (!latestOfferByLease.has(offer.leaseId)) {
+        latestOfferByLease.set(offer.leaseId, offer);
+      }
+    }
+
+    const enriched = rows.map((row) => {
+      const lease = row.leases || row;
+      const unit = row.units || null;
+      const building = row.buildings || null;
 
       const daysUntilExpiry = Math.ceil(
         (new Date(lease.endDate) - new Date()) / (1000 * 60 * 60 * 24),
       );
 
-      const [existingOffer] = await db
-        .select()
-        .from(renewalOffersTable)
-        .where(and(
-          eq(renewalOffersTable.leaseId, lease.id),
-          eq(renewalOffersTable.isActive, true),
-          ne(renewalOffersTable.status, 'declined'),
-        ))
-        .orderBy(desc(renewalOffersTable.createdAt))
-        .limit(1);
+      const existingOffer = latestOfferByLease.get(lease.id);
 
       return {
         ...lease,
@@ -83,10 +106,10 @@ exports.getLeasesNeedingRenewal = async (req, res) => {
         deposit: lease.depositCents / 100,
         daysUntilExpiry,
         unit: unit || null,
-        building: building[0] || null,
+        building: building || null,
         renewalOffer: existingOffer ? toPublicRenewalOffer(existingOffer) : null,
       };
-    }));
+    });
 
     enriched.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
 
