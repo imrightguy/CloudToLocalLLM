@@ -5,7 +5,7 @@ const validate = require('../middleware/validate');
 const { asyncHandler } = require('../utils/apiResponse');
 const renovationJobTemplateController = require('../controllers/renovation-job-template.controller');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const companyParamSchema = { params: Joi.object({ companyId: Joi.string().uuid().required() }) };
 const companyTemplateParamSchema = { params: Joi.object({ companyId: Joi.string().uuid().required(), id: Joi.string().uuid().required() }) };
