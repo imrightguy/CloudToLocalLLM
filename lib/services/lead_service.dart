@@ -45,7 +45,7 @@ class LeadService {
     final query = params.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
         .join('&');
-    final result = await ApiService.instance.get('/leads?$query');
+    final result = await ApiService.instance.getRaw('/leads?$query');
 
     // Cache the raw wrapper for future use
     final raw = jsonEncode(result);
