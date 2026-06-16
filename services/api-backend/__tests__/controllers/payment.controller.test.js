@@ -76,6 +76,7 @@ const mockDb = {
       }),
     }),
   })),
+  transaction: jest.fn(async (cb) => cb(mockDb)),
 };
 
 jest.mock('../../src/database/connection', () => ({ db: mockDb }));

@@ -534,20 +534,26 @@ exports.createReceivingEvent = async (req, res) => {
       return error(res, 400, 'RENOVATION_RECEIVING_QUANTITY_EXCEEDS_ORDER', 'La quantité reçue dépasse la quantité commandée');
     }
 
-    const [event] = await db.insert(renovationReceivingEventsTable).values({
-      orderId: order.id,
-      quantityReceived: value.quantityReceived,
-      receivedAt: new Date(),
-      notes: value.notes || null,
-    }).returning();
-
     const nextStatus = mapOrderStatus(order.quantityOrdered, totalQuantityReceived);
 
-    const [updatedOrder] = await db.update(renovationOrdersTable).set({
-      quantityReceived: totalQuantityReceived,
-      status: nextStatus,
-      updatedAt: new Date(),
-    }).where(eq(renovationOrdersTable.id, order.id)).returning();
+    // Atomique : l'événement de réception et la mise à jour de la commande
+    // sont écrits ensemble ou pas du tout.
+    const { event, updatedOrder } = await db.transaction(async (tx) => {
+      const [insertedEvent] = await tx.insert(renovationReceivingEventsTable).values({
+        orderId: order.id,
+        quantityReceived: value.quantityReceived,
+        receivedAt: new Date(),
+        notes: value.notes || null,
+      }).returning();
+
+      const [updated] = await tx.update(renovationOrdersTable).set({
+        quantityReceived: totalQuantityReceived,
+        status: nextStatus,
+        updatedAt: new Date(),
+      }).where(eq(renovationOrdersTable.id, order.id)).returning();
+
+      return { event: insertedEvent, updatedOrder: updated };
+    });
 
     return res.status(201).json({
       success: true,

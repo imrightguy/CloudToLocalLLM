@@ -66,25 +66,26 @@ const autoUpdateOverduePayments = async (leaseId) => {
       ),
     );
 
-  const updates = [];
-  for (const payment of overduePayments) {
-    const lateFee = calculateLateFee(payment.amountCents, payment.dueDate);
-    if (lateFee > 0) {
-      updates.push(
-        db.update(paymentsTable)
-          .set({
-            status: 'late',
-            lateFeeCents: lateFee,
-            updatedAt: new Date(),
-          })
-          .where(eq(paymentsTable.id, payment.id)),
-      );
-    }
+  const pendingUpdates = overduePayments
+    .map((payment) => ({ payment, lateFee: calculateLateFee(payment.amountCents, payment.dueDate) }))
+    .filter(({ lateFee }) => lateFee > 0);
+
+  if (pendingUpdates.length === 0) {
+    return;
   }
 
-  if (updates.length > 0) {
-    await Promise.all(updates);
-  }
+  // Atomique : tous les passages en retard réussissent ou aucun.
+  await db.transaction(async (tx) => {
+    for (const { payment, lateFee } of pendingUpdates) {
+      await tx.update(paymentsTable)
+        .set({
+          status: 'late',
+          lateFeeCents: lateFee,
+          updatedAt: new Date(),
+        })
+        .where(eq(paymentsTable.id, payment.id));
+    }
+  });
 };
 
 exports.createPayment = async (req, res) => {
