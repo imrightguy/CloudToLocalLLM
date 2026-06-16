@@ -57,7 +57,7 @@ const getUnit360 = async (req, res) => {
         and(
           eq(leasesTable.unitId, id),
           eq(leasesTable.isActive, true),
-        )
+        ),
       )
       .orderBy(desc(leasesTable.startDate))
       .limit(1);
@@ -70,7 +70,7 @@ const getUnit360 = async (req, res) => {
         and(
           eq(maintenanceTicketsTable.unitId, id),
           eq(maintenanceTicketsTable.isActive, true),
-        )
+        ),
       )
       .orderBy(desc(maintenanceTicketsTable.createdAt))
       .limit(20);
@@ -91,7 +91,7 @@ const getUnit360 = async (req, res) => {
         and(
           eq(renovationsTable.unitId, id),
           eq(renovationsTable.isActive, true),
-        )
+        ),
       )
       .orderBy(desc(renovationsTable.createdAt))
       .limit(1);
