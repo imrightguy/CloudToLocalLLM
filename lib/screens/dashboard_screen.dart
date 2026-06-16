@@ -512,38 +512,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     Widget buildCard(String title, IconData icon, Color accentColor,
         List<_PillarMetric> metrics, String route) {
-      return Material(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        child: InkWell(
-          onTap: () => Navigator.of(context).pushNamed(route),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Container(width: 40, height: 40,
-                    decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                    child: Icon(icon, size: 22, color: accentColor)),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(child: Text(title, style: AppTypography.cardTitle)),
-                  const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
-                ]),
-                const SizedBox(height: AppSpacing.lg),
-                ...metrics.map((m) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Expanded(child: Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary))),
-                    Text(m.value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentColor)),
-                  ]))),
-              ],
-            ),
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textPrimary,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
+          ),
+          elevation: 0,
+        ),
+        onPressed: () => Navigator.of(context).pushNamed(route),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Container(width: 40, height: 40,
+                  decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                  child: Icon(icon, size: 22, color: accentColor)),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(child: Text(title, style: AppTypography.cardTitle)),
+                const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+              ]),
+              const SizedBox(height: AppSpacing.lg),
+              ...metrics.map((m) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Expanded(child: Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary))),
+                  Text(m.value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentColor)),
+                ]))),
+            ],
           ),
         ),
       );
@@ -602,79 +604,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ], '/renovation-ops'),
           ]),
       ],
-    );
-  }
-
-  Widget _buildPillarCard({
-    required String title,
-    required IconData icon,
-    required Color accentColor,
-    required List<_PillarMetric> metrics,
-    required VoidCallback onTap,
-    required String semanticLabel,
-  }) {
-    // Retourne juste le contenu visuel — le GestureDetector est géré au niveau du layout
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      color: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, size: 22, color: accentColor),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Text(title, style: AppTypography.cardTitle),
-                ),
-                const Icon(Icons.chevron_right,
-                    size: 20, color: AppColors.textMuted),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            ...metrics.map((m) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          m.label,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        m.value,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: accentColor,
-                          ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
-        ),
-      ),
     );
   }
 
