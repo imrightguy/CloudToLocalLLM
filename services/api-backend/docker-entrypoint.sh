@@ -41,10 +41,15 @@ fi
 
 echo "[entrypoint] Starting server..."
 
-# Seed demo data if demo mode is enabled and not yet seeded
+# Seed demo data if demo mode is enabled and not yet seeded.
+# Le seed démo est interdit en production, même si DEMO_MODE=true.
 if [ "${DEMO_MODE}" = "true" ] || [ "${DEMO_MODE}" = "1" ]; then
-  echo "[entrypoint] Demo mode enabled, running seed..."
-  node scripts/seed-demo.js 2>/dev/null || echo "[entrypoint] Seed completed (or already seeded)"
+  if [ "${NODE_ENV}" = "production" ]; then
+    echo "[entrypoint] DEMO_MODE ignoré: jamais de seed démo en production."
+  else
+    echo "[entrypoint] Demo mode enabled, running seed..."
+    node scripts/seed-demo.js 2>/dev/null || echo "[entrypoint] Seed completed (or already seeded)"
+  fi
 fi
 
 exec dumb-init -- "$@"

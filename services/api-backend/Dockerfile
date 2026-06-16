@@ -34,8 +34,8 @@ COPY --from=deps /prod_modules ./node_modules
 # Copy application source
 COPY . .
 
-# Enable demo mode by default (can be overridden via env vars)
-ENV DEMO_MODE=true
+# Le mode démo n'est PAS activé par défaut. Il doit être explicitement
+# activé via DEMO_MODE=true et n'est jamais semé en production (cf. entrypoint).
 
 # Copy and set up entrypoint script (runs migrations before starting)
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
