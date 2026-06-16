@@ -10,16 +10,35 @@ import 'auth_token_storage.dart';
 
 export 'package:http/http.dart' show MultipartFile;
 
+/// Category of API error for user-facing display.
+enum ApiErrorType {
+  /// Real network failure — timeout, DNS, no internet
+  network,
+  /// Server returned 4xx/5xx
+  server,
+  /// JSON parsing failed — data type mismatch in fromJson
+  parse,
+  /// Auth token expired or invalid
+  auth,
+  /// Unknown / other
+  unknown,
+}
+
 /// Custom exception for API errors.
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
   final String? code;
+  final ApiErrorType errorType;
+  /// The endpoint that failed (for debug display)
+  final String? endpoint;
 
   const ApiException(
     this.message, {
     this.statusCode,
     this.code,
+    this.errorType = ApiErrorType.unknown,
+    this.endpoint,
   });
 
   bool get isDuplicateAccount =>
@@ -164,7 +183,11 @@ class ApiService {
       }
     } catch (e) {
       if (e is ApiException) rethrow;
-      throw const ApiException('Erreur réseau — vérifiez votre connexion');
+      throw ApiException(
+        'Erreur réseau — impossible de contacter le serveur',
+        errorType: ApiErrorType.network,
+        endpoint: path,
+      );
     }
 
     // Decode JSON once
@@ -175,6 +198,8 @@ class ApiService {
       throw ApiException(
         'Réponse invalide du serveur',
         statusCode: response.statusCode,
+        errorType: ApiErrorType.parse,
+        endpoint: path,
       );
     }
 
@@ -186,7 +211,11 @@ class ApiService {
       }
       // Refresh failed – force logout
       await _clearTokens();
-      throw const ApiException('Session expirée — veuillez vous reconnecter');
+      throw ApiException(
+        'Session expirée — veuillez vous reconnecter',
+        errorType: ApiErrorType.auth,
+        endpoint: path,
+      );
     }
 
     // Non-2xx error
@@ -202,6 +231,10 @@ class ApiService {
         errorMsg.toString(),
         statusCode: response.statusCode,
         code: errorCode,
+        errorType: response.statusCode == 401 || response.statusCode == 403
+            ? ApiErrorType.auth
+            : ApiErrorType.server,
+        endpoint: path,
       );
     }
 
