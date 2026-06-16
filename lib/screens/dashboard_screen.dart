@@ -516,7 +516,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.textPrimary,
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.all(AppSpacing.lg),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
@@ -524,29 +524,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
           elevation: 0,
         ),
         onPressed: () => Navigator.of(context).pushNamed(route),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                Container(width: 40, height: 40,
-                  decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icon, size: 22, color: accentColor)),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(child: Text(title, style: AppTypography.cardTitle)),
-                const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
-              ]),
-              const SizedBox(height: AppSpacing.lg),
-              ...metrics.map((m) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Expanded(child: Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary))),
-                  Text(m.value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentColor)),
-                ]))),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(mainAxisSize: MainAxisSize.max, children: [
+              Container(width: 40, height: 40,
+                decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                child: Icon(icon, size: 22, color: accentColor)),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: Text(title, style: AppTypography.cardTitle)),
+              const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+            ]),
+            const SizedBox(height: AppSpacing.lg),
+            ...metrics.map((m) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Expanded(child: Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary))),
+                Text(m.value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentColor)),
+              ]))),
+          ],
         ),
       );
     }
