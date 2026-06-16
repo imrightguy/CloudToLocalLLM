@@ -569,21 +569,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(child: leasingCard),
+              Expanded(child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).pushNamed('/leads'),
+                child: leasingCard,
+              )),
               const SizedBox(width: AppSpacing.md),
-              Expanded(child: maintenanceCard),
+              Expanded(child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
+                child: maintenanceCard,
+              )),
               const SizedBox(width: AppSpacing.md),
-              Expanded(child: renovationCard),
+              Expanded(child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+                child: renovationCard,
+              )),
             ],
           )
         else
           Column(
             children: [
-              leasingCard,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).pushNamed('/leads'),
+                child: leasingCard,
+              ),
               const SizedBox(height: AppSpacing.md),
-              maintenanceCard,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).pushNamed('/maintenance-tickets'),
+                child: maintenanceCard,
+              ),
               const SizedBox(height: AppSpacing.md),
-              renovationCard,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+                child: renovationCard,
+              ),
             ],
           ),
       ],
@@ -598,72 +622,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
     required String semanticLabel,
   }) {
-    return Semantics(
-      button: true,
-      label: semanticLabel,
-      child: Material(
-        color: AppColors.surface,
+    // Retourne juste le contenu visuel — le GestureDetector est géré au niveau du layout
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(icon, size: 22, color: accentColor),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Text(title, style: AppTypography.cardTitle),
-                    ),
-                    const Icon(Icons.chevron_right,
-                        size: 20, color: AppColors.textMuted),
-                  ],
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 22, color: accentColor),
                 ),
-                const SizedBox(height: AppSpacing.lg),
-                ...metrics.map((m) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              m.label,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            m.value,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: accentColor,
-                              ),
-                          ),
-                        ],
-                      ),
-                    )),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(title, style: AppTypography.cardTitle),
+                ),
+                const Icon(Icons.chevron_right,
+                    size: 20, color: AppColors.textMuted),
               ],
             ),
-          ),
+            const SizedBox(height: AppSpacing.lg),
+            ...metrics.map((m) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          m.label,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        m.value,
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
         ),
       ),
     );
