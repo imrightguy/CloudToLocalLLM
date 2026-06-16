@@ -188,7 +188,7 @@ class ApiService {
     if (response.statusCode == 401 && !isRetry) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
-        return _request(method, path, body: body, isRetry: true);
+        return _request(method, path, body: body, isRetry: true, raw: raw);
       }
       // Refresh failed – force logout
       await _clearTokens();
