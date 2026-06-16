@@ -23,6 +23,7 @@ const usersTable = pgTable('users', {
   lastLogin: timestamp('last_login'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 // ─── Refresh Tokens ───
@@ -48,6 +49,7 @@ const employeesTable = pgTable('employees', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 // ─── Buildings ───
@@ -65,6 +67,7 @@ const buildingsTable = pgTable('buildings', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 // ─── Employee-Building Assignments (primary / backup) ───
@@ -321,6 +324,7 @@ const messageTemplatesTable = pgTable('message_templates', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 // ─── Employee Weekly Schedule ───
@@ -543,6 +547,7 @@ const smsTemplatesTable = pgTable('sms_templates', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 // ─── SMS Campaigns ───
@@ -566,6 +571,7 @@ const smsCampaignsTable = pgTable('sms_campaigns', {
   createdBy: uuid('created_by').references(() => usersTable.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 // ─── Notification Preferences (per user) ───
@@ -670,6 +676,7 @@ const smsOptOutsTable = pgTable('sms_opt_outs', {
   reason: text('reason').notNull().default('stop'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  plexflowId: uuid('plexflow_id').unique(),
 });
 
 module.exports = {
