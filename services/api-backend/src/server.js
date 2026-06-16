@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
@@ -61,6 +62,7 @@ app.use(helmet({
   hsts: isProduction ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
+app.use(compression());
 app.use(cors(corsOptions));
 app.use(express.json({
   limit: '10mb',
