@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
-import 'units_screen.dart';
-import 'building_form_screen.dart';
-import 'property_photos_screen.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/error_state.dart';
 import '../widgets/immo_app_bar.dart';
 import '../widgets/loading_state.dart';
-import '../widgets/error_state.dart';
 import '../widgets/status_badge.dart';
-import '../widgets/empty_state.dart';
-import '../theme/app_spacing.dart';
+import 'building_form_screen.dart';
+import 'units_screen.dart';
 
 class BuildingsScreen extends StatefulWidget {
   const BuildingsScreen({super.key});
@@ -27,6 +24,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   List<BuildingItem> _filteredBuildings = [];
   bool _isLoading = true;
   Object? _lastError;
+  bool _isGridView = true;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -78,372 +76,263 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
     }
   }
 
+  int get _totalUnits => _buildings.fold(0, (s, b) => s + b.totalUnits);
+  int get _occupiedUnits => _buildings.fold(0, (s, b) => s + b.occupiedUnits);
+  double get _portfolioOccupancy =>
+      _totalUnits > 0 ? _occupiedUnits / _totalUnits : 0.0;
+
+  int _gridColumns(double width) {
+    if (width < 600) return 1;
+    if (width < 1000) return 2;
+    if (width < 1400) return 3;
+    return 4;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ImmoAppBar(title: 'Immeubles', actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () async {
-              final result = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(
-                  builder: (_) => const BuildingFormScreen(),
-                ),
-              );
-              if (result == true && mounted) {
-                _fetchBuildings();
-              }
-            },
-          ),
-        ]),
+        IconButton(
+          icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
+          tooltip: _isGridView ? 'Vue liste' : 'Vue grille',
+          onPressed: () => setState(() => _isGridView = !_isGridView),
+        ),
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Actualiser',
+          onPressed: _fetchBuildings,
+        ),
+        IconButton(
+          icon: const Icon(Icons.add),
+          tooltip: 'Ajouter un immeuble',
+          onPressed: () async {
+            final result = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(builder: (_) => const BuildingFormScreen()),
+            );
+            if (result == true && mounted) _fetchBuildings();
+          },
+        ),
+      ]),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) return const ListSkeleton(showSearchBar: true);
-    if (_lastError != null) return ErrorState(error: _lastError!, onRetry: _fetchBuildings);
-    if (_filteredBuildings.isEmpty) { return const EmptyState(
-      title: 'Aucun immeuble',
-      description: 'Ajoutez votre premier immeuble pour commencer à gérer votre parc immobilier.',
-      icon: Icons.apartment_outlined,
-      ctaLabel: 'Ajouter un immeuble',
-    );
+    if (_lastError != null) {
+      return ErrorState(error: _lastError!, onRetry: _fetchBuildings);
+    }
+    if (_buildings.isEmpty) {
+      return const EmptyState(
+        title: 'Aucun immeuble',
+        description:
+            'Ajoutez votre premier immeuble pour commencer à gérer votre parc immobilier.',
+        icon: Icons.apartment_outlined,
+        ctaLabel: 'Ajouter un immeuble',
+      );
     }
 
-    return RefreshIndicator(
-      onRefresh: _fetchBuildings,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        _buildSearchBar(),
+        _buildPortfolioSummary(),
+        Expanded(
+          child: _isGridView ? _buildGridView() : _buildListView(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Rechercher un immeuble...',
+          prefixIcon: const Icon(Icons.search, size: 20),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => _searchController.clear(),
+                )
+              : null,
+          filled: true,
+          fillColor: AppColors.surface,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.border),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioSummary() {
+    final occPct = (_portfolioOccupancy * 100).round();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
           children: [
-            // Search bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: AppSpacing.cardDecoration(),
-              child: Row(
-                children: [
-                  const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Rechercher un immeuble...',
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                      ),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Buildings list
-            if (_filteredBuildings.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text(
-                    'Aucun immeuble trouvé',
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                  ),
-                ),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _filteredBuildings.length,
-                itemBuilder: (context, index) {
-                  final building = _filteredBuildings[index];
-                  return _buildBuildingCard(building);
-                },
-              ),
+            _summaryChip(Icons.apartment, '${_buildings.length} immeubles'),
+            const SizedBox(width: 16),
+            _summaryChip(Icons.meeting_room, '$_totalUnits unités'),
+            const SizedBox(width: 16),
+            _summaryChip(Icons.pie_chart, '$occPct% occupé'),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _summaryChip(IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: AppColors.primary),
+        const SizedBox(width: 6),
+        Text(label, style: AppTypography.caption),
+      ],
+    );
+  }
+
+  Widget _buildGridView() {
+    final width = MediaQuery.of(context).size.width;
+    final columns = _gridColumns(width);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: GridView.builder(
+        padding: const EdgeInsets.only(bottom: 16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.72,
+        ),
+        itemCount: _filteredBuildings.length,
+        itemBuilder: (context, index) =>
+            _buildBuildingCard(_filteredBuildings[index]),
+      ),
+    );
+  }
+
+  Widget _buildListView() {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      itemCount: _filteredBuildings.length,
+      itemBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _buildBuildingListTile(_filteredBuildings[index]),
       ),
     );
   }
 
   Widget _buildBuildingCard(BuildingItem building) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+    final occRate = building.totalUnits > 0
+        ? building.occupiedUnits / building.totalUnits
+        : 0.0;
+    final occPct = (occRate * 100).round();
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _openUnits(building),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Building header image placeholder
-            Container(
-              height: 120,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: AppColors.indigoTint,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.apartment,
-                  size: 48,
-                  color: AppColors.indigo,
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              building.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              building.address,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      StatusBadge(
-                        label: '${building.occupiedUnits}/${building.totalUnits} occupés',
-                        variant: building.occupancyRate >= 0.8
-                            ? BadgeVariant.success
-                            : BadgeVariant.warning,
-                        icon: Icons.people_outline,
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Occupancy progress
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            "Taux d'occupation",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            '${(building.occupancyRate * 100).toStringAsFixed(1)}%',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.success,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      LinearProgressIndicator(
-                        value: building.occupancyRate,
-                        backgroundColor: AppColors.surfaceVariant,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.success),
-                        minHeight: 8,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Revenue info
-                  Row(
-                    children: [
-                      const Icon(Icons.attach_money,
-                          size: 16, color: AppColors.success),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${building.monthlyRevenue}\$ / mois',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.success,
-                        ),
-                      ),
-                      const Spacer(),
-                      const Icon(Icons.home_work,
-                          size: 16, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${building.totalUnits} unités',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => _navigateToBuildingDetail(building),
-                          child: const Text(
-                            'Voir détails',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _navigateToUnits(building),
-                          child: const Text(
-                            'Voir unités',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.surface,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _navigateToBuildingDetail(BuildingItem building) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => _BuildingDetailScreen(building: building),
-      ),
-    );
-  }
-
-  void _navigateToUnits(BuildingItem building) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => UnitsScreen(
-          buildingId: building.id,
-          buildingName: building.name,
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Building detail screen showing units list
-// ---------------------------------------------------------------------------
-
-class _BuildingDetailScreen extends StatefulWidget {
-  final BuildingItem building;
-  const _BuildingDetailScreen({required this.building});
-
-  @override
-  State<_BuildingDetailScreen> createState() => _BuildingDetailScreenState();
-}
-
-class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ImmoAppBar(
-        title: widget.building.name,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Building info card
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            // Photo de façade
+            _buildStreetViewImage(building),
+            // Infos
+            Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.building.address,
-                      style: const TextStyle(
-                          fontSize: 14, color: AppColors.textSecondary),
+                      building.name,
+                      style: AppTypography.sectionHeader.copyWith(fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (widget.building.description != null &&
-                        widget.building.description!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.building.description!,
-                        style: const TextStyle(
-                            fontSize: 14, color: AppColors.textPrimary),
+                    const SizedBox(height: 2),
+                    Text(
+                      building.address,
+                      style: AppTypography.caption.copyWith(
+                        color: AppColors.textMuted,
+                        fontSize: 11,
                       ),
-                    ],
-                    const SizedBox(height: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    // Badge occupation
                     Row(
                       children: [
+                        StatusBadge(
+                          label: '${building.occupiedUnits}/${building.totalUnits}',
+                          variant: occRate >= 0.85
+                              ? BadgeVariant.success
+                              : occRate >= 0.60
+                                  ? BadgeVariant.warning
+                                  : BadgeVariant.danger,
+                        ),
+                        const SizedBox(width: 6),
                         Text(
-                          '${widget.building.occupiedUnits}/${widget.building.totalUnits} occupées',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primary,
+                          '$occPct%',
+                          style: AppTypography.caption.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const Spacer(),
-                        Text(
-                          '${widget.building.monthlyRevenue}\$ / mois',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.success,
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    // Barre de progression
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: occRate,
+                        minHeight: 6,
+                        backgroundColor: AppColors.border,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          occRate >= 0.85
+                              ? AppColors.success
+                              : occRate >= 0.60
+                                  ? AppColors.warning
+                                  : AppColors.error,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Boutons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => _openUnits(building),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              minimumSize: Size.zero,
+                              side: BorderSide(color: AppColors.border),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Unités', style: TextStyle(fontSize: 12)),
                           ),
                         ),
                       ],
@@ -452,723 +341,149 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Photos section — gallery of building/unit photos
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => PropertyPhotosScreen(
-                        buildingId: widget.building.id ?? '',
-                        buildingName: widget.building.name,
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.photo_library_outlined),
-                label: const Text('Voir les photos du bâtiment'),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Unités',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (widget.building.units.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text(
-                    'Aucune unité',
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                  ),
-                ),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.building.units.length,
-                itemBuilder: (context, index) {
-                  final unit = widget.building.units[index];
-                  return _buildUnitCard(unit);
-                },
-              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildUnitCard(UnitItem unit) {
-    final isOccupied = unit.status.toLowerCase() == 'occupied' ||
-        unit.status.toLowerCase() == 'occupé';
-    final tenantLabel = unit.tenantName ?? unit.tenant;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: AppSpacing.cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildBuildingListTile(BuildingItem building) {
+    final occRate = building.totalUnits > 0
+        ? building.occupiedUnits / building.totalUnits
+        : 0.0;
+    final occPct = (occRate * 100).round();
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _openUnits(building),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
             children: [
+              // Mini photo
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 80,
+                  height: 60,
+                  child: _buildStreetViewImage(building, mini: true),
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${unit.number} - ${unit.type}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    if (tenantLabel != null && tenantLabel.isNotEmpty)
-                      Text(
-                        tenantLabel,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
+                    Text(building.name,
+                        style: AppTypography.sectionHeader.copyWith(fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    Text(building.address,
+                        style: AppTypography.caption.copyWith(
+                            color: AppColors.textMuted, fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        StatusBadge(
+                          label: '${building.occupiedUnits}/${building.totalUnits}',
+                          variant: occRate >= 0.85
+                              ? BadgeVariant.success
+                              : occRate >= 0.60
+                                  ? BadgeVariant.warning
+                                  : BadgeVariant.danger,
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Text('$occPct%',
+                            style: AppTypography.caption.copyWith(
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isOccupied
-                      ? AppColors.success.withValues(alpha: 0.1)
-                      : AppColors.warning.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  isOccupied ? 'Occupé' : 'Libre',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isOccupied
-                        ? AppColors.success
-                        : AppColors.warning,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (unit.id != null)
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined,
-                      size: 18, color: AppColors.textSecondary),
-                  onPressed: () => _showEditUnitDialog(context, unit),
-                  tooltip: 'Modifier l\'unité',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
+              const Icon(Icons.chevron_right, color: AppColors.textMuted),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                '${unit.rent}\$ / mois',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.success,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                '${unit.bedrooms} ch.',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              if (unit.leaseEnd.isNotEmpty) ...[
-                const SizedBox(width: 16),
-                Text(
-                  'Fin: ${unit.leaseEnd}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  void _showEditUnitDialog(BuildContext context, UnitItem unit) {
+  Widget _buildStreetViewImage(BuildingItem building, {bool mini = false}) {
+    final hasCoords = building.properties != null &&
+        building.properties!['latitude'] != null &&
+        building.properties!['longitude'] != null;
+
+    if (!hasCoords) {
+      return Container(
+        color: AppColors.surface,
+        child: Center(
+          child: Icon(
+            Icons.apartment,
+            size: mini ? 32 : 48,
+            color: AppColors.textMuted.withValues(alpha: 0.4),
+          ),
+        ),
+      );
+    }
+
+    final imageUrl = '/api/buildings/${building.id}/streetview';
+
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      headers: _authHeaders(),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          color: AppColors.surface,
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: AppColors.surface,
+        child: Center(
+          child: Icon(
+            Icons.apartment,
+            size: mini ? 32 : 48,
+            color: AppColors.textMuted.withValues(alpha: 0.4),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Map<String, String> _authHeaders() {
+    // Use the stored auth token for image requests
+    final token = ApiService.instance.accessToken;
+    if (token.isNotEmpty) {
+      return {'Authorization': 'Bearer $token'};
+    }
+    return {};
+  }
+
+  void _openUnits(BuildingItem building) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => _EditUnitScreen(
-          unit: unit,
-          buildingId: widget.building.id ?? '',
-        ),
-        fullscreenDialog: true,
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// Edit Unit — full-screen form with tenant occupant fields
-// =============================================================================
-
-class _EditUnitScreen extends StatefulWidget {
-  final UnitItem unit;
-  final String buildingId;
-  const _EditUnitScreen({required this.unit, required this.buildingId});
-
-  @override
-  State<_EditUnitScreen> createState() => _EditUnitScreenState();
-}
-
-class _EditUnitScreenState extends State<_EditUnitScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _numberController;
-  late final TextEditingController _typeController;
-  late final TextEditingController _bedroomsController;
-  late final TextEditingController _rentController;
-  late final TextEditingController _tenantNameController;
-  late final TextEditingController _tenantPhoneController;
-
-  late String _status;
-  DateTime? _tenantLeaseEnd;
-  bool _tenantSectionExpanded = false;
-  bool _isSubmitting = false;
-
-  bool get _isOccupied =>
-      _status.toLowerCase() == 'occupied' || _status.toLowerCase() == 'occupé';
-
-  @override
-  void initState() {
-    super.initState();
-    _numberController = TextEditingController(text: widget.unit.number);
-    _typeController = TextEditingController(text: widget.unit.type);
-    _bedroomsController =
-        TextEditingController(text: widget.unit.bedrooms.toString());
-    _rentController = TextEditingController(text: widget.unit.rent.toString());
-    _tenantNameController =
-        TextEditingController(text: widget.unit.tenantName ?? '');
-    _tenantPhoneController =
-        TextEditingController(text: widget.unit.tenantPhone ?? '');
-    _status = widget.unit.status;
-    _tenantLeaseEnd = widget.unit.tenantLeaseEnd;
-    _tenantSectionExpanded = _isOccupied;
-  }
-
-  @override
-  void dispose() {
-    _numberController.dispose();
-    _typeController.dispose();
-    _bedroomsController.dispose();
-    _rentController.dispose();
-    _tenantNameController.dispose();
-    _tenantPhoneController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (widget.unit.id == null) return;
-
-    setState(() => _isSubmitting = true);
-    try {
-      await ApiService.instance.put('/buildings/units/${widget.unit.id}', {
-        'label': _numberController.text.trim(),
-        'type': _typeController.text.trim(),
-        'bedrooms': int.tryParse(_bedroomsController.text.trim()) ?? 0,
-        'rentCents': int.tryParse(_rentController.text.trim()) ?? 0,
-        'status': _status,
-        if (_tenantNameController.text.trim().isNotEmpty)
-          'tenantName': _tenantNameController.text.trim(),
-        if (_tenantPhoneController.text.trim().isNotEmpty)
-          'tenantPhone': _tenantPhoneController.text.trim(),
-        if (_tenantLeaseEnd != null)
-          'tenantLeaseEnd': _tenantLeaseEnd!.toIso8601String().split('T').first,
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unité mise à jour avec succès'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ImmoAppBar(title: 'Modifier ${widget.unit.number}', leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
-        )),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _numberController,
-                decoration: const InputDecoration(
-                  labelText: 'Numéro *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.door_front_door_outlined),
-                ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Requis' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _typeController,
-                decoration: const InputDecoration(
-                  labelText: 'Type',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.category_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _bedroomsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Chambres',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.bed_outlined),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _rentController,
-                      decoration: const InputDecoration(
-                        labelText: 'Loyer (\$)',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.attach_money),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Status dropdown
-              DropdownButtonFormField<String>(
-                initialValue: _status,
-                decoration: const InputDecoration(
-                  labelText: 'Statut',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.info_outline),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'occupied', child: Text('Occupé')),
-                  DropdownMenuItem(value: 'available', child: Text('Libre')),
-                  DropdownMenuItem(
-                      value: 'maintenance', child: Text('En maintenance')),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    setState(() {
-                      _status = v;
-                      // Auto-expand tenant section when occupied
-                      if (_isOccupied && !_tenantSectionExpanded) {
-                        _tenantSectionExpanded = true;
-                      }
-                    });
-                  }
-                },
-              ),
-
-              // Collapsible tenant section — only when occupied
-              if (_isOccupied) ...[
-                const SizedBox(height: 24),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    dividerColor: Colors.transparent,
-                  ),
-                  child: ExpansionTile(
-                    tilePadding: EdgeInsets.zero,
-                    initiallyExpanded: _tenantSectionExpanded,
-                    onExpansionChanged: (expanded) {
-                      setState(() => _tenantSectionExpanded = expanded);
-                    },
-                    leading: const Icon(Icons.person_outline,
-                        color: AppColors.primary),
-                    title: const Text(
-                      'Locataire actuel',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 40, right: 0, top: 0, bottom: 8),
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              controller: _tenantNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Nom du locataire',
-                                hintText: 'Ex: Jean Dupont',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.person),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _tenantPhoneController,
-                              decoration: const InputDecoration(
-                                labelText: 'Téléphone du locataire',
-                                hintText: 'Ex: (514) 555-1234',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.phone_outlined),
-                              ),
-                              keyboardType: TextInputType.phone,
-                            ),
-                            const SizedBox(height: 16),
-                            InkWell(
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _tenantLeaseEnd ??
-                                      DateTime.now()
-                                          .add(const Duration(days: 365)),
-                                  firstDate: DateTime(2020),
-                                  lastDate: DateTime.now()
-                                      .add(const Duration(days: 3650)),
-                                );
-                                if (picked != null) {
-                                  setState(() => _tenantLeaseEnd = picked);
-                                }
-                              },
-                              child: InputDecorator(
-                                decoration: const InputDecoration(
-                                  labelText: 'Fin de bail',
-                                  border: OutlineInputBorder(),
-                                  prefixIcon:
-                                      Icon(Icons.calendar_today_outlined),
-                                  suffixIcon: Icon(Icons.arrow_drop_down),
-                                ),
-                                child: Text(
-                                  _tenantLeaseEnd != null
-                                      ? DateFormat('d MMMM yyyy', 'fr_CA')
-                                          .format(_tenantLeaseEnd!)
-                                      : 'Sélectionner une date',
-                                  style: TextStyle(
-                                    color: _tenantLeaseEnd != null
-                                        ? AppColors.textPrimary
-                                        : AppColors.textSecondary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Enregistrer',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// Create Building — full-screen form
-// =============================================================================
-
-class _CreateBuildingScreen extends StatefulWidget {
-  const _CreateBuildingScreen();
-
-  @override
-  State<_CreateBuildingScreen> createState() => _CreateBuildingScreenState();
-}
-
-class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _cityController = TextEditingController(text: 'Montréal');
-  final _provinceController = TextEditingController(text: 'QC');
-  final _postalCodeController = TextEditingController();
-  final _totalUnitsController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
-  bool _isSubmitting = false;
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _addressController.dispose();
-    _cityController.dispose();
-    _provinceController.dispose();
-    _postalCodeController.dispose();
-    _totalUnitsController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isSubmitting = true);
-    try {
-      await ApiService.instance.post('/buildings', {
-        'name': _nameController.text.trim(),
-        'address': _addressController.text.trim(),
-        'city': _cityController.text.trim().isEmpty
-            ? 'Montréal'
-            : _cityController.text.trim(),
-        'province': _provinceController.text.trim().isEmpty
-            ? 'QC'
-            : _provinceController.text.trim(),
-        'postalCode': _postalCodeController.text.trim().isEmpty
-            ? null
-            : _postalCodeController.text.trim(),
-        'totalUnits': int.parse(_totalUnitsController.text.trim()),
-        'properties': {
-          if (_descriptionController.text.trim().isNotEmpty)
-            'description': _descriptionController.text.trim(),
-        },
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Immeuble créé avec succès'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ImmoAppBar(title: 'Nouvel immeuble', leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
-        )),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom de l\'immeuble *',
-                  hintText: 'Ex: 1234 Rue Sainte-Catherine',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.apartment),
-                ),
-                validator: (v) => (v == null || v.trim().length < 2)
-                    ? 'Nom requis (min 2 car.)'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Adresse *',
-                  hintText: 'Ex: 1234 Rue Sainte-Catherine',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on_outlined),
-                ),
-                validator: (v) => (v == null || v.trim().length < 5)
-                    ? 'Adresse requise (min 5 car.)'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _cityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Ville',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_city),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 80,
-                    child: TextFormField(
-                      controller: _provinceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Prov.',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 120,
-                    child: TextFormField(
-                      controller: _postalCodeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Code postal',
-                        border: OutlineInputBorder(),
-                        hintText: 'H2X 1Y4',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _totalUnitsController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre d\'unités *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.door_front_door),
-                  hintText: 'Ex: 12',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Requis';
-                  final n = int.tryParse(v.trim());
-                  if (n == null || n < 1) return 'Doit être ≥ 1';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.notes_outlined),
-                  alignLabelWithHint: true,
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Créer l\'immeuble',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ],
-          ),
+        builder: (_) => UnitsScreen(
+          buildingId: building.id,
+          buildingName: building.name,
         ),
       ),
     );
