@@ -4,6 +4,7 @@ const { connect } = require('../database/connection');
 const logger = require('../utils/logger');
 const authRoutes = require('./auth.routes');
 const buildingRoutes = require('./building.routes');
+const buildingStreetviewRoutes = require('./building-streetview.routes');
 const employeeRoutes = require('./employee.routes');
 const leadRoutes = require('./lead.routes');
 const leaseRoutes = require('./lease.routes');
@@ -56,6 +57,7 @@ router.get('/health', async (req, res) => {
 });
 
 router.use('/auth', authRoutes);
+router.use('/buildings', buildingStreetviewRoutes);
 router.use('/buildings', buildingRoutes);
 router.use('/employees', employeeRoutes);
 router.use('/leads', leadRoutes);

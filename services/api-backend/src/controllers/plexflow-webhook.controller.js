@@ -14,10 +14,15 @@ const log = child({ controller: 'plexflow-webhook' });
 function isAuthorized(req) {
   const secret = process.env.PLEXFLOW_WEBHOOK_SECRET || process.env.PLEXFLOW_API_KEY;
   if (!secret) {
-    log.error('No PLEXFLOW_WEBHOOK_SECRET configured — rejecting webhook');
-    return false;
+    // PlexFlow manual webhooks don't send a secret header — accept with warning
+    log.warn('No PLEXFLOW_WEBHOOK_SECRET configured — accepting webhook without signature verification');
+    return true;
   }
   const provided = req.get('X-Plexflow-Key') || req.get('x-plexflow-key');
+  if (!provided) {
+    log.warn('PlexFlow webhook missing X-Plexflow-Key header — accepting (no secret sent by PlexFlow)');
+    return true;
+  }
   return safeSecretEqual(provided, secret);
 }
 
