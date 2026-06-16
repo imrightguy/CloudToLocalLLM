@@ -568,15 +568,25 @@ describe('getPayments', () => {
     db.select
       .mockReturnValueOnce({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockResolvedValue([{ count: 0 }]),
+          innerJoin: jest.fn().mockReturnValue({
+            innerJoin: jest.fn().mockReturnValue({
+              where: jest.fn().mockResolvedValue([{ count: 0 }]),
+            }),
+          }),
         }),
       })
       .mockReturnValueOnce({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            orderBy: jest.fn().mockReturnValue({
-              limit: jest.fn().mockReturnValue({
-                offset: jest.fn().mockResolvedValue([FAKE_PAYMENT]),
+          innerJoin: jest.fn().mockReturnValue({
+            innerJoin: jest.fn().mockReturnValue({
+              leftJoin: jest.fn().mockReturnValue({
+                where: jest.fn().mockReturnValue({
+                  orderBy: jest.fn().mockReturnValue({
+                    limit: jest.fn().mockReturnValue({
+                      offset: jest.fn().mockResolvedValue([FAKE_PAYMENT]),
+                    }),
+                  }),
+                }),
               }),
             }),
           }),
@@ -600,15 +610,25 @@ describe('getPayments', () => {
     db.select
       .mockReturnValueOnce({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockResolvedValue([{ count: 0 }]),
+          innerJoin: jest.fn().mockReturnValue({
+            innerJoin: jest.fn().mockReturnValue({
+              where: jest.fn().mockResolvedValue([{ count: 0 }]),
+            }),
+          }),
         }),
       })
       .mockReturnValueOnce({
         from: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            orderBy: jest.fn().mockReturnValue({
-              limit: jest.fn().mockReturnValue({
-                offset: jest.fn().mockResolvedValue([]),
+          innerJoin: jest.fn().mockReturnValue({
+            innerJoin: jest.fn().mockReturnValue({
+              leftJoin: jest.fn().mockReturnValue({
+                where: jest.fn().mockReturnValue({
+                  orderBy: jest.fn().mockReturnValue({
+                    limit: jest.fn().mockReturnValue({
+                      offset: jest.fn().mockResolvedValue([]),
+                    }),
+                  }),
+                }),
               }),
             }),
           }),
