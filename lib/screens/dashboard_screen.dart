@@ -512,8 +512,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     Widget buildCard(String title, IconData icon, Color accentColor,
         List<_PillarMetric> metrics, String route) {
-      return TextButton(
-        style: TextButton.styleFrom(
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.textPrimary,
           padding: EdgeInsets.zero,
