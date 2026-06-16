@@ -169,12 +169,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TEST: Piliers en premier pour voir si les taps passent
-            _buildPillarsBlock(),
-            const SizedBox(height: AppSpacing.xl),
             _buildHeader(),
             const SizedBox(height: AppSpacing.xl),
             _buildAttentionBlock(),
+            const SizedBox(height: AppSpacing.xl),
+            _buildPillarsBlock(),
             const SizedBox(height: AppSpacing.xl),
             _buildActivityBlock(),
             const SizedBox(height: AppSpacing.xl),
@@ -511,23 +510,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildPillarsSection(PillarsOverview pillars) {
     final isWide = MediaQuery.of(context).size.width > 720;
 
-    // TEST NUCLÉAIRE — ElevatedButton simples pour vérifier si les taps passent
-    Widget testButton(String label, String route) {
-      return ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.surface,
-          foregroundColor: AppColors.textPrimary,
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            side: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
+    Widget buildCard(String title, IconData icon, Color accentColor,
+        List<_PillarMetric> metrics, String route) {
+      return Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: InkWell(
+          onTap: () => Navigator.of(context).pushNamed(route),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Container(width: 40, height: 40,
+                    decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(icon, size: 22, color: accentColor)),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: Text(title, style: AppTypography.cardTitle)),
+                  const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                ]),
+                const SizedBox(height: AppSpacing.lg),
+                ...metrics.map((m) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Expanded(child: Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary))),
+                    Text(m.value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentColor)),
+                  ]))),
+              ],
+            ),
           ),
-          elevation: 0,
         ),
-        onPressed: () {
-          Navigator.of(context).pushNamed(route);
-        },
-        child: Text('TEST: $label → $route', style: AppTypography.cardTitle),
       );
     }
 
@@ -537,26 +555,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
         const Text('Les 3 piliers', style: AppTypography.sectionHeader),
         const SizedBox(height: AppSpacing.md),
         if (isWide)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: testButton('Leasing', '/leads')),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(child: testButton('Maintenance', '/maintenance-tickets')),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(child: testButton('Rénovation', '/renovation-ops')),
-            ],
-          )
+          Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Expanded(child: buildCard('Leasing', Icons.people_alt_outlined, AppColors.primary, [
+              _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
+              _PillarMetric('Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
+              _PillarMetric('Taux de conversion', pillars.leasing.conversionRate),
+            ], '/leads')),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: buildCard('Maintenance', Icons.build_outlined, AppColors.skyBlue, [
+              _PillarMetric('Tickets ouverts', '${pillars.maintenance.openTickets}'),
+              _PillarMetric('En cours', '${pillars.maintenance.inProgressTickets}'),
+              _PillarMetric('Résolution moy.', pillars.maintenance.avgResolutionHours != null ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h' : '—'),
+            ], '/maintenance-tickets')),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: buildCard('Rénovation', Icons.handyman_outlined, AppColors.warning, [
+              _PillarMetric('Projets actifs', '${pillars.renovation.activeProjects}'),
+              _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
+              _PillarMetric('Commandes ouvertes', '${pillars.renovation.openOrders}'),
+            ], '/renovation-ops')),
+          ])
         else
-          Column(
-            children: [
-              testButton('Leasing', '/leads'),
-              const SizedBox(height: AppSpacing.md),
-              testButton('Maintenance', '/maintenance-tickets'),
-              const SizedBox(height: AppSpacing.md),
-              testButton('Rénovation', '/renovation-ops'),
-            ],
-          ),
+          Column(children: [
+            buildCard('Leasing', Icons.people_alt_outlined, AppColors.primary, [
+              _PillarMetric('Pistes actives', '${pillars.leasing.activeLeads}'),
+              _PillarMetric('Visites planifiées (sem.)', '${pillars.leasing.visitsThisWeek}'),
+              _PillarMetric('Taux de conversion', pillars.leasing.conversionRate),
+            ], '/leads'),
+            const SizedBox(height: AppSpacing.md),
+            buildCard('Maintenance', Icons.build_outlined, AppColors.skyBlue, [
+              _PillarMetric('Tickets ouverts', '${pillars.maintenance.openTickets}'),
+              _PillarMetric('En cours', '${pillars.maintenance.inProgressTickets}'),
+              _PillarMetric('Résolution moy.', pillars.maintenance.avgResolutionHours != null ? '${pillars.maintenance.avgResolutionHours!.toStringAsFixed(1)} h' : '—'),
+            ], '/maintenance-tickets'),
+            const SizedBox(height: AppSpacing.md),
+            buildCard('Rénovation', Icons.handyman_outlined, AppColors.warning, [
+              _PillarMetric('Projets actifs', '${pillars.renovation.activeProjects}'),
+              _PillarMetric('Bloqués', '${pillars.renovation.blockedProjects}'),
+              _PillarMetric('Commandes ouvertes', '${pillars.renovation.openOrders}'),
+            ], '/renovation-ops'),
+          ]),
       ],
     );
   }
