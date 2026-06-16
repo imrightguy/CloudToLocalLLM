@@ -440,7 +440,6 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
     return Image.network(
       imageUrl,
       fit: BoxFit.cover,
-      headers: _authHeaders(),
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
         return Container(
@@ -467,15 +466,6 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
         ),
       ),
     );
-  }
-
-  Map<String, String> _authHeaders() {
-    // Use the stored auth token for image requests
-    final token = ApiService.instance.accessToken;
-    if (token.isNotEmpty) {
-      return {'Authorization': 'Bearer $token'};
-    }
-    return {};
   }
 
   void _openUnits(BuildingItem building) {
