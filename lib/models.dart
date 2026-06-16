@@ -1259,11 +1259,11 @@ class LeaseItem {
     try { parsedEndDate = json['endDate'] != null ? DateTime.parse(json['endDate'].toString()) : null; } catch (_) {}
     DateTime? parsedCreatedAt;
     if (json['createdAt'] != null) {
-      try { parsedCreatedAt = DateTime.parse(json['createdAt'] as String); } catch (_) {}
+      try { parsedCreatedAt = DateTime.parse(json['createdAt'].toString()); } catch (_) {}
     }
     DateTime? parsedUpdatedAt;
     if (json['updatedAt'] != null) {
-      try { parsedUpdatedAt = DateTime.parse(json['updatedAt'] as String); } catch (_) {}
+      try { parsedUpdatedAt = DateTime.parse(json['updatedAt'].toString()); } catch (_) {}
     }
 
     return LeaseItem(
