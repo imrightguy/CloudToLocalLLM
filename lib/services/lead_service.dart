@@ -47,14 +47,12 @@ class LeadService {
         .join('&');
     final result = await ApiService.instance.getRaw('/leads?$query');
 
-    // Cache the raw wrapper for future use
-    final raw = jsonEncode(result);
-    CacheService.instance.set(cacheKey, raw, ttlSeconds: _cacheTtlSeconds);
-
-    final items = (result['data'] as List<dynamic>?)
-            ?.map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        <LeadItem>[];
+    final dataList = result['data'];
+    final items = (dataList is List)
+        ? dataList
+            .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
+            .toList()
+        : <LeadItem>[];
     final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
 
     return PaginatedResult<LeadItem>(
