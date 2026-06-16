@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models.dart';
-import '../services/api_service.dart';
 import '../services/hermes_service.dart';
 import '../services/lead_service.dart';
 import '../theme/app_colors.dart';
@@ -59,12 +58,10 @@ class _LeadsScreenState extends State<LeadsScreen> {
         _leads = result.items;
         _isLoading = false;
       });
-    } catch (e, stack) {
+    } catch (e) {
       if (!mounted) return;
-      // Wrap any error so ErrorState shows the real message
-      final displayError = e is ApiException ? e : ApiException('$e');
       setState(() {
-        _lastError = displayError;
+        _lastError = e;
         _isLoading = false;
       });
     }
