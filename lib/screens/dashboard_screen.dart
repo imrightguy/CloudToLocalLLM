@@ -528,19 +528,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(mainAxisSize: MainAxisSize.max, children: [
+            Row(mainAxisSize: MainAxisSize.min, children: [
               Container(width: 40, height: 40,
                 decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
                 child: Icon(icon, size: 22, color: accentColor)),
               const SizedBox(width: AppSpacing.md),
-              Expanded(child: Text(title, style: AppTypography.cardTitle)),
+              Text(title, style: AppTypography.cardTitle),
+              const SizedBox(width: AppSpacing.sm),
               const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
             ]),
             const SizedBox(height: AppSpacing.lg),
             ...metrics.map((m) => Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Expanded(child: Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary))),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Text(m.label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                const SizedBox(width: AppSpacing.sm),
                 Text(m.value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: accentColor)),
               ]))),
           ],
