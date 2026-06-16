@@ -72,7 +72,22 @@ class LeadService {
     int page,
     int limit,
   ) {
-    final result = jsonDecode(raw) as Map<String, dynamic>;
+    final decoded = jsonDecode(raw);
+    // Handle legacy cache format (plain array, no wrapper)
+    if (decoded is List) {
+      final items = decoded
+          .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return PaginatedResult<LeadItem>(
+        items: items,
+        total: items.length,
+        page: page,
+        limit: limit,
+        totalPages: 1,
+        hasMore: false,
+      );
+    }
+    final result = decoded as Map<String, dynamic>;
     final data = result['data'];
     final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
 
