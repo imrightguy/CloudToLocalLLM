@@ -158,28 +158,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xl + 32,
-        ),
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildPillarsBlock(),
-            const SizedBox(height: AppSpacing.xl),
-            _buildHeader(),
-            const SizedBox(height: AppSpacing.xl),
-            _buildAttentionBlock(),
-            const SizedBox(height: AppSpacing.xl),
-            _buildActivityBlock(),
-            const SizedBox(height: AppSpacing.xl),
-            _buildPortfolioBlock(),
-          ],
-        ),
+      body: Column(
+        children: [
+          // Piliers FIXES — hors SingleChildScrollView pour garantir le hit testing
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
+            child: _buildPillarsBlock(),
+          ),
+          // Reste du contenu dans le scroll view
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xl + 32,
+              ),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: AppSpacing.xl),
+                  _buildAttentionBlock(),
+                  const SizedBox(height: AppSpacing.xl),
+                  _buildActivityBlock(),
+                  const SizedBox(height: AppSpacing.xl),
+                  _buildPortfolioBlock(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
