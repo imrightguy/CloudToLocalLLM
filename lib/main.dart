@@ -29,6 +29,7 @@ import 'screens/settings_screen.dart';
 import 'screens/renovation_ops_screen.dart';
 import 'screens/maintenance_command_center_screen.dart';
 import 'screens/maintenance_screen.dart';
+import 'screens/notifications_screen.dart';
 import 'screens/unit_360_screen.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_spacing.dart';
@@ -120,18 +121,19 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
                 listenable: AuthNotifier.instance,
                 builder: (context, _) {
                   final location = currentBrowserLocation();
-                  final startScreen = _buildStartScreen(location);
-                  // Navigate to deep-link after first frame
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final path = currentBrowserLocation().path;
+                  // Resolve deep-links directly from home: builder
+                  if (AuthNotifier.instance.isLoggedIn) {
+                    final path = location.path;
                     if (path.isNotEmpty && path != '/' && path != '/dashboard') {
                       final route = _buildDynamicRoute(RouteSettings(name: path));
                       if (route != null) {
-                        Navigator.of(context).pushReplacement(route);
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).pushReplacement(route);
+                        });
                       }
                     }
-                  });
-                  return startScreen;
+                  }
+                  return _buildStartScreen(location);
                 },
               )
             : const _SplashScreen(),
@@ -154,6 +156,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
             _protectedRoute((context) => const CommunicationsScreen()),
         '/messages':
             _protectedRoute((context) => const CommunicationsScreen()),
+        '/notifications':
+            _protectedRoute((context) => const NotificationsScreen()),
         '/settings': _protectedRoute((context) => const SettingsScreen()),
         },
         onGenerateRoute: _buildDynamicRoute,
