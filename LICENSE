@@ -1,0 +1,47 @@
+Business Source License 1.1
+
+License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+"Business Source License" is a trademark of MariaDB Corporation Ab.
+
+-----------------------------------------------------------------------------
+
+Parameters
+
+Licensor:             immogestion-org
+Licensed Work:        ImmoGestion
+                      The Licensed Work is (c) 2026 immogestion-org
+Additional Use Grant: You may use the Licensed Work in production,
+                      provided that your use does not exceed 5 property
+                      units (residential or commercial) managed through
+                      the software. If your use exceeds 5 units, you must
+                      obtain a commercial license from the Licensor.
+
+                      Non-production use (development, testing, evaluation)
+                      is permitted without restriction.
+
+Change Date:          2030-06-17
+
+Change License:       GNU General Public License v2.0 or later
+-----------------------------------------------------------------------------
+
+Terms
+
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work, subject
+to the Additional Use Grant.
+
+You may make production use of the Licensed Work only in accordance with the
+Additional Use Grant.
+
+The Licensor reserves all rights not expressly granted to you.
+
+The Licensed Work is provided "AS IS" and without warranty of any kind, express
+or implied, including but not limited to warranties of merchantability, fitness
+for a particular purpose, and non-infringement. In no event shall the Licensor
+be liable for any claim, damages, or other liability arising from the use of
+the Licensed Work.
+
+The Business Source License is not an Open Source license. The Licensed Work
+will become available under the Change License on the Change Date.
+
+-----------------------------------------------------------------------------
