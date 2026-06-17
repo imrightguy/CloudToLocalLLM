@@ -196,18 +196,21 @@ jobs:
             set -euo pipefail
 
             echo "[deploy] Logging into GHCR so the VPS can pull private images..."
-            echo "$GHCR_PULL_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+            echo "$GHCR_PULL_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin || true
 
             cd /opt/ImmoGestion/services/api-backend
 
-            echo "[deploy] Pulling latest images..."
-            docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml pull || echo "[deploy] Pull failed (using cached images)"
+            echo "[deploy] Syncing code from repo..."
+            sudo git pull origin main --ff-only || sudo git reset --hard origin/main
+
+            echo "[deploy] Building images locally..."
+            sudo docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml build
 
             echo "[deploy] Starting services..."
-            docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
+            sudo docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
 
             echo "[deploy] Running database migrations..."
-            docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml exec -T api npm run migrate
+            sudo docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml exec -T api npm run migrate
 
             echo "[deploy] Waiting for API health..."
             for i in $(seq 1 20); do
@@ -221,7 +224,7 @@ jobs:
 
             if ! curl -sf http://localhost:3001/health > /dev/null 2>&1; then
               echo "[deploy] ERROR: API did not become healthy"
-              docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml logs --tail=50 api
+              sudo docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml logs --tail=50 api
               exit 1
             fi
 
@@ -239,7 +242,7 @@ jobs:
             echo "[deploy] Public demo surfaces reachable"
 
             echo "[deploy] Cleaning old images..."
-            docker image prune -f
+            sudo docker image prune -f
 
   cloudflare-purge:
     name: Purge Cloudflare Cache
