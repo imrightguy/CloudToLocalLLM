@@ -96,7 +96,7 @@ exports.getStreetView = async (req, res) => {
   try {
     // Check Street View availability
     const hasStreetView = await checkStreetViewAvailability(lat, lng);
-    
+
     let imageBuffer;
     let source;
 
