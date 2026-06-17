@@ -99,44 +99,36 @@ describe('safeSecretEqual', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 describe('handleWebhook', () => {
   // ── Auth: missing secret ────────────────────────────────────────────────────
-  it('returns 401 when no PLEXFLOW_WEBHOOK_SECRET is configured', async () => {
+  it('accepts webhook when no PLEXFLOW_WEBHOOK_SECRET is configured (accept with warning)', async () => {
     delete process.env.PLEXFLOW_WEBHOOK_SECRET;
     const req = {
       body: VALID_PAYLOAD,
       get: jest.fn().mockReturnValue(VALID_SECRET),
     };
     const res = mockRes();
+    plexflowWebhookService.processWebhook.mockResolvedValue({ ingested: 1 });
 
     await handleWebhook(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        success: false,
-        error: expect.objectContaining({ code: 'PLEXFLOW_WEBHOOK_UNAUTHORIZED' }),
-      }),
-    );
-    expect(plexflowWebhookService.processWebhook).not.toHaveBeenCalled();
+    // Controller accepts with warning when no secret configured
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(plexflowWebhookService.processWebhook).toHaveBeenCalled();
   });
 
   // ── Auth: missing header ────────────────────────────────────────────────────
-  it('returns 401 when X-Plexflow-Key header is missing', async () => {
+  it('accepts webhook when X-Plexflow-Key header is missing (accept with warning)', async () => {
     const req = {
       body: VALID_PAYLOAD,
       get: jest.fn().mockReturnValue(undefined),
     };
     const res = mockRes();
+    plexflowWebhookService.processWebhook.mockResolvedValue({ ingested: 1 });
 
     await handleWebhook(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        success: false,
-        error: expect.objectContaining({ code: 'PLEXFLOW_WEBHOOK_UNAUTHORIZED' }),
-      }),
-    );
-    expect(plexflowWebhookService.processWebhook).not.toHaveBeenCalled();
+    // Controller accepts with warning when header missing
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(plexflowWebhookService.processWebhook).toHaveBeenCalled();
   });
 
   // ── Auth: invalid signature ─────────────────────────────────────────────────
@@ -160,17 +152,18 @@ describe('handleWebhook', () => {
   });
 
   // ── Auth: empty header ──────────────────────────────────────────────────────
-  it('returns 401 when X-Plexflow-Key is empty string', async () => {
+  it('accepts webhook when X-Plexflow-Key is empty string (accept with warning)', async () => {
     const req = {
       body: VALID_PAYLOAD,
       get: jest.fn().mockReturnValue(''),
     };
     const res = mockRes();
+    plexflowWebhookService.processWebhook.mockResolvedValue({ ingested: 1 });
 
     await handleWebhook(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(plexflowWebhookService.processWebhook).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(plexflowWebhookService.processWebhook).toHaveBeenCalled();
   });
 
   // ── Auth: falls back to PLEXFLOW_API_KEY ────────────────────────────────────

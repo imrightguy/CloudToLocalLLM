@@ -12,12 +12,20 @@ function normalizedEmailFromRequest(req) {
   return typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
 }
 
+function clientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.ip || req.connection?.remoteAddress || 'unknown';
+}
+
 const authLimiter = rateLimit({
   windowMs: AUTH_WINDOW_MS,
   max: AUTH_MAX_ATTEMPTS,
-  keyGenerator: (req, res) => {
+  keyGenerator: (req) => {
     const email = normalizedEmailFromRequest(req);
-    const ip = rateLimit.ipKeyGenerator(req, res);
+    const ip = clientIp(req);
     return email ? `${ip}:${email}` : ip;
   },
   message: {

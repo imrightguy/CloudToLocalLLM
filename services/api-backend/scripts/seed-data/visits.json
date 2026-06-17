@@ -11,7 +11,7 @@
     "employeeConfirmed": true,
     "morningOfSent": false,
     "outcome": null,
-    "notes": "Visite du 2\u00bd vacant au 3e \u00e9tage."
+    "notes": "Visite du 2½ vacant au 3e étage."
   },
   {
     "unitIndex": 13,
@@ -25,7 +25,7 @@
     "employeeConfirmed": true,
     "morningOfSent": false,
     "outcome": null,
-    "notes": "Visite du local commercial C2. Client veut ouvrir un caf\u00e9."
+    "notes": "Visite du local commercial C2. Client veut ouvrir un café."
   },
   {
     "unitIndex": 9,
@@ -39,7 +39,7 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Sabrina a beaucoup aim\u00e9 l'appartement mais trouve le loyer un peu \u00e9lev\u00e9."
+    "notes": "Sabrina a beaucoup aimé l'appartement mais trouve le loyer un peu élevé."
   },
   {
     "unitIndex": 8,
@@ -53,7 +53,7 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Fran\u00e7ois-Xavier veut signer rapidement. Tr\u00e8s motiv\u00e9."
+    "notes": "François-Xavier veut signer rapidement. Très motivé."
   },
   {
     "unitIndex": 10,
@@ -67,7 +67,7 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Magalie a ador\u00e9 le 303. A soumis une demande sur-le-champ."
+    "notes": "Magalie a adoré le 303. A soumis une demande sur-le-champ."
   },
   {
     "unitIndex": 0,
@@ -81,7 +81,7 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Thomas veut n\u00e9gocier. A propos\u00e9 1250$ au lieu de 1300$."
+    "notes": "Thomas veut négocier. A proposé 1250$ au lieu de 1300$."
   },
   {
     "unitIndex": 1,
@@ -95,7 +95,7 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Am\u00e9lie a sign\u00e9 le bail apr\u00e8s cette visite."
+    "notes": "Amélie a signé le bail après cette visite."
   },
   {
     "unitIndex": 3,
@@ -110,5 +110,19 @@
     "morningOfSent": true,
     "outcome": "pas_interesse",
     "notes": "Julie trouve l'appartement trop petit pour ses besoins."
+  },
+  {
+    "unitIndex": 5,
+    "employeeIndex": 0,
+    "leadIndex": 2,
+    "dateTime": "2027-06-15T14:00:00.000Z",
+    "durationMinutes": 30,
+    "status": "scheduled",
+    "tenantConfirmed": false,
+    "occupantNotified": false,
+    "employeeConfirmed": true,
+    "morningOfSent": false,
+    "outcome": null,
+    "notes": "Future visite pour le 2½ rénové."
   }
 ]

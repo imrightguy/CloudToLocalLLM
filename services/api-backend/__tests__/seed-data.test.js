@@ -134,8 +134,8 @@ describe('Seed Data Validation', () => {
     let visits;
     beforeAll(() => { visits = loadJson('visits.json'); });
 
-    it('should have 8 visits', () => {
-      expect(visits).toHaveLength(8);
+    it('should have 9 visits', () => {
+      expect(visits).toHaveLength(9);
     });
 
     it('should have both past and future visits', () => {

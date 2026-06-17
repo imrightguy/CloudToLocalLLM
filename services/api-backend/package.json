@@ -9,7 +9,7 @@
     "test": "LOG_LEVEL=silent jest --forceExit --testPathIgnorePatterns='integration'",
     "test:watch": "jest --watch",
     "test:integration": "bash ./scripts/run-integration-tests.sh",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "jest --coverage --forceExit",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "migrate": "node -r dotenv/config scripts/migrate.js",
