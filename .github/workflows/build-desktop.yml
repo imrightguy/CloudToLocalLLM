@@ -11,7 +11,7 @@ on:
       platforms:
         description: "Platforms to build (comma-separated)"
         required: false
-        default: "linux,windows"
+        default: "linux,windows,macos"
         type: string
 
 concurrency:
@@ -165,9 +165,49 @@ jobs:
             dist/windows/*.exe
           retention-days: 7
 
+  build_macos:
+    name: macOS Build
+    needs: set_version
+    if: contains(inputs.platforms, 'macos')
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set Version
+        run: |
+          VERSION=${{ needs.set_version.outputs.version }}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          sed -i "" "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Flutter Build macOS
+        run: |
+          flutter pub get
+          flutter build macos --release
+
+      - name: Package macOS App
+        run: |
+          mkdir -p dist/macos
+          cd build/macos/Build/Products/Release
+          zip -r /tmp/CloudToLocalLLM-macOS-x64.zip cloudtolocalllm.app
+          cp /tmp/CloudToLocalLLM-macOS-x64.zip ${{ github.workspace }}/dist/macos/
+          echo "✅ macOS bundle packaged"
+
+      - name: Upload macOS Bundle
+        uses: actions/upload-artifact@v5
+        with:
+          name: macos-bundles
+          path: dist/macos/*.zip
+          retention-days: 7
+
   create_release:
-    needs: [set_version, build_linux, build_windows]
-    if: always() && needs.build_linux.result == 'success'
+    needs: [set_version, build_linux, build_windows, build_macos]
+    if: always() && (needs.build_linux.result == 'success' || needs.build_windows.result == 'success' || needs.build_macos.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -195,7 +235,8 @@ jobs:
         with:
           artifacts: |
             linux-bundles/*,
-            windows-bundles/*
+            windows-bundles/*,
+            macos-bundles/*
           tag: "v${{ env.VERSION }}"
           name: "Release v${{ env.VERSION }}"
           artifactErrorsFailBuild: false
@@ -216,5 +257,5 @@ jobs:
             - **Portable ZIP**: `CloudToLocalLLM-Windows-x64.zip`
 
             ### macOS
-            - **Coming soon**
+            - **DMG**: `CloudToLocalLLM-macOS-x64.dmg`
           token: ${{ secrets.GITHUB_TOKEN }}
