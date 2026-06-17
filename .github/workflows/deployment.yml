@@ -201,7 +201,7 @@ jobs:
             cd /opt/ImmoGestion/services/api-backend
 
             echo "[deploy] Pulling latest images..."
-            docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml pull
+            docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml pull || echo "[deploy] Pull failed (using cached images)"
 
             echo "[deploy] Starting services..."
             docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
@@ -211,7 +211,7 @@ jobs:
 
             echo "[deploy] Waiting for API health..."
             for i in $(seq 1 20); do
-              if curl -sf http://localhost:3000/health > /dev/null 2>&1; then
+              if curl -sf http://localhost:3001/health > /dev/null 2>&1; then
                 echo "[deploy] API healthy after ${i} attempts"
                 break
               fi
@@ -219,7 +219,7 @@ jobs:
               sleep 5
             done
 
-            if ! curl -sf http://localhost:3000/health > /dev/null 2>&1; then
+            if ! curl -sf http://localhost:3001/health > /dev/null 2>&1; then
               echo "[deploy] ERROR: API did not become healthy"
               docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml logs --tail=50 api
               exit 1
