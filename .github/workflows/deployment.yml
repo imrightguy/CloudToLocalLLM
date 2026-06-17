@@ -198,7 +198,7 @@ jobs:
             echo "[deploy] Logging into GHCR so the VPS can pull private images..."
             echo "$GHCR_PULL_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
 
-            cd /opt/immogestion/services/api-backend
+            cd /opt/ImmoGestion/services/api-backend
 
             echo "[deploy] Pulling latest images..."
             docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml pull

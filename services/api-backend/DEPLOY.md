@@ -6,7 +6,7 @@ Target: Hostinger VPS (31.97.140.7), Ubuntu 24.04, Docker with postgres.
 
 1. SSH access to the VPS (ask Simon for credentials)
 2. A Cloudflare account with the domain configured
-3. GitHub repo access (already at https://github.com/imrightguy/ImmoGestion.git)
+3. GitHub repo access (already at https://github.com/immogestion-org/ImmoGestion.git)
 4. A GitHub PAT for GHCR pulls with `read:packages`, stored as the workflow secret `GHCR_TOKEN`
 
 ## Step 1: SSH Key Setup (first time only)
@@ -47,7 +47,7 @@ cd /opt/immogestion
 cd /opt/immogestion
 
 # Clone the repo
-git clone https://github.com/imrightguy/ImmoGestion.git .
+git clone https://github.com/immogestion-org/ImmoGestion.git .
 cd services/api-backend
 
 # Create production env file

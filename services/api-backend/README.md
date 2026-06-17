@@ -58,7 +58,7 @@ The seeded path is intentionally tagged by the demo seed data (`__DEMO_SEED__`) 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/imrightguy/ImmoGestion.git
+git clone https://github.com/immogestion-org/ImmoGestion.git
 cd ImmoGestion/services/api-backend
 ```
 
@@ -307,7 +307,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 For support and questions:
 
 - Email: christopher.maltais@gmail.com
-- GitHub: https://github.com/imrightguy/ImmoGestion/issues
+- GitHub: https://github.com/immogestion-org/ImmoGestion/issues
 - Discord: right_guy
 
 ## Roadmap

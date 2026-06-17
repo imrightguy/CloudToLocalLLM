@@ -5,7 +5,7 @@
 
 services:
   api:
-    image: ghcr.io/imrightguy/immogestion/api:latest
+    image: ghcr.io/immogestion-org/immogestion/api:latest
 
   flutter-web:
-    image: ghcr.io/imrightguy/immogestion/web:latest
+    image: ghcr.io/immogestion-org/immogestion/web:latest

@@ -71,10 +71,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/imrightguy/ImmoGestion.git"
+    "url": "https://github.com/immogestion-org/ImmoGestion.git"
   },
   "bugs": {
-    "url": "https://github.com/imrightguy/ImmoGestion/issues"
+    "url": "https://github.com/immogestion-org/ImmoGestion/issues"
   },
-  "homepage": "https://github.com/imrightguy/ImmoGestion#readme"
+  "homepage": "https://github.com/immogestion-org/ImmoGestion#readme"
 }
