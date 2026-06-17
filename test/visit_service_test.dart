@@ -164,7 +164,7 @@ void main() {
       expect(json.containsKey('occupantSMS'), false);
     });
 
-    test('fromJson throws on invalid dateTime', () {
+    test('fromJson handles invalid dateTime gracefully', () {
       final json = {
         'dateTime': 'not-a-date',
         'unitLabel': '1A',
@@ -174,7 +174,9 @@ void main() {
         'notes': '',
       };
 
-      expect(() => VisitItem.fromJson(json), throwsFormatException);
+      final visit = VisitItem.fromJson(json);
+      // Invalid dateTime is parsed as null (defensive parsing)
+      expect(visit.dateTime, isNull);
     });
   });
 

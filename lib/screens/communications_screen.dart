@@ -116,7 +116,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const ImmoAppBar(title: 'Communications'),
-      body: _buildBody(),
+      body: SafeArea(child: _buildBody()),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.edit, color: Colors.white),

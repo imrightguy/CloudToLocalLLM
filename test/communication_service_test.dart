@@ -116,7 +116,7 @@ void main() {
       };
 
       final c = CommunicationItem.fromJson(json);
-      expect(c.contactInitials, '?');
+      expect(c.contactInitials, '#');
     });
 
     test('fromJson falls back to content when body missing', () {

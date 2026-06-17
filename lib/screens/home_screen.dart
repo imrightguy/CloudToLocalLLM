@@ -186,9 +186,11 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return Scaffold(
-          body: IndexedStack(
-            index: _currentIndex,
-            children: screens,
+          body: SafeArea(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: screens,
+            ),
           ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
@@ -842,11 +844,7 @@ class _HomeTabState extends State<_HomeTab> {
             const SizedBox(height: 24),
 
             // Quick stats from weekly summary
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _buildStatsCards(),
-            ),
+            _buildStatsCards(),
 
             const SizedBox(height: 24),
 
@@ -952,7 +950,7 @@ class _HomeTabState extends State<_HomeTab> {
     );
   }
 
-  List<Widget> _buildStatsCards() {
+  Widget _buildStatsCards() {
     final newLeads = (_weeklySummary['newLeads'] as num?)?.toInt() ?? 0;
     final visitsCompleted =
         (_weeklySummary['visitsCompleted'] as num?)?.toInt() ?? 0;
@@ -960,42 +958,31 @@ class _HomeTabState extends State<_HomeTab> {
     final hotLeadsCount =
         (_weeklySummary['hotLeadsCount'] as num?)?.toInt() ?? 0;
 
-    return [
-      _buildStatCard(
-        title: 'Nouveaux leads',
-        value: '$newLeads',
-        delta: 'cette semaine',
-        description: 'Prospects entrants',
-      ),
-      _buildStatCard(
-        title: 'Visites complétées',
-        value: '$visitsCompleted',
-        delta: 'cette semaine',
-        description: 'Visites terminées',
-      ),
-      _buildStatCard(
-        title: 'Conversions',
-        value: '$conversions',
-        delta: 'cette semaine',
-        description: 'Baux signés',
-      ),
-      _buildStatCard(
-        title: 'Leads chauds',
-        value: '$hotLeadsCount',
-        delta: 'à suivre',
-        description: 'Prêts à signer',
-      ),
+    final cards = [
+      ('Nouveaux leads', '$newLeads', 'cette semaine'),
+      ('Visites complétées', '$visitsCompleted', 'cette semaine'),
+      ('Conversions', '$conversions', 'cette semaine'),
+      ('Leads chauds', '$hotLeadsCount', 'à suivre'),
     ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = Responsive.statColumns(constraints.maxWidth);
+        return GridView.count(
+          crossAxisCount: columns,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: columns == 1 ? 4.5 : 1.8,
+          children: cards.map((c) => _buildStatCard(c.$1, c.$2, c.$3)).toList(),
+        );
+      },
+    );
   }
 
-  Widget _buildStatCard({
-    required String title,
-    required String value,
-    required String delta,
-    required String description,
-  }) {
+  Widget _buildStatCard(String title, String value, String delta) {
     return Container(
-      width: (MediaQuery.of(context).size.width - 40) / 2,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: AppSpacing.cardDecoration(),
       child: Column(

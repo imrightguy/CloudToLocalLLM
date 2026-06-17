@@ -44,7 +44,7 @@ class _KpiCardState extends State<KpiCard> {
   @override
   Widget build(BuildContext context) {
     final effectiveColor = widget.iconColor ?? AppColors.primary;
-    final effectiveWidth = widget.width ?? 160.0;
+    final effectiveWidth = widget.width;
     final interactive = widget.onTap != null;
     final highlight = _hovered && interactive;
 

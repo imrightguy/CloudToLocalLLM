@@ -51,7 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           IconButton(icon: const Icon(Icons.refresh, size: 20), onPressed: _fetch),
         ],
       ),
-      body: _buildBody(),
+      body: SafeArea(child: _buildBody()),
     );
   }
 

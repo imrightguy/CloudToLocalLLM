@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/error_state.dart';
@@ -81,13 +82,6 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   double get _portfolioOccupancy =>
       _totalUnits > 0 ? _occupiedUnits / _totalUnits : 0.0;
 
-  int _gridColumns(double width) {
-    if (width < 600) return 1;
-    if (width < 1000) return 2;
-    if (width < 1400) return 3;
-    return 4;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,7 +107,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
           },
         ),
       ]),
-      body: _buildBody(),
+      body: SafeArea(child: _buildBody()),
     );
   }
 
@@ -206,22 +200,25 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   }
 
   Widget _buildGridView() {
-    final width = MediaQuery.of(context).size.width;
-    final columns = _gridColumns(width);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: GridView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columns,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.72,
-        ),
-        itemCount: _filteredBuildings.length,
-        itemBuilder: (context, index) =>
-            _buildBuildingCard(_filteredBuildings[index]),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = Responsive.gridColumns(constraints.maxWidth);
+        return GridView.builder(
+          padding: EdgeInsets.symmetric(
+            horizontal: Responsive.pagePadding(constraints.maxWidth),
+            vertical: 12,
+          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: columns == 1 ? 2.5 : 1.4,
+          ),
+          itemCount: _filteredBuildings.length,
+          itemBuilder: (context, index) =>
+              _buildBuildingCard(_filteredBuildings[index]),
+        );
+      },
     );
   }
 

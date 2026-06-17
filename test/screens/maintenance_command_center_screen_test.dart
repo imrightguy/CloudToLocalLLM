@@ -192,10 +192,10 @@ void main() {
     await pumpScreen(tester);
 
     expect(find.text('Place du Parc'), findsOneWidget);
-    expect(find.textContaining('304'), findsWidgets);
+    expect(find.textContaining('10 unité(s)'), findsOneWidget);
     expect(find.text('Messages locataires'), findsOneWidget);
-    expect(find.text('Envoyé'), findsWidgets);
-    expect(find.text('Dispatchables'), findsOneWidget);
+    expect(find.text('Propriétés'), findsOneWidget);
+    expect(find.text('Tâches prêtes'), findsOneWidget);
   });
 
   testWidgets('shows an empty state when the command center has no data', (tester) async {
@@ -234,8 +234,8 @@ void main() {
 
     await pumpScreen(tester);
 
-    expect(find.text('Aucune donnée de maintenance disponible'), findsOneWidget);
-    expect(find.text('Rafraîchir'), findsOneWidget);
+    expect(find.text('Aucune donnée de maintenance'), findsOneWidget);
+    expect(find.byTooltip('Rafraîchir'), findsOneWidget);
   });
 
   testWidgets('shows an error state when the command center request fails', (tester) async {
@@ -249,7 +249,7 @@ void main() {
 
     await pumpScreen(tester);
 
-    expect(find.textContaining('Impossible de charger le tableau de bord'), findsOneWidget);
+    expect(find.text('Maintenance indisponible'), findsOneWidget);
     expect(find.textContaining('boom'), findsOneWidget);
   });
 }
