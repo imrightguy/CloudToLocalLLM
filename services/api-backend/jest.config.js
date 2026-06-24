@@ -40,6 +40,8 @@ export default {
 
   // Map imports from test files (living outside service) back into service source
   moduleNameMapper: {
+    // jwks-rsa → jose ESM incompatibility with Node 22 (needs v24.9+)
+    '^jwks-rsa$': '<rootDir>/../../test/mocks/jwks-rsa.cjs',
     // One-level up (../)
     '^\\.\\./tunnel/(.*)\\.js$': '<rootDir>/tunnel/$1.js',
     '^\\.\\./utils/(.*)\\.js$': '<rootDir>/utils/$1.js',
