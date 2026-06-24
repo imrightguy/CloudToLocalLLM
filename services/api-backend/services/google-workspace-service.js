@@ -98,7 +98,7 @@ class GoogleWorkspaceService {
       logger.error('Failed to exchange authorization code', {
         error: error.message,
       });
-      throw new Error('Failed to exchange authorization code for tokens');
+      throw new Error('Failed to exchange authorization code for tokens', { cause: error });
     }
   }
 
@@ -266,7 +266,7 @@ class GoogleWorkspaceService {
         userId,
         error: error.message,
       });
-      throw new Error('Failed to refresh Google Workspace access token');
+      throw new Error('Failed to refresh Google Workspace access token', { cause: error });
     }
   }
 

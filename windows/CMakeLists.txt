@@ -1,5 +1,15 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+
+# Set vcpkg toolchain for cpprestsdk and other native dependencies
+if(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        CACHE STRING "Vcpkg toolchain file")
+elseif(EXISTS "C:/Users/rightguy/dev/vcpkg/scripts/buildsystems/vcpkg.cmake")
+    set(CMAKE_TOOLCHAIN_FILE "C:/Users/rightguy/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        CACHE STRING "Vcpkg toolchain file")
+endif()
+
 project(CloudToLocalLLM LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change

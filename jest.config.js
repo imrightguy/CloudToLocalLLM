@@ -36,5 +36,9 @@ export default {
     "proxy-usage\\.test\\.js$",
     "bridge-polling-routes\\.test\\.js$",
     "cloudflare-dns-resolution\\.test\\.js$",
+    // jwks-rsa → jose ESM incompatibility with Node 22 (needs v24.9+)
+    "api-keys\\.test\\.js$",
+    "error-recovery-integration\\.test\\.js$",
+    "sandbox-routes\\.test\\.js$",
   ],
 };
