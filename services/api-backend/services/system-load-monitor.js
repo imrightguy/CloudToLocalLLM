@@ -197,7 +197,7 @@ export class SystemLoadMonitor {
       ? this.currentMetrics.getLoadPercentage()
       : parseFloat(this.getAverageMetrics().loadPercentage);
 
-    let newMultiplier = 1.0;
+    let newMultiplier;
 
     // Determine load level based on average load
     const isCritical = load >= 80;

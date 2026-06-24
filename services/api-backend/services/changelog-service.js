@@ -97,7 +97,7 @@ class ChangelogService {
 
       return entries;
     } catch (error) {
-      throw new Error(`Failed to parse changelog: ${error.message}`);
+      throw new Error(`Failed to parse changelog: ${error.message}`, { cause: error });
     }
   }
 
@@ -143,7 +143,7 @@ class ChangelogService {
       );
       return packageJson.version;
     } catch (error) {
-      throw new Error(`Failed to read package.json: ${error.message}`);
+      throw new Error(`Failed to read package.json: ${error.message}`, { cause: error });
     }
   }
 
