@@ -58,8 +58,8 @@ MimeType=x-scheme-handler/$PACKAGE_NAME;
 EOF
 
 # Copy icon
-if [ -f "$PROJECT_ROOT/linux/icons/cloudtolocalllm-128.png" ]; then
-    cp "$PROJECT_ROOT/linux/icons/cloudtolocalllm-128.png" "$PKG_ROOT/usr/share/icons/hicolor/128x128/apps/$PACKAGE_NAME.png"
+if [ -f "$PROJECT_ROOT/linux/icons/zoidbot-128.png" ]; then
+    cp "$PROJECT_ROOT/linux/icons/zoidbot-128.png" "$PKG_ROOT/usr/share/icons/hicolor/128x128/apps/$PACKAGE_NAME.png"
 fi
 
 # Create control file
