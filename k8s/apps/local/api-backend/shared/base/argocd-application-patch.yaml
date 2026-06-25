@@ -1,6 +1,0 @@
-spec:
-  source:
-    path: k8s/apps/local/api-backend/shared/base
-metadata:
-  annotations:
-    argocd.argoproj.io/refresh: "true"

@@ -1,8 +1,0 @@
-# Do not commit secrets!
-secrets.yaml
-
-# Backup files
-*.backup
-*.bak
-backup_*.sql
-

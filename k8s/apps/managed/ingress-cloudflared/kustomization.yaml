@@ -1,7 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - ../../../deployments/overlays/managed/cloudflared-tunnel.yaml
-  - ../../../deployments/overlays/managed/cloudflared-admin-tunnel.yaml
-patches:
-  - path: ../../../deployments/overlays/managed/env-patch.yaml

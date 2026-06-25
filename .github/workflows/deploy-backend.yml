@@ -17,8 +17,6 @@ on:
       - "config/docker/postgres-*"
       - "config/docker/init.sql"
       - "config/swarm/**"
-      - "k8s/**"
-      - "infra/**"
       - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
     inputs:
