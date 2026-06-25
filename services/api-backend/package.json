@@ -57,7 +57,7 @@
     "prom-client": "^15.1.3",
     "rate-limit-redis": "^5.0.0",
     "ssh2": "^1.17.0",
-    "stripe": "^22.2.0",
+    "stripe": "^22.3.0",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.0",
     "validator": "^13.15.35",
