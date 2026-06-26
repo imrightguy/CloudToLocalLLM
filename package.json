@@ -21,7 +21,7 @@
     "@aws-sdk/client-cost-explorer": "^3.1068.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@playwright/test": "^1.59.1",
-    "axios": "^1.15.0",
+    "axios": "^1.18.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-oauth2-jwt-bearer": "^1.8.0",
