@@ -18,7 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1032.0",
-    "@aws-sdk/client-cost-explorer": "^3.1068.0",
+    "@aws-sdk/client-cost-explorer": "^3.1075.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@playwright/test": "^1.59.1",
     "axios": "^1.15.0",
