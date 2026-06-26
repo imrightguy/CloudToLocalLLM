@@ -35,7 +35,7 @@ dependencies:
   url_launcher: ^6.3.2
 
   # HTTP and Web
-  intl: ^0.20.2
+  intl: ^0.20.3
   http: ^1.2.2
 
   # Streaming and WebSocket support
