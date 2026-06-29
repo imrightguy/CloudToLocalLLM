@@ -96,27 +96,27 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   final Color glassBorder;
 
   static const AppColorsTheme dark = AppColorsTheme(
-    primary: Color(0xFFa777e3),
-    secondary: Color(0xFF6e8efb),
-    accent: Color(0xFF00c58e),
-    backgroundMain: Color(0xFF181a20),
-    backgroundCard: Color(0xFF23243a),
+    primary: Color(0xFFD4AF37), // Pistis Gold
+    secondary: Color(0xFFE8C547), // Warm Amber Gold
+    accent: Color(0xFFC9A227), // Deep Gold
+    backgroundMain: Color(0xFF0F0F1A), // Warm dark
+    backgroundCard: Color(0xFF1A1A2E), // Card
     backgroundLight: Color(0xFFf5f5f5),
-    textColor: Color(0xFFf1f1f1),
-    textColorLight: Color(0xFFb0b0b0),
+    textColor: Color(0xFFF5E6C8), // Warm cream
+    textColorLight: Color(0xFFB8A88A), // Muted gold-grey
     textColorDark: Color(0xFF2c3e50),
     success: Color(0xFF4caf50),
     warning: Color(0xFFffa726),
     danger: Color(0xFFff5252),
     info: Color(0xFF2196f3),
-    glassBackground: Color(0x33FFFFFF),
-    glassBorder: Color(0x4DFFFFFF),
+    glassBackground: Color(0x33D4AF37), // Gold-tinted glass (20%)
+    glassBorder: Color(0x26D4AF37), // Gold-tinted border (15%)
   );
 
   static const AppColorsTheme light = AppColorsTheme(
-    primary: Color(0xFFa777e3),
-    secondary: Color(0xFF6e8efb),
-    accent: Color(0xFF00c58e),
+    primary: Color(0xFFD4AF37), // Pistis Gold
+    secondary: Color(0xFFE8C547), // Warm Amber Gold
+    accent: Color(0xFFC9A227), // Deep Gold
     backgroundMain: Colors.white,
     backgroundCard: Color(0xFFF1F2F4),
     backgroundLight: Color(0xFFf5f5f5),
@@ -127,8 +127,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     warning: Color(0xFFF57C00),
     danger: Color(0xFFD32F2F),
     info: Color(0xFF1976D2),
-    glassBackground: Color(0x66FFFFFF),
-    glassBorder: Color(0x80FFFFFF),
+    glassBackground: Color(0x66D4AF37), // Gold-tinted glass (40%)
+    glassBorder: Color(0x80D4AF37), // Gold-tinted border (50%)
   );
 
   @override

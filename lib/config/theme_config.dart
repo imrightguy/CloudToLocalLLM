@@ -24,23 +24,23 @@ class ThemeConfig {
   // Color Definitions
   // ============================================================================
 
-  /// Primary brand color (Lobster Red)
-  static const Color primaryColor = Color(0xFFFF0000);
+  /// Primary brand color (Pistis Gold)
+  static const Color primaryColor = Color(0xFFD4AF37);
 
-  /// Secondary brand color (Lobster Orange)
-  static const Color secondaryColor = Color(0xFFFF7F00);
+  /// Secondary brand color (Warm Amber Gold)
+  static const Color secondaryColor = Color(0xFFE8C547);
 
-  /// Accent color (Black)
-  static const Color accentColor = Color(0xFF000000);
+  /// Accent color (Deep Gold)
+  static const Color accentColor = Color(0xFFC9A227);
 
   // Dark Mode Colors
-  static const Color darkBackgroundMain = Color(0xFF000000);
-  static const Color darkBackgroundCard = Color(0xFF000000);
-  static const Color darkTextColor = Color(0xFFf1f1f1);
-  static const Color darkTextColorLight = Color(0xFFb0b0b0);
-  static const Color darkBorderColor = Color(0xFF1E1E1E);
-  static const Color darkGlassBackground = Color(0x33FFFFFF);
-  static const Color darkGlassBorder = Color(0x26FFFFFF);
+  static const Color darkBackgroundMain = Color(0xFF0F0F1A); // Warm dark
+  static const Color darkBackgroundCard = Color(0xFF1A1A2E); // Card
+  static const Color darkTextColor = Color(0xFFF5E6C8); // Warm cream
+  static const Color darkTextColorLight = Color(0xFFB8A88A); // Muted gold-grey
+  static const Color darkBorderColor = Color(0xFF2A2A3E); // Subtle dark border
+  static const Color darkGlassBackground = Color(0x33D4AF37); // Gold-tinted glass (20%)
+  static const Color darkGlassBorder = Color(0x26D4AF37); // Gold-tinted border (15%)
 
   // Light Mode Colors
   static const Color lightBackgroundMain = Colors.white;
@@ -50,8 +50,8 @@ class ThemeConfig {
   static const Color lightTextColorLight = Color(0xFF6F7B8A);
   static const Color lightTextColorDark = Color(0xFF263238);
   static const Color lightBorderColor = Color(0xFFE0E0E0);
-  static const Color lightGlassBackground = Color(0x66FFFFFF);
-  static const Color lightGlassBorder = Color(0x4DFFFFFF);
+  static const Color lightGlassBackground = Color(0x66D4AF37); // Gold-tinted glass (40%)
+  static const Color lightGlassBorder = Color(0x80D4AF37); // Gold-tinted border (50%)
 
   // Status Colors (same for both themes)
   static const Color successColor = Color(0xFF4caf50);
