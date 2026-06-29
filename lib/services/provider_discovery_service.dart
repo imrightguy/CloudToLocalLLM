@@ -11,7 +11,7 @@ import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 /// Discovers agent runtimes and optional support model providers.
 
 class ProviderDiscoveryService {
-  static const Duration _scanTimeout = Duration(seconds: 3);
+  static const Duration _scanTimeout = Duration(seconds: 10);
 
   /// Scan for all known endpoint types on the network.
   ///
@@ -154,7 +154,20 @@ class ProviderDiscoveryService {
       final response = await http.get(healthUrl).timeout(_scanTimeout);
 
       if (response.statusCode == 200) {
-        final models = await _fetchOpenAICompatibleModels(baseUrl);
+        // Read API key from SharedPreferences, fallback to .env file
+        var apiKey = await settings.getHermesApiKey();
+        apiKey ??= await _discoverHermesApiKeyFromEnv();
+
+        // Fetch models — Hermes is discovered even if model fetch fails
+        // (health check success is enough to report the runtime as available)
+        List<String> models = const [];
+        try {
+          models = await _fetchOpenAICompatibleModels(baseUrl, apiKey: apiKey);
+        } catch (e) {
+          debugPrint(
+              '[ProviderDiscovery] Model fetch failed for Hermes (non-fatal): $e');
+        }
+
         debugPrint('[ProviderDiscovery] Found Hermes Agent at $baseUrl');
         return ProviderInfo(
           id: 'hermes_discovered',
@@ -170,6 +183,42 @@ class ProviderDiscoveryService {
       }
     } catch (e) {
       debugPrint('[ProviderDiscovery] Hermes Agent not available: $e');
+    }
+    return null;
+  }
+
+  /// Try to discover the Hermes API server key from the .env file.
+  /// Searches common locations on Windows/Linux/macOS.
+  Future<String?> _discoverHermesApiKeyFromEnv() async {
+    if (kIsWeb) return null;
+
+    final envPaths = <String>[
+      '${Platform.environment['HERMES_HOME'] ?? ''}/.env',
+      '${Platform.environment['LOCALAPPDATA'] ?? ''}/hermes/.env',
+      '${Platform.environment['HOME'] ?? ''}/.hermes/.env',
+      '${Platform.environment['USERPROFILE'] ?? ''}/.hermes/.env',
+    ];
+
+    for (final path in envPaths) {
+      if (path.isEmpty) continue;
+      final file = File(path);
+      if (!await file.exists()) continue;
+      try {
+        final contents = await file.readAsString();
+        for (final line in contents.split('\n')) {
+          final trimmed = line.trim();
+          if (trimmed.startsWith('API_SERVER_KEY=')) {
+            final key = trimmed.substring('API_SERVER_KEY='.length).trim();
+            if (key.isNotEmpty) {
+              debugPrint(
+                  '[ProviderDiscovery] Found API_SERVER_KEY in $path');
+              return key;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('[ProviderDiscovery] Error reading $path: $e');
+      }
     }
     return null;
   }
@@ -339,11 +388,21 @@ class ProviderDiscoveryService {
     return ips;
   }
 
-  Future<List<String>> _fetchOpenAICompatibleModels(String baseUrl) async {
+  Future<List<String>> _fetchOpenAICompatibleModels(
+    String baseUrl, {
+    String? apiKey,
+  }) async {
     try {
+      final url = Uri.parse('$baseUrl/v1/models');
+      final headers = <String, String>{};
+      if (apiKey != null && apiKey.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $apiKey';
+      }
       final response =
-          await http.get(Uri.parse('$baseUrl/v1/models')).timeout(_scanTimeout);
+          await http.get(url, headers: headers).timeout(_scanTimeout);
       if (response.statusCode != 200) {
+        debugPrint(
+            '[ProviderDiscovery] /v1/models returned ${response.statusCode} from $baseUrl');
         return const [];
       }
       final data = jsonDecode(response.body);

@@ -233,7 +233,32 @@ class SetupWizardService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final providers = await _discovery.scanForAgentRuntimes();
+      var providers = await _discovery.scanForAgentRuntimes();
+
+      // Fallback: if discovery returns empty, try a direct health check
+      // against the default Hermes URL. This catches cases where the
+      // discovery scan timed out or missed the running Hermes instance.
+      if (providers.isEmpty) {
+        debugPrint(
+            '[SetupWizard] No providers discovered, trying direct health check...');
+        final result =
+            await _discovery.testConnection(AppConfig.defaultHermesUrl);
+        if (result.isConnected) {
+          debugPrint(
+              '[SetupWizard] Direct health check succeeded — adding Hermes as discovered');
+          providers = [
+            ProviderInfo(
+              id: 'hermes_fallback',
+              type: ProviderType.hermes,
+              name: 'Hermes Agent',
+              url: AppConfig.defaultHermesUrl,
+              isLocal: true,
+              isAvailable: true,
+              role: ProviderRole.agentRuntime,
+            ),
+          ];
+        }
+      }
 
       final selectedRuntime = _selectPreferredRuntime(providers);
 
@@ -558,6 +583,12 @@ class SetupWizardService extends ChangeNotifier {
         await settings.setHermesEnabled(true);
         await settings.setHermesUrl(runtimeUrl);
         await settings.setActiveBackend(BackendType.hermes);
+
+        // Persist the API key — try SharedPreferences first, then .env fallback
+        var apiKey = await settings.getHermesApiKey();
+        if (apiKey != null && apiKey.isNotEmpty) {
+          await settings.setHermesApiKey(apiKey);
+        }
         break;
       case ProviderType.openclaw:
         await settings.setHermesEnabled(false);
