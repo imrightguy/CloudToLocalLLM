@@ -7,25 +7,25 @@ import 'theme_extensions.dart';
 /// This class now delegates to ThemeConfig for unified theme management.
 /// Use ThemeConfig directly for new implementations.
 class AppTheme {
-  // Color scheme matching CloudToLocalLLM lobster branding
+  // Color scheme — Pistisai Gold-on-Dark palette
   static const Color primaryColor = Color(
-    0xFFFF0000,
-  ); // Lobster red
+    0xFFD4AF37,
+  ); // Pistis Gold
   static const Color secondaryColor = Color(
-    0xFFFF7F00,
-  ); // Lobster orange
-  static const Color accentColor = Color(0xFF000000); // Black
+    0xFFE8C547,
+  ); // Warm Amber Gold
+  static const Color accentColor = Color(0xFFC9A227); // Deep Gold
 
   // Background colors
-  static const Color backgroundMain = Color(0xFF000000); // Black
-  static const Color backgroundCard = Color(0xFF000000); // Black
+  static const Color backgroundMain = Color(0xFF0F0F1A); // Warm dark
+  static const Color backgroundCard = Color(0xFF1A1A2E); // Card
   static const Color backgroundLight = Color(0xFFf5f5f5); // --bg-light: #f5f5f5
 
   // Text colors
-  static const Color textColor = Color(0xFFf1f1f1); // --text-color: #f1f1f1
+  static const Color textColor = Color(0xFFF5E6C8); // Warm cream
   static const Color textColorLight = Color(
-    0xFFb0b0b0,
-  ); // --text-color-light: #b0b0b0
+    0xFFB8A88A,
+  ); // Muted gold-grey
   static const Color textColorDark = Color(
     0xFF2c3e50,
   ); // --text-color-dark: #2c3e50
@@ -37,7 +37,7 @@ class AppTheme {
   static const Color infoColor = Color(0xFF2196f3);
 
   // Border colors
-  static const Color borderColor = Color(0xFF3a3a3a);
+  static const Color borderColor = Color(0xFF2A2A3E);
 
   // Gradients matching homepage
   static const LinearGradient headerGradient = LinearGradient(

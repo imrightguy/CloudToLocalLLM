@@ -75,6 +75,7 @@ class _ChatPaneState extends State<_ChatPane> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureChannelExists();
+      _autoConnectRuntime();
     });
   }
 
@@ -86,6 +87,20 @@ class _ChatPaneState extends State<_ChatPane> {
       }
     } catch (_) {
       // StreamingChatService not registered on this platform (web).
+    }
+  }
+
+  /// Auto-connect: if the backend is configured but not connected,
+  /// trigger a connection test so the user sees "Runtime channel ready"
+  /// instead of "No Agent Connected" on first launch.
+  void _autoConnectRuntime() {
+    try {
+      final cm = context.read<ConnectionManagerService>();
+      if (cm.currentBackend != null && !cm.isConnected) {
+        cm.testConnection();
+      }
+    } catch (_) {
+      // ConnectionManagerService not registered on this platform.
     }
   }
 

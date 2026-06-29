@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -260,6 +261,12 @@ class ConnectionManagerService extends ChangeNotifier {
     if (_currentBackend == null && _autoDetectOnInitialize) {
       await _autoDetectRuntime();
     }
+
+    // Auto-connect: if backend is configured but not connected, test now
+    if (_currentBackend != null && !_isConnected) {
+      _log.info('Backend configured but not connected — auto-testing connection');
+      await testConnection();
+    }
   }
 
   /// Probe for available agent runtimes in order of preference.
@@ -288,11 +295,19 @@ class ConnectionManagerService extends ChangeNotifier {
 
     // 2. Try Hermes HTTP gateway
     try {
-      final httpClient = HermesStreamingService();
+      // Read API key from settings (SharedPreferences + .env fallback)
+      final settings = _settingsPreferenceService;
+      String? apiKey;
+      if (settings != null) {
+        apiKey = await settings.getHermesApiKey();
+      }
+
+      final httpClient = HermesStreamingService(apiKey: apiKey);
       await httpClient.establishConnection();
       if (httpClient.connection.isActive) {
         _log.info('Auto-detected Hermes HTTP gateway at :8642');
         _currentBackend = BackendType.hermes;
+        _configuredHermesApiKey = apiKey;
         _activeRuntimeClient = _createHermesRuntimeClient();
         notifyListeners();
         return;
@@ -582,8 +597,18 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   HermesRuntimeClient _createHermesRuntimeClient() {
+    // Ensure the URL has a port — SharedPreferences can lose the port
+    // when the app overwrites the cached prefs on startup.
+    String url = _configuredHermesUrl ?? 'http://127.0.0.1:8642';
+    if (!url.contains(':8642') && !url.contains(':1234')) {
+      // URL is missing the port — fall back to default
+      debugPrint(
+          '[ConnectionManager] Hermes URL missing port, falling back to default: $url');
+      url = AppConfig.defaultHermesUrl;
+    }
+
     return HermesRuntimeClient(
-      baseUrl: _configuredHermesUrl ?? 'http://127.0.0.1:8642',
+      baseUrl: url,
       apiKey: _configuredHermesApiKey,
     );
   }

@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 enum BackendType { openclaw, hermes }
 
@@ -359,7 +361,51 @@ class SettingsPreferenceService {
   /// Hermes API key (optional — Hermes doesn't require auth by default)
   Future<String?> getHermesApiKey() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_hermesApiKeyKey);
+    final key = prefs.getString(_hermesApiKeyKey);
+    if (key != null && key.isNotEmpty) {
+      return key;
+    }
+
+    // Fallback: try to discover API_SERVER_KEY from Hermes .env file
+    return _discoverApiKeyFromEnv();
+  }
+
+  /// Try to discover the Hermes API server key from the .env file.
+  /// Searches common locations on Windows/Linux/macOS.
+  Future<String?> _discoverApiKeyFromEnv() async {
+    if (kIsWeb) return null;
+
+    final envPaths = <String>[
+      '${Platform.environment['HERMES_HOME'] ?? ''}/.env',
+      '${Platform.environment['LOCALAPPDATA'] ?? ''}/hermes/.env',
+      '${Platform.environment['HOME'] ?? ''}/.hermes/.env',
+      '${Platform.environment['USERPROFILE'] ?? ''}/.hermes/.env',
+    ];
+
+    for (final path in envPaths) {
+      if (path.isEmpty) continue;
+      final file = File(path);
+      if (!await file.exists()) continue;
+      try {
+        final contents = await file.readAsString();
+        for (final line in contents.split('\n')) {
+          final trimmed = line.trim();
+          if (trimmed.startsWith('API_SERVER_KEY=')) {
+            final key = trimmed.substring('API_SERVER_KEY='.length).trim();
+            if (key.isNotEmpty) {
+              debugPrint(
+                  '[SettingsPreference] Found API_SERVER_KEY in $path');
+              // Cache it so we don't read the file every time
+              await setHermesApiKey(key);
+              return key;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('[SettingsPreference] Error reading $path: $e');
+      }
+    }
+    return null;
   }
 
   Future<void> setHermesApiKey(String? value) async {
