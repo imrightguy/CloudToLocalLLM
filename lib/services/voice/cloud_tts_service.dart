@@ -93,12 +93,7 @@ class CloudTtsService {
             Platform.environment['CLOUDTOLOCALLLM_FFMPEG_COMMAND'] ??
             'ffmpeg',
         _outputDirectory = outputDirectory ??
-            Directory(p.join(
-              Platform.environment['XDG_CACHE_HOME'] ??
-                  p.join(Platform.environment['HOME'] ?? '/tmp', '.cache'),
-              'cloudtolocalllm',
-              'tts',
-            )),
+            Directory(_defaultOutputDir()),
         _timeout = timeout;
 
   final CloudTtsProcessRunner _processRunner;
@@ -106,6 +101,21 @@ class CloudTtsService {
   final String _ffmpegCommand;
   final Directory _outputDirectory;
   final Duration _timeout;
+
+  static String _defaultOutputDir() {
+    if (Platform.isWindows) {
+      final localAppData = Platform.environment['LOCALAPPDATA'] ??
+          p.join(Platform.environment['USERPROFILE'] ?? r'C:\Users\default',
+              'AppData', 'Local');
+      return p.join(localAppData, 'cloudtolocalllm', 'tts');
+    }
+    return p.join(
+      Platform.environment['XDG_CACHE_HOME'] ??
+          p.join(Platform.environment['HOME'] ?? '/tmp', '.cache'),
+      'cloudtolocalllm',
+      'tts',
+    );
+  }
 
   Future<CloudTtsResult> synthesize(CloudTtsRequest request) async {
     await _outputDirectory.create(recursive: true);
@@ -207,16 +217,30 @@ class CloudTtsService {
 
   Map<String, String> _mergedPathEnvironment() {
     final env = Map<String, String>.from(Platform.environment);
-    final hermesVenvBin = p.join(
-      Platform.environment['HOME'] ?? '/home/rightguy',
-      '.hermes',
-      'hermes-agent',
-      'venv',
-      'bin',
-    );
+    final isWindows = Platform.isWindows;
+    final pathSep = isWindows ? ';' : ':';
+
+    // Locate the Hermes venv Scripts/bin directory
+    final String hermesVenvBin;
+    if (isWindows) {
+      final localAppData = Platform.environment['LOCALAPPDATA'] ??
+          p.join(Platform.environment['USERPROFILE'] ?? r'C:\Users\default',
+              'AppData', 'Local');
+      hermesVenvBin = p.join(localAppData, 'hermes', 'hermes-agent', 'venv',
+          'Scripts');
+    } else {
+      hermesVenvBin = p.join(
+        Platform.environment['HOME'] ?? '/home/rightguy',
+        '.hermes',
+        'hermes-agent',
+        'venv',
+        'bin',
+      );
+    }
+
     final currentPath = env['PATH'] ?? '';
-    if (!currentPath.split(':').contains(hermesVenvBin)) {
-      env['PATH'] = '$hermesVenvBin:$currentPath';
+    if (!currentPath.split(pathSep).contains(hermesVenvBin)) {
+      env['PATH'] = '$hermesVenvBin$pathSep$currentPath';
     }
     return env;
   }

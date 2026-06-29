@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
@@ -17,9 +19,16 @@ class AppBootstrapData {
 class AppBootstrapper {
   AppBootstrapper();
 
+  Future<Process>? _sttProcess;
+
   Future<AppBootstrapData> load() async {
     try {
       debugPrint('[Bootstrapper] Starting bootstrap process...');
+
+      // Start local STT server (faster-whisper) on Windows
+      if (!kIsWeb && Platform.isWindows) {
+        _startSttServer();
+      }
 
       debugPrint('[Bootstrapper] Setting up service locator...');
       await setupServiceLocator().timeout(
@@ -36,9 +45,64 @@ class AppBootstrapper {
     } catch (e, stack) {
       debugPrint('[Bootstrapper] ERROR during bootstrap: $e');
       debugPrint('[Bootstrapper] Stack trace: $stack');
-
-      // Re-throw to let the caller handle it
       rethrow;
     }
+  }
+
+  void _startSttServer() {
+    try {
+      final scriptPath = _findSttScript();
+      if (scriptPath == null) {
+        debugPrint('[Bootstrapper] STT script not found, skipping');
+        return;
+      }
+
+      // Add CUDA DLL path so faster-whisper can find cublas
+      const cudaPath = r'C:\Users\rightguy\AppData\Local\Programs\Ollama\lib\ollama\cuda_v12';
+      final env = Map<String, String>.from(Platform.environment);
+      final path = env['PATH'] ?? '';
+      if (!path.contains(cudaPath)) {
+        env['PATH'] = '$cudaPath;$path';
+      }
+
+      _sttProcess = Process.start(
+        'python',
+        [scriptPath],
+        environment: env,
+        runInShell: true,
+      ).then((process) {
+        debugPrint('[Bootstrapper] STT server started (PID: ${process.pid})');
+        process.stderr.transform(utf8.decoder).listen((line) {
+          debugPrint('[STT] $line');
+        });
+        process.exitCode.then((code) {
+          debugPrint('[Bootstrapper] STT server exited with code $code');
+        });
+        return process;
+      }).catchError((e) {
+        debugPrint('[Bootstrapper] Failed to start STT server: $e');
+        return null;
+      });
+    } catch (e) {
+      debugPrint('[Bootstrapper] Error starting STT server: $e');
+    }
+  }
+
+  String? _findSttScript() {
+    const candidates = [
+      r'C:\Users\rightguy\Documents\CloudToLocalLLM\scripts\stt_server.py',
+      'stt_server.py',
+    ];
+    for (final path in candidates) {
+      if (File(path).existsSync()) {
+        return path;
+      }
+    }
+    return null;
+  }
+
+  void dispose() {
+    _sttProcess?.then((p) => p?.kill());
+    _sttProcess = null;
   }
 }
