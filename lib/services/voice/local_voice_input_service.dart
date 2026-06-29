@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
+import 'package:record/record.dart';
 
 import 'voice_conversation_service.dart';
 
@@ -24,24 +25,24 @@ class LocalVoiceInputSnapshot {
 
 /// Local mic capture service with real STT via local faster-whisper server.
 ///
-/// Captures PCM from `parec`, wraps chunks as WAV, POSTs to STT server,
+/// Uses the `record` package (WASAPI on Windows, PulseAudio on Linux)
+/// to capture mic audio, wraps chunks as WAV, POSTs to STT server,
 /// and feeds transcripts into [VoiceConversationService].
 class LocalVoiceInputService extends ChangeNotifier {
   LocalVoiceInputService({
     required VoiceConversationService voiceConversationService,
     this.sttUrl = 'http://127.0.0.1:8646/v1/audio/transcriptions',
-    this.captureCommand = 'parec',
     this.sampleRate = 16000,
     this.flushInterval = const Duration(seconds: 3),
   })  : _voiceConversationService = voiceConversationService;
 
   final VoiceConversationService _voiceConversationService;
   final String sttUrl;
-  final String captureCommand;
   final int sampleRate;
   final Duration flushInterval;
 
-  Process? _captureProcess;
+  AudioRecorder? _recorder;
+  StreamSubscription<Uint8List>? _stateSub;
   bool _isCapturing = false;
   bool _disposed = false;
 
@@ -65,35 +66,36 @@ class LocalVoiceInputService extends ChangeNotifier {
   Future<bool> startCapture() async {
     if (_isCapturing || _disposed || kIsWeb) return false;
 
-    final hasCapture = await _hasCommand(captureCommand);
     final hasStt = await _reachableStt();
-
-    if (!hasCapture || !hasStt) {
-      _lastError = [
-        if (!hasCapture) 'missing capture command: $captureCommand',
-        if (!hasStt) 'STT endpoint unreachable: $sttUrl',
-      ].join('; ');
+    if (!hasStt) {
+      _lastError = 'STT endpoint unreachable: $sttUrl';
       _sttStatus = 'unavailable';
       return false;
     }
 
+    final recorder = AudioRecorder();
+    final hasPermission = await recorder.hasPermission();
+    if (!hasPermission) {
+      _lastError = 'Microphone permission denied';
+      _sttStatus = 'error';
+      return false;
+    }
+
     try {
-      _captureProcess = await Process.start(
-        captureCommand,
-        [
-          '--rate=$sampleRate',
-          '--format=s16le',
-          '--channels=1',
-          '--raw',
-          '--device=@DEFAULT_SOURCE@',
-        ],
+      _recorder = recorder;
+      final stream = await _recorder!.startStream(
+        const RecordConfig(
+          encoder: AudioEncoder.wav,
+          numChannels: 1,
+          sampleRate: 16000,
+        ),
       );
 
       _isCapturing = true;
       _lastError = null;
       _sttStatus = 'capturing';
 
-      _captureProcess!.stdout.listen(
+      _stateSub = stream.listen(
         _onPcm,
         onError: _onPcmError,
         onDone: _onPcmDone,
@@ -120,8 +122,10 @@ class LocalVoiceInputService extends ChangeNotifier {
     _flushTimer?.cancel();
     _flushTimer = null;
     await _flushAndTranscribe();
-    _captureProcess?.kill();
-    _captureProcess = null;
+    await _stateSub?.cancel();
+    _stateSub = null;
+    await _recorder?.stop();
+    _recorder = null;
     _sttStatus = 'stopped';
   }
 
@@ -132,7 +136,7 @@ class LocalVoiceInputService extends ChangeNotifier {
     super.dispose();
   }
 
-  /// PCM data arrives from parec as raw s16le bytes.
+  /// PCM data arrives from record as WAV bytes.
   void _onPcm(List<int> data) {
     if (_disposed || data.isEmpty) return;
     _pcmBuffer.add(data);
@@ -146,12 +150,11 @@ class LocalVoiceInputService extends ChangeNotifier {
   void _onPcmError(Object e) {
     _lastError = 'Capture stream error: $e';
     _sttStatus = 'error';
-    // Pipeline died silently — clean up so the UI can retry
     _isCapturing = false;
     _flushTimer?.cancel();
     _flushTimer = null;
     _pcmBuffer.clear();
-    _captureProcess = null;
+    _recorder = null;
     notifyListeners();
   }
 
@@ -170,7 +173,7 @@ class LocalVoiceInputService extends ChangeNotifier {
   Future<void> _transcribePcm(List<int> pcmBytes) async {
     try {
       _voiceConversationService.noteTranscriptInProgress('Processing...');
-      final wavBytes = _buildWav(Uint8List.fromList(pcmBytes));
+      final wavBytes = Uint8List.fromList(pcmBytes);
       final text = await _postStt(wavBytes);
 
       _voiceConversationService.noteTranscriptInProgress('');
@@ -220,42 +223,6 @@ class LocalVoiceInputService extends ChangeNotifier {
     }
   }
 
-  /// Build a WAV header around raw PCM s16le mono data.
-  Uint8List _buildWav(Uint8List pcmBytes) {
-    const channels = 1;
-    const bitsPerSample = 16;
-    const bytesPerSample = bitsPerSample ~/ 8;
-    final byteRate = sampleRate * channels * bytesPerSample;
-    final blockAlign = channels * bytesPerSample;
-    final dataLength = pcmBytes.length;
-    final totalLength = 44 + dataLength;
-    final buffer = Uint8List(totalLength);
-    final bytes = ByteData.sublistView(buffer);
-
-    void writeAscii(int offset, String value) {
-      for (var i = 0; i < value.length; i++) {
-        buffer[offset + i] = value.codeUnitAt(i);
-      }
-    }
-
-    writeAscii(0, 'RIFF');
-    bytes.setUint32(4, 36 + dataLength, Endian.little);
-    writeAscii(8, 'WAVE');
-    writeAscii(12, 'fmt ');
-    bytes.setUint32(16, 16, Endian.little);
-    bytes.setUint16(20, 1, Endian.little);       // PCM
-    bytes.setUint16(22, channels, Endian.little);
-    bytes.setUint32(24, sampleRate, Endian.little);
-    bytes.setUint32(28, byteRate, Endian.little);
-    bytes.setUint16(32, blockAlign, Endian.little);
-    bytes.setUint16(34, bitsPerSample, Endian.little);
-    writeAscii(36, 'data');
-    bytes.setUint32(40, dataLength, Endian.little);
-
-    buffer.setRange(44, totalLength, pcmBytes);
-    return buffer;
-  }
-
   Future<bool> _reachableStt() async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(seconds: 2);
@@ -267,15 +234,6 @@ class LocalVoiceInputService extends ChangeNotifier {
       return false;
     } finally {
       client.close(force: true);
-    }
-  }
-
-  Future<bool> _hasCommand(String command) async {
-    try {
-      final result = await Process.run('which', [command]);
-      return result.exitCode == 0 && result.stdout.toString().trim().isNotEmpty;
-    } catch (_) {
-      return false;
     }
   }
 }
