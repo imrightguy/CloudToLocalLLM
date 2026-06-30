@@ -104,7 +104,7 @@ dependencies:
   tesseract_ocr: ^0.5.0
 
   # Voice System - Recording
-  record: ^7.1.0
+  record: ^7.1.1
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.1
