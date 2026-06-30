@@ -42,7 +42,7 @@ dependencies:
   web_socket_channel: ^3.0.3
 
   # Enhanced HTTP handling for streaming
-  dio: ^5.9.2
+  dio: ^5.10.0
 
   # Real-time event handling
   rxdart: ^0.28.0
