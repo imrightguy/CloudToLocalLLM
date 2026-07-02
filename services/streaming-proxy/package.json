@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.19.17",
+    "@types/node": "^26.1.0",
     "@types/ws": "^8.18.1",
     "eslint": "^9.39.4",
     "jest": "^30.4.2",
@@ -54,7 +54,7 @@
   },
   "overrides": {
     "glob": "^11.0.0",
-    "@types/node": "^22.19.17",
+    "@types/node": "^26.1.0",
     "@types/ws": "^8.18.1",
     "eslint": "^9.39.4",
     "husky": "^9.1.7",
